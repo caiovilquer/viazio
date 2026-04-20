@@ -5,26 +5,33 @@
 ```mermaid
 
 classDiagram
-    class Pais{
-        + String nome
-        + String siglaISO
-        + String moeda
+    class Country{
+        + String name
+        + String isoCode
+        + String region
+        + String subregion
+        + String[] currencies
+        + String[] languages
+        + String[] timezones
+        + String[] capital
     }
 
-    class Feriado{
-        + String data
-        + String nome
+    class Holiday{
+        + String date
+        + String name
+        + String localName
+        + String types
     }
 
-    class Cotacao{
-        + String moeda
-        + double valorEmReais
+    class Quote{
+        + String currency
+        + double valueInReais
     }
 
-    class BuscadorDeViagens{
-        + buscarInfoPais(String siglaISO) Pais
-        + buscarFeriados(String siglaISO) List~Feriado~
-        + buscarMoeda(String moeda) Cotacao
+    class TravelSearchEngine{
+        + searchInfoCountry(String isoCode) Country
+        + searchHolidays(String isoCode) List~Holiday~
+        + searchCurrency(String currency) Quote
     }
 ```
 
