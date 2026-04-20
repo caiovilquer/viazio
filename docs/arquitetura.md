@@ -13,17 +13,17 @@ classDiagram
         + String[] currencies
         + String[] languages
         + String[] timezones
-        + String[] capital
+        + String[] capitals
     }
 
     class Holiday{
-        + String date
+        + LocalDate date
         + String name
         + String localName
         + String types
     }
 
-    class Quote{
+    class Exchange{
         + String currency
         + double valueInReais
     }
@@ -31,7 +31,7 @@ classDiagram
     class TravelSearchEngine{
         + searchInfoCountry(String isoCode) Country
         + searchHolidays(String isoCode) List~Holiday~
-        + searchCurrency(String currency) Quote
+        + searchCurrency(String currency) Exchange
     }
 ```
 
