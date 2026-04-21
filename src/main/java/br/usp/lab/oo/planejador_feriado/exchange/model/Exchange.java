@@ -1,0 +1,26 @@
+package br.usp.lab.oo.planejador_feriado.exchange.model;
+
+public class Exchange {
+    private final String currency; 
+    private final double valueInReais;
+
+    // Construtor para inicializar os dados
+    public Exchange(String currency, double valueInReais) {
+        this.currency = currency;
+        this.valueInReais = valueInReais;
+    }
+
+    // Getters
+    public String getCurrency() {
+        return currency;
+    }
+
+    public double getValueInReais() {
+        return valueInReais;
+    }
+
+    @Override
+    public String toString() {
+        return "Exchange: 1 " + this.currency + " = R$ " + String.format("%.2f", this.valueInReais);
+    }
+}
