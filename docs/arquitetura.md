@@ -10,10 +10,10 @@ classDiagram
         + String isoCode
         + String region
         + String subregion
-        + String[] currencies
-        + String[] languages
-        + String[] timezones
-        + String[] capitals
+        + List~String~ currencies
+        + List~String~ languages
+        + List~String~ timezones
+        + List~String~ capitals
     }
 
     class Holiday{
