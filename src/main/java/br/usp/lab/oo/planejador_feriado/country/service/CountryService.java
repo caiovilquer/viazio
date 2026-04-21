@@ -19,12 +19,12 @@ public class CountryService {
     }
 
     public Country getCountryByName(String name) {
-        var responseList = client.getCountryByName(name); // var = CountryDTO[]
+        var responseList = client.getCountryByName(name); // var = List<CountryDTO>
         
         if (responseList == null || responseList.isEmpty())
             throw new RuntimeException("Country not found");
         
-        CountryDTO dto = responseList.get(0);
+        CountryDTO dto = responseList.get(0); // Adaptar posteriormente, assume que o 1o está correto
         return toModel(dto);
     }
 
