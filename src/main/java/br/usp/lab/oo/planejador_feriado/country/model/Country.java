@@ -9,30 +9,40 @@ public class Country {
     private final String subregion; 
     private final List<String> capitals; 
     private final List<String> languages; 
-    private final List<String> timezones; 
     private final List<String> currencies; 
+    private final List<String> timezones;
     
     public Country(
-            String name, String isoCode, String region,
-            String subregion, List<String> capitals, 
-            List<String> languages, List<String> timezones,
-            List<String> currencies
+            String name, String isoCode,
+            String region, String subregion,
+            List<String> capitals, List<String> languages,
+            List<String> currencies, List<String> timezones
         ){ 
         this.name = name;
         this.isoCode = isoCode;
         this.region = region;
         this.subregion = subregion;
-        this.capitals = List.copyOf(capitals);
-        this.languages = List.copyOf(languages);
-        this.timezones = List.copyOf(timezones);
-        this.currencies = List.copyOf(currencies);
+        this.capitals = capitals != null ? List.copyOf(capitals) : List.of();
+        this.languages = languages != null ? List.copyOf(languages) : List.of();
+        this.currencies = currencies != null ? List.copyOf(currencies) : List.of();
+        this.timezones = timezones != null ? List.copyOf(timezones) : List.of();
     }
 
     public String getMainCurrency(){
-        return (this.currencies != null && !this.currencies.isEmpty())? this.currencies.get(0) : null;
+        return this.currencies.isEmpty()? this.currencies.get(0) : null;
     }
     public String getMainLanguage(){
-        return (this.languages != null && !this.languages.isEmpty())? this.languages.get(0) : null;
+        return this.languages.isEmpty()? this.languages.get(0) : null;
+    }
+
+    @Override
+    public String toString() {
+        return "Country: " + this.name + " (" + this.isoCode + ")\n" +
+               "Region: " + this.region + " - " + this.subregion + "\n" +
+               "Capital(s): " + this.capitals + "\n" +
+               "Language(s): " + this.languages + "\n" +
+               "Currency(s): " + this.currencies + "\n" +
+               "Timezones: " + this.timezones + "\n";
     }
 
     // Getters Default
