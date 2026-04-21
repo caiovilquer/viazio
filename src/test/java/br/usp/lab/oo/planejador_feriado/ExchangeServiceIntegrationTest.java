@@ -10,26 +10,47 @@ import br.usp.lab.oo.planejador_feriado.exchange.service.ExchangeService;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-public class ExchangeServiceIntegrationTest {
+class ExchangeServiceIntegrationTest {
 
     @Autowired
     private ExchangeService service;
 
     @Test
-    void testaBuscaDeCotacaoDolar() {
+    void shouldReturnExchangeForUsd() {
         Exchange cotacao = service.getExchangeRate("USD");
 
         assertNotNull(cotacao, "A cotação não deveria ser nula");
-        assertEquals("USD", cotacao.getCurrency(), "A moeda deveria ser USD");                          //verifica moeda
-        assertTrue(cotacao.getValueInReais() > 0, "O valor de conversão deve ser maior que zero");      //valor avlido
+        assertEquals("USD", cotacao.getCurrency(), "A moeda retornada deve ser exatamente USD");
+        
+        assertTrue(cotacao.getValueInReais() > 0, "O valor deve ser maior que zero");
+        assertTrue(cotacao.getValueInReais() < 15, "O valor do dólar está fora de uma margem real");
     }
 
     @Test
-    void testaBuscaDeCotacaoEuro() {
-        Exchange cotacao = service.getExchangeRate("EUR");
+    void shouldReturnExchangeForEurWithLowercase() {
+        Exchange cotacao = service.getExchangeRate("eur");
 
         assertNotNull(cotacao);
-        assertEquals("EUR", cotacao.getCurrency());
+        assertEquals("EUR", cotacao.getCurrency(), "O serviço deve ter padronizado a sigla para maiúscula");
         assertTrue(cotacao.getValueInReais() > 0);
+    }
+
+    @Test
+    void shouldThrowExceptionForInvalidCurrency() {
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            service.getExchangeRate("XYZ");
+        });
+
+        assertTrue(exception.getMessage().contains("Câmbio não encontrado"), 
+                  "Deveria avisar que o câmbio não foi encontrado");
+    }
+
+    @Test
+    void shouldFormatToStringCorrectly() {              //toString()
+        Exchange cotacao = service.getExchangeRate("USD");
+        String impressao = cotacao.toString();
+        
+        assertNotNull(impressao);
+        assertTrue(impressao.startsWith("Câmbio: 1 USD = R$ "), "A formatação do toString está incorreta");
     }
 }
