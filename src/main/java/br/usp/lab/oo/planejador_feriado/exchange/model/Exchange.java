@@ -4,7 +4,6 @@ public class Exchange {
     private final String currency; 
     private final double valueInReais;
 
-    // Construtor para inicializar os dados
     public Exchange(String currency, double valueInReais) {
         this.currency = currency;
         this.valueInReais = valueInReais;
