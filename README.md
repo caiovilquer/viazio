@@ -19,7 +19,7 @@ A proposta é centralizar informações que normalmente estão espalhadas em dif
 Implementação inicial do backend e integração com as APIs escolhidas. Nessa etapa, o sistema deverá já ser capaz de consultar feriados, informações básicas de países e taxas de câmbio, inicialmente sem interface web completa, apenas via terminal.
 
 #### Relatório de Entrega (21/Abril)
-Nessa primeira fase foi estabelecido uma solida arquitetura utilizando **Java 21** e **Spring Boot**. A interface escolhida para esta etapa foi baseada em texto (CLI / Testes de Integração).
+Nessa primeira fase foi estabelecido uma sólida arquitetura utilizando **Java 21** e **Spring Boot**. A consulta aos dados pode ser feita pela **API REST** (navegador, `curl`, Swagger) e pelo **terminal**, via **Spring Shell**, usando os mesmos serviços de domínio. Os testes automatizados continuam garantindo a integração com as APIs externas.
 
 ### O que foi desenvolvido:
 1. **Modelagem de Domínio:** * Criação das entidades principais (`Country`, `Holiday` e `Exchange`) utilizando encapsulamento para garantir a imutabilidade dos dados essenciais.
@@ -30,10 +30,33 @@ Nessa primeira fase foi estabelecido uma solida arquitetura utilizando **Java 21
      * *RestCountries:* Busca de dados demográficos e geográficos.
      * *Nager.Date:* Busca de feriados nacionais.
      * *AwesomeAPI:* Busca de cotação de câmbio em tempo real.
-3. **Serviços:**
-   * Implementação do `CountryService`, `HolidayService` e `ExchangeService` para realizar o processamento e mapeamento dos DTOs.
-4. **Testes Automatizados:**
-   * Testes de integração completos em **JUnit 5** (`CountryServiceIntegrationTest`, `HolidayServiceIntegrationTest`, `ExchangeServiceIntegrationTest`). 
+3. **Serviços e API REST:**
+   * `CountryService`, `HolidayService`, `ExchangeService` e `TravelService` (visão agregada: país, feriados futuros e câmbio para BRL quando fizer sentido).
+   * Controladores REST sob `/api/...` (por exemplo `/api/countries/...`, `/api/holidays/...`, `/api/exchange/...`, `/api/travel/...`).
+4. **Integração via terminal (Spring Shell):**
+   * Comandos registrados em `PlanejadorShellCommands`.
+   * O comportamento do shell é configurado em `src/main/resources/application.properties` e, para o modo interativo explícito, em `application-shell.properties` (perfil `shell`).
+   * Nos testes, o shell fica desligado em `src/test/resources/application.properties`, para a suíte rodar como aplicação web/API sem prompt.
+5. **Testes Automatizados:**
+   * Testes de integração em **JUnit 5** (`CountryServiceIntegrationTest`, `HolidayServiceIntegrationTest`, `ExchangeServiceIntegrationTest`, `TravelServiceIntegrationTest`).
+
+#### Como usar o terminal (Spring Shell)
+
+**Modo interativo** (prompt JLine + servidor web, tipicamente na porta 8080):
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=shell
+```
+
+No prompt, use `help` para listar comandos e `quit` para sair. Exemplos:
+
+| Comando | Opções | Função |
+|--------|--------|--------|
+| `pais-por-codigo` | `--codigo` (ex.: `BR`) | Busca país pelo código ISO 3166-1 alpha-2 |
+| `pais-por-nome` | `--nome` (ex.: `brazil`) | Busca país pelo nome (inglês, conforme a API) |
+| `feriados` | `--codigo` | Lista feriados públicos futuros no ano para o país |
+| `cambio` | `--moeda` (ex.: `USD`) | Cotação de 1 unidade da moeda para BRL |
+| `viagem` | `--codigo` | Resumo: país, próximos feriados e câmbio quando não for BRL |
 
 ---
 
