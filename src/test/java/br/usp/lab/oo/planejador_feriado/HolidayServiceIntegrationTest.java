@@ -11,6 +11,7 @@ import br.usp.lab.oo.planejador_feriado.holiday.model.Holiday;
 import br.usp.lab.oo.planejador_feriado.holiday.service.HolidayService;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -68,15 +69,17 @@ public class HolidayServiceIntegrationTest {
     @Test
     void shouldHaveCorrectDateForChristmas() {
         Country brazil = countryService.getCountryByName("brazil");
+        int year = LocalDate.now().getYear();
 
-        List<Holiday> holidays = service.getUpcomingHolidays(brazil);
+        List<Holiday> holidays = service.getHolidaysForYear(brazil, year);
 
         Holiday christmas = holidays.stream()
                 .filter(h -> h.getLocalName().equalsIgnoreCase("Natal"))
                 .findFirst()
                 .orElseThrow();
 
-        assertEquals(LocalDate.of(2026, 12, 25), christmas.getDate());
+        assertEquals(Month.DECEMBER, christmas.getDate().getMonth());
+        assertEquals(25, christmas.getDate().getDayOfMonth());
     }
 
     @Test
