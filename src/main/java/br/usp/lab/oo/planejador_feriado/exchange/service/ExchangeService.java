@@ -4,6 +4,7 @@ import br.usp.lab.oo.planejador_feriado.exchange.client.AwesomeApiClient;
 import br.usp.lab.oo.planejador_feriado.exchange.dto.ExchangeDTO;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import java.util.Map;
 
@@ -17,12 +18,18 @@ public class ExchangeService {
     }
 
     public Exchange getExchangeRate(String currencyCode) {
-        String targetKey = currencyCode.toUpperCase() + "BRL";
-        
-        Map<String, ExchangeDTO> response = client.getExchangeRate(currencyCode.toUpperCase());
+        String upper = currencyCode.toUpperCase();
+        String targetKey = upper + "BRL";
+
+        Map<String, ExchangeDTO> response;
+        try {
+            response = client.getExchangeRate(upper);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Câmbio não encontrado: " + currencyCode);
+        }
 
         if (response == null || !response.containsKey(targetKey)) {
-            throw new RuntimeException("Câmbio de moeda não encontrado: " + currencyCode);
+            throw new RuntimeException("Câmbio não encontrado: " + currencyCode);
         }
 
         ExchangeDTO dto = response.get(targetKey);

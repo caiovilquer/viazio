@@ -28,11 +28,12 @@ public class Country {
         this.timezones = timezones != null ? List.copyOf(timezones) : List.of();
     }
 
-    public String getMainCurrency(){
-        return this.currencies.isEmpty()? this.currencies.get(0) : null;
+    public String getMainCurrency() {
+        return this.currencies.isEmpty() ? null : this.currencies.get(0);
     }
-    public String getMainLanguage(){
-        return this.languages.isEmpty()? this.languages.get(0) : null;
+
+    public String getMainLanguage() {
+        return this.languages.isEmpty() ? null : this.languages.get(0);
     }
 
     @Override

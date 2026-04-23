@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import br.usp.lab.oo.planejador_feriado.country.client.RestCountriesClient;
 import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
@@ -19,23 +20,33 @@ public class CountryService {
     }
 
     public Country getCountryByName(String name) {
-        var responseList = client.getCountryByName(name); // var = List<CountryDTO>
-        
-        if (responseList == null || responseList.isEmpty())
+        List<CountryDTO> responseList;
+        try {
+            responseList = client.getCountryByName(name);
+        } catch (RestClientException e) {
             throw new RuntimeException("Country not found");
-        
-        CountryDTO dto = responseList.get(0); // Adaptar posteriormente, assume que o 1o está correto
-        return toModel(dto);
+        }
+
+        if (responseList == null || responseList.isEmpty()) {
+            throw new RuntimeException("Country not found");
+        }
+
+        return toModel(responseList.get(0));
     }
 
     public Country getCountryByCode(String code) {
-        var responseList = client.getCountryByCode(code);
-
-        if (responseList == null || responseList.isEmpty()) 
+        List<CountryDTO> responseList;
+        try {
+            responseList = client.getCountryByCode(code);
+        } catch (RestClientException e) {
             throw new RuntimeException("Country not found");
+        }
 
-        CountryDTO dto = responseList.get(0);
-        return toModel(dto);
+        if (responseList == null || responseList.isEmpty()) {
+            throw new RuntimeException("Country not found");
+        }
+
+        return toModel(responseList.get(0));
     }
 
     private Country toModel(CountryDTO dto) {
@@ -45,11 +56,11 @@ public class CountryService {
             dto.region(),
             dto.subregion(),
             dto.capital(),
-            dto.languages() != null ? 
-                new ArrayList<>(dto.languages().values()) : 
+            dto.languages() != null ?
+                new ArrayList<>(dto.languages().values()) :
                 List.of(),
             dto.currencies() != null ?
-                new ArrayList<>(dto.currencies().keySet()) : 
+                new ArrayList<>(dto.currencies().keySet()) :
                 List.of(),
             dto.timezones()
         );

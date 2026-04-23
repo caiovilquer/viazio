@@ -20,6 +20,6 @@ public class Exchange {
 
     @Override
     public String toString() {
-        return "Exchange: 1 " + this.currency + " = R$ " + String.format("%.2f", this.valueInReais);
+        return "Câmbio: 1 " + this.currency + " = R$ " + String.format("%.2f", this.valueInReais);
     }
 }

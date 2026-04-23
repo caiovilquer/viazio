@@ -40,6 +40,16 @@ Nessa primeira fase foi estabelecido uma solida arquitetura utilizando **Java 21
 ### Fase 2
 Desenvolvimento da versão web do sistema, acessível pelo navegador. A aplicação deverá permitir que o usuário consulte destinos e visualize os dados de forma organizada por meio de uma interface gráfica simples.
 
+**Planejamento(Até 01/Junho):**
+Interface Web: Partir da linha de comando e construir a interface amigavel para o usuario.
+Controladores: Criar os endpoints (as rotas do nosso backend) para fazer a ponte entre as telas do site e a lógica construida na Fase 1.
+
+
 ### Fase 3
 Finalização do projeto, com melhorias na interface, refinamento das funcionalidades já implementadas, organização da arquitetura do sistema e conclusão da versão final para apresentação.
+
+**Planejamento(Até 06/Julho):** Entrega Final
+UX/UI: Deixar com o visual final, garantindo que o sistema seja responsivo, fluido e intuitivo para qualquer pessoa usar.
+
+Reta Final: Revisar se todos os testes automatizados estão passando, finalizar a documentação explicando as vantagens desses padrões e preparar a demonstração para a nossa Apresentação Final. 
 

@@ -20,30 +20,30 @@ public class HolidayService {
         this.client = client;
     }
 
-    // Posteriormente alterar para podermos buscar por anos diferentes
-    // Separar getUpcomingHolidays e getHolidays (melhorar testes)
-    public List<Holiday> getUpcomingHolidays(Country country) {
-
-        int currentYear = LocalDate.now().getYear();
-
+    public List<Holiday> getHolidaysForYear(Country country, int year) {
         List<HolidayDTO> responseList =
-                client.getPublicHolidays(currentYear, country.getIsoCode());
+                client.getPublicHolidays(year, country.getIsoCode());
 
         if (responseList == null || responseList.isEmpty()) {
             return List.of();
         }
 
         List<Holiday> holidays = new ArrayList<>();
-
         for (HolidayDTO dto : responseList) {
             holidays.add(toModel(dto));
         }
 
+        return holidays.stream()
+                .sorted(Comparator.comparing(Holiday::getDate))
+                .toList();
+    }
+
+    public List<Holiday> getUpcomingHolidays(Country country) {
+        int currentYear = LocalDate.now().getYear();
         LocalDate today = LocalDate.now();
 
-        return holidays.stream()
+        return getHolidaysForYear(country, currentYear).stream()
                 .filter(h -> !h.getDate().isBefore(today))
-                .sorted(Comparator.comparing(Holiday::getDate))
                 .toList();
     }
 
