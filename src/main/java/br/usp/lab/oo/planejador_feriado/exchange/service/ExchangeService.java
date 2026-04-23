@@ -21,6 +21,10 @@ public class ExchangeService {
         String upper = currencyCode.toUpperCase();
         String targetKey = upper + "BRL";
 
+        if ("BRL".equals(upper)) {
+            return new Exchange("BRL", 1.00);
+        }
+
         Map<String, ExchangeDTO> response;
         try {
             response = client.getExchangeRate(upper);
