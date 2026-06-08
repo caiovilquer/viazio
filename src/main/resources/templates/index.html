@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejador de Feriadões</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<header>
+    <span class="logo">✈️</span>
+    <h1><a href="/">Planejador de Feriadões</a></h1>
+</header>
+
+<main>
+
+    <div class="hero">
+        <h2>Planeje sua próxima viagem</h2>
+        <p>Consulte feriados, informações do país e câmbio para BRL em um único lugar.</p>
+    </div>
+
+    <div class="card">
+        <form class="form-busca" action="/viagem" method="get">
+            <div>
+                <label for="codigo">
+                    Código do país (ISO 3166-1 alpha-2)
+                    <span class="dica">(Duas letras que identificam o país internacionalmente)</span>
+                </label>
+                <div class="input-grupo" style="margin-top: 10px;">
+                    <input
+                        type="text"
+                        id="codigo"
+                        name="codigo"
+                        class="input-codigo"
+                        placeholder="Ex: JP"
+                        maxlength="2"
+                        autocomplete="off"
+                        autofocus
+                    >
+                    <button type="submit" class="btn-buscar">Buscar</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="atalhos" style="margin-top: 24px;">
+            <p>Destinos populares — clique para consultar:</p>
+            <ul class="lista-paises">
+                <li><a href="/viagem?codigo=JP">🇯🇵 Japão (JP)</a></li>
+                <li><a href="/viagem?codigo=FR">🇫🇷 França (FR)</a></li>
+                <li><a href="/viagem?codigo=IT">🇮🇹 Itália (IT)</a></li>
+                <li><a href="/viagem?codigo=US">🇺🇸 EUA (US)</a></li>
+                <li><a href="/viagem?codigo=DE">🇩🇪 Alemanha (DE)</a></li>
+                <li><a href="/viagem?codigo=PT">🇵🇹 Portugal (PT)</a></li>
+                <li><a href="/viagem?codigo=AR">🇦🇷 Argentina (AR)</a></li>
+                <li><a href="/viagem?codigo=MX">🇲🇽 México (MX)</a></li>
+                <li><a href="/viagem?codigo=AU">🇦🇺 Austrália (AU)</a></li>
+                <li><a href="/viagem?codigo=BR">🇧🇷 Brasil (BR)</a></li>
+            </ul>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

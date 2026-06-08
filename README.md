@@ -61,15 +61,46 @@ No prompt, use `help` para listar comandos e `quit` para sair. Exemplos:
 ---
 
 ### Fase 2
-Desenvolvimento da versão web do sistema, acessível pelo navegador. A aplicação deverá permitir que o usuário consulte destinos e visualize os dados de forma organizada por meio de uma interface gráfica simples.
+Nesta fase foi implementada a interface web completa do sistema. O usuário agora pode buscar um país pelo código ISO, visualizar informações geográficas, feriados futuros e a cotação da moeda local em BRL — tudo em uma interface visual responsiva e intuitiva.
 
-**Planejamento(Até 01/Junho):**
-Interface Web: Partir da linha de comando e construir a interface amigavel para o usuario.
-Controladores: Criar os endpoints (as rotas do nosso backend) para fazer a ponte entre as telas do site e a lógica construida na Fase 1.
+#### O que foi desenvolvido:
 
+1. **Interface Web com Thymeleaf:**
+   * Adicionada a dependência `spring-boot-starter-thymeleaf` ao `pom.xml`.
+   * Criada a página inicial (`templates/index.html`) com formulário de busca e atalhos para destinos populares.
+   * Criada a página de resultado (`templates/resultado.html`) exibindo país, câmbio e lista de feriados próximos.
+   * Estilização via CSS (`static/style.css`).
+
+2. **Controller Web (`WebController`):**
+   * Criado `web/WebController.java` com `@Controller` (não `@RestController`) para servir páginas HTML.
+   * Rota `GET /` retorna a página inicial.
+   * Rota `GET /viagem?codigo=XX` retorna a página de resultado com os dados do país.
+   * Tratamento amigável de erros: país não encontrado exibe mensagem clara em vez de stack trace.
+
+3. **Padrão de Projeto GoF — Facade:**
+   * O `TravelService` implementa o padrão **Facade**: ele expõe uma única operação (`getOverviewByCountryCode`) que internamente coordena três subsistemas distintos (`CountryService`, `HolidayService` e `ExchangeService`), cada um comunicando com uma API externa diferente.
+   * **Vantagem real:** o `WebController` não precisa conhecer nenhuma das três APIs, nem lidar com erros de câmbio quando o país usa BRL, nem saber como buscar feriados por código ISO. Toda essa complexidade fica escondida atrás do `TravelService`. Sem o Facade, o controller teria que fazer três chamadas, tratar exceções individualmente e conter lógica de negócio, o que nao faria sentido com o princípio da responsabilidade única e tornaria o controller frágil a mudanças nas APIs.
+
+4. **Testes Automatizados:**
+   * Criado `WebControllerTest.java` com testes de integração usando MockMvc.
+   * Testa: rota `/` retorna template correto; busca com código válido retorna dados; busca com código inválido retorna mensagem de erro amigável; código vazio exibe erro; código é normalizado para maiúsculas.
+
+#### Como usar a interface web
+Rode o servidor:
+```bash
+./mvnw spring-boot:run
+```
+Acesse no navegador: [http://localhost:8080](http://localhost:8080)
+
+* Digite um código de país (ex: `JP`, `FR`, `US`) no campo de busca e clique em **Buscar**.
+* Ou clique em um dos atalhos de destinos populares.
+* A página de resultado exibe: nome do país, região, capital, idioma, moeda, fuso horário, câmbio para BRL (quando aplicável) e lista de feriados futuros no ano.
+
+---
 
 ### Fase 3
 Finalização do projeto, com melhorias na interface, refinamento das funcionalidades já implementadas, organização da arquitetura do sistema e conclusão da versão final para apresentação.
+- Ideia de implementação: aba a parte que mostra feriados nao oficiais dos países (como festa junina no Brasi), que possibilite que o usuario conheça outras datas que tenham eventos significativos nos países buscados. Combinando API's como Wikidata e Wikipedia (breve explicação do evento)
 
 **Planejamento(Até 06/Julho):** Entrega Final
 UX/UI: Deixar com o visual final, garantindo que o sistema seja responsivo, fluido e intuitivo para qualquer pessoa usar.

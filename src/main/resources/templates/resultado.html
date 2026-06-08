@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Resultado — ' + ${codigoBuscado} + ' | Planejador de Feriadões'">Resultado</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<header>
+    <span class="logo">✈️</span>
+    <h1><a href="/">Planejador de Feriadões</a></h1>
+</header>
+
+<main>
+
+    <!-- Mensagem de erro (país não encontrado ou código vazio) -->
+    <div th:if="${erro}" class="aviso-erro">
+        <strong>⚠ Atenção:</strong>
+        <span th:text="${erro}"></span>
+    </div>
+
+    <!-- Resultado com sucesso -->
+    <!-- TravelOverview é um record: overview.country(), overview.upcomingHolidays(), overview.exchangeToBrl() -->
+    <!-- Country é uma classe Java: overview.country.name, overview.country.isoCode, etc. (Thymeleaf chama getters automaticamente) -->
+    <div th:if="${overview}" class="card">
+
+        <!-- Cabeçalho do país -->
+        <div class="pais-header">
+            <div class="pais-nome">
+                <div th:text="${overview.country.name}">Nome do País</div>
+                <span class="pais-iso" th:text="${overview.country.isoCode}">XX</span>
+            </div>
+        </div>
+
+        <!-- Informações -->
+        <div class="info-grade">
+            <div class="info-item">
+                <span class="info-rotulo">🌍 Região</span>
+                <span class="info-valor" th:text="${overview.country.region}">—</span>
+            </div>
+            <div class="info-item">
+                <span class="info-rotulo">📍 Sub-região</span>
+                <span class="info-valor" th:text="${overview.country.subregion}">—</span>
+            </div>
+            <div class="info-item">
+                <span class="info-rotulo">🏙️ Capital</span>
+                <span class="info-valor"
+                      th:text="${not #lists.isEmpty(overview.country.capitals)} ? ${overview.country.capitals[0]} : '—'">—</span>
+            </div>
+            <div class="info-item">
+                <span class="info-rotulo">💬 Idioma principal</span>
+                <span class="info-valor"
+                      th:text="${overview.country.mainLanguage != null} ? ${overview.country.mainLanguage} : '—'">—</span>
+            </div>
+            <div class="info-item">
+                <span class="info-rotulo">💵 Moeda</span>
+                <span class="info-valor"
+                      th:text="${overview.country.mainCurrency != null} ? ${overview.country.mainCurrency} : '—'">—</span>
+            </div>
+            <div class="info-item">
+                <span class="info-rotulo">🕐 Fuso horário</span>
+                <span class="info-valor"
+                      th:text="${not #lists.isEmpty(overview.country.timezones)} ? ${overview.country.timezones[0]} : '—'">—</span>
+            </div>
+        </div>
+
+        <!-- Câmbio -->
+        <!-- Exchange é uma classe Java: overview.exchangeToBrl.currency, overview.exchangeToBrl.valueInReais -->
+        <div th:if="${overview.exchangeToBrl != null}" class="cambio-destaque">
+            <span class="cambio-icone">💱</span>
+            <div class="cambio-texto">
+                <strong th:text="'1 ' + ${overview.exchangeToBrl.currency} + ' = R$ ' + ${#numbers.formatDecimal(overview.exchangeToBrl.valueInReais, 1, 'POINT', 2, 'COMMA')}">
+                    Câmbio
+                </strong>
+                <span>Cotação em tempo real via AwesomeAPI</span>
+            </div>
+        </div>
+
+        <!-- Feriados próximos -->
+        <!-- Holiday é uma classe Java: feriado.date, feriado.name, feriado.localName -->
+        <div>
+            <p class="secao-titulo">📅 Próximos feriados em <span th:text="${overview.country.name}"></span></p>
+
+            <ul class="feriado-lista" th:if="${not #lists.isEmpty(overview.upcomingHolidays)}">
+                <li class="feriado-item" th:each="feriado : ${overview.upcomingHolidays}">
+                    <div class="feriado-data">
+                        <span class="dia" th:text="${feriado.date.dayOfMonth}">01</span>
+                        <span class="mes" th:text="${#strings.toUpperCase(#temporals.format(feriado.date, 'MMM'))}">JAN</span>
+                    </div>
+                    <div class="feriado-nome">
+                        <strong th:text="${feriado.name}">Nome do Feriado</strong>
+                        <em th:if="${feriado.localName != null and feriado.localName != feriado.name}"
+                            th:text="${feriado.localName}">Nome local</em>
+                    </div>
+                </li>
+            </ul>
+
+            <p class="sem-feriados" th:if="${#lists.isEmpty(overview.upcomingHolidays)}">
+                Nenhum feriado futuro encontrado para este ano.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Botão de voltar (sempre visível) -->
+    <a href="/" class="btn-voltar">← Nova busca</a>
+
+</main>
+
+</body>
+</html>

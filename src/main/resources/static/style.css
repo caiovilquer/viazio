@@ -1,0 +1,392 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --cor-fundo: #f0f4f8;
+    --cor-card: #ffffff;
+    --cor-primaria: #1a6fad;
+    --cor-primaria-hover: #155a8e;
+    --cor-texto: #1a202c;
+    --cor-texto-suave: #4a5568;
+    --cor-borda: #e2e8f0;
+    --cor-erro: #c53030;
+    --cor-erro-fundo: #fff5f5;
+    --cor-sucesso: #276749;
+    --cor-tag-fundo: #ebf8ff;
+    --cor-tag-texto: #2b6cb0;
+    --sombra: 0 2px 8px rgba(0,0,0,0.08);
+    --raio: 10px;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/*Cabeçalho*/
+header {
+    background-color: #FFE0B2;
+    color: #1a202c;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+header .logo {
+    font-size: 1.5rem;
+}
+
+header h1 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+header a {
+    color: #1a202c;
+    text-decoration: none;
+}
+
+/*Container principal*/
+main {
+    max-width: 760px;
+    margin: 48px auto;
+    padding: 0 16px;
+}
+
+/*Card base*/
+.card {
+    background: var(--cor-card);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    padding: 32px;
+    margin-bottom: 24px;
+}
+
+/*Página inicial: hero*/
+.hero {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.hero h2 {
+    font-size: 1.75rem;
+    color: var(--cor-texto);
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 1rem;
+    color: var(--cor-texto-suave);
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+/* Formulário de busca */
+.form-busca {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-busca label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--cor-texto);
+}
+
+.form-busca .dica {
+    font-size: 0.83rem;
+    color: var(--cor-texto-suave);
+    margin-top: 4px;
+    font-weight: 400;
+}
+
+.input-grupo {
+    display: flex;
+    gap: 10px;
+}
+
+.input-codigo {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1.5px solid var(--cor-borda);
+    border-radius: 8px;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.input-codigo:focus {
+    border-color: var(--cor-primaria);
+}
+
+.btn-buscar {
+    padding: 12px 24px;
+    background: var(--cor-primaria);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.btn-buscar:hover {
+    background: var(--cor-primaria-hover);
+}
+
+/*Atalhos de países*/
+.atalhos {
+    margin-top: 8px;
+}
+
+.atalhos p {
+    font-size: 0.85rem;
+    color: var(--cor-texto-suave);
+    margin-bottom: 10px;
+}
+
+.lista-paises {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+}
+
+.lista-paises li a {
+    display: block;
+    padding: 6px 14px;
+    background: var(--cor-tag-fundo);
+    color: var(--cor-tag-texto);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.lista-paises li a:hover {
+    background: #bee3f8;
+}
+
+/*Mensagem de erro*/
+.aviso-erro {
+    background: var(--cor-erro-fundo);
+    border: 1px solid #feb2b2;
+    border-left: 4px solid var(--cor-erro);
+    color: var(--cor-erro);
+    padding: 16px 20px;
+    border-radius: var(--raio);
+    margin-bottom: 24px;
+    font-size: 0.95rem;
+}
+
+/*Resultado: cabeçalho do país*/
+.pais-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.pais-bandeira {
+    font-size: 3rem;
+    line-height: 1;
+}
+
+.pais-nome {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.pais-iso {
+    display: inline-block;
+    background: var(--cor-tag-fundo);
+    color: var(--cor-tag-texto);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/*Grade de informações*/
+.info-grade {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.info-rotulo {
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--cor-texto-suave);
+}
+
+.info-valor {
+    font-size: 1rem;
+    color: var(--cor-texto);
+    font-weight: 500;
+}
+
+/*Cambio*/
+.cambio-destaque {
+    background: #f0fff4;
+    border: 1px solid #c6f6d5;
+    border-left: 4px solid var(--cor-sucesso);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cambio-icone {
+    font-size: 1.6rem;
+}
+
+.cambio-texto strong {
+    display: block;
+    font-size: 1.1rem;
+    color: var(--cor-sucesso);
+}
+
+.cambio-texto span {
+    font-size: 0.85rem;
+    color: var(--cor-texto-suave);
+}
+
+/*Lista de feriados*/
+.secao-titulo {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.feriado-lista {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.feriado-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    background: var(--cor-fundo);
+}
+
+.feriado-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--cor-primaria);
+    color: white;
+    border-radius: 6px;
+    padding: 4px 10px;
+    min-width: 52px;
+    flex-shrink: 0;
+}
+
+.feriado-data .dia {
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.feriado-data .mes {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.85;
+}
+
+.feriado-nome {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.feriado-nome strong {
+    font-size: 0.95rem;
+    color: var(--cor-texto);
+}
+
+.feriado-nome em {
+    font-style: normal;
+    font-size: 0.82rem;
+    color: var(--cor-texto-suave);
+}
+
+.sem-feriados {
+    color: var(--cor-texto-suave);
+    font-size: 0.95rem;
+    padding: 12px 0;
+}
+
+/*Botão de voltar*/
+.btn-voltar {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 10px 20px;
+    background: var(--cor-fundo);
+    color: var(--cor-primaria);
+    border: 1.5px solid var(--cor-primaria);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.btn-voltar:hover {
+    background: var(--cor-tag-fundo);
+}
+
+/*Responsivo*/
+@media (max-width: 520px) {
+    .info-grade {
+        grid-template-columns: 1fr;
+    }
+
+    .input-grupo {
+        flex-direction: column;
+    }
+
+    .pais-nome {
+        font-size: 1.25rem;
+    }
+}

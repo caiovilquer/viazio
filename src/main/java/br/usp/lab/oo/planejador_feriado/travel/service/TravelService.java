@@ -27,11 +27,24 @@ public class TravelService {
         this.exchangeService = exchangeService;
     }
 
-    public TravelOverview getOverviewByCountryCode(String countryCode) {
+public TravelOverview getOverviewByCountryCode(String countryCode) {
         Country country = countryService.getCountryByCode(countryCode.trim());
-        List<Holiday> upcomingHolidays = holidayService.getUpcomingHolidays(country);
+        List<Holiday> rawHolidays = holidayService.getUpcomingHolidays(country);
+
+        //limpeza duplicados
+        List<Holiday> cleanHolidays = new java.util.ArrayList<>();
+        java.util.Set<String> feriadosVistos = new java.util.HashSet<>();
+        if (rawHolidays != null) {
+            for (Holiday feriado : rawHolidays) {
+                String chaveUnica = feriado.getDate().toString() + "-" + feriado.getName();
+                if (!feriadosVistos.contains(chaveUnica)) {
+                    cleanHolidays.add(feriado);
+                    feriadosVistos.add(chaveUnica);
+                }
+            }
+        }
         Exchange exchangeToBrl = resolveExchangeToBrl(country);
-        return new TravelOverview(country, upcomingHolidays, exchangeToBrl);
+        return new TravelOverview(country, cleanHolidays, exchangeToBrl);
     }
 
     private Exchange resolveExchangeToBrl(Country country) {
