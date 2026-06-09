@@ -37,6 +37,21 @@ class TravelServiceTest {
     private TravelService travelService;
 
     @Test
+    void shouldResolveCountryByNameQuery() {
+        Country japan = new Country("Japan", "JP", "Asia", "Eastern Asia",
+                List.of("Tokyo"), List.of("Japanese"), List.of("JPY"), List.of("UTC+09:00"));
+
+        when(countryService.getCountryByQuery("japan")).thenReturn(japan);
+        when(holidayService.getUpcomingHolidays(japan)).thenReturn(List.of());
+        when(exchangeService.getExchangeRate("JPY")).thenReturn(new Exchange("JPY", 0.035));
+
+        TravelOverview overview = travelService.getOverviewByQuery("japan");
+
+        assertEquals(japan, overview.country());
+        verify(countryService).getCountryByQuery("japan");
+    }
+
+    @Test
     void shouldDeduplicateHolidaysAndReturnOverview() {
         Country japan = new Country("Japan", "JP", "Asia", "Eastern Asia",
                 List.of("Tokyo"), List.of("Japanese"), List.of("JPY"), List.of("UTC+09:00"));

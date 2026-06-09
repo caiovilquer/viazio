@@ -33,7 +33,14 @@ public class TravelService {
     }
 
 public TravelOverview getOverviewByCountryCode(String countryCode) {
-        Country country = countryService.getCountryByCode(countryCode.trim());
+        return buildOverview(countryService.getCountryByCode(countryCode.trim()));
+    }
+
+    public TravelOverview getOverviewByQuery(String query) {
+        return buildOverview(countryService.getCountryByQuery(query.trim()));
+    }
+
+    private TravelOverview buildOverview(Country country) {
         List<Holiday> rawHolidays = holidayService.getUpcomingHolidays(country);
         List<Holiday> cleanHolidays = HolidayDeduplicator.deduplicate(rawHolidays);
         Exchange exchangeToBrl = resolveExchangeToBrl(country);

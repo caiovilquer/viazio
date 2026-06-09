@@ -1,5 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.web;
 
+import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
@@ -38,23 +39,47 @@ public class WebController {
     }
 
     @GetMapping("/viagem")
-    public String viagem(@RequestParam(name = "codigo", defaultValue = "") String codigo,
-                         Model model) {
+    public String viagem(
+            @RequestParam(name = "destino", defaultValue = "") String destino,
+            @RequestParam(name = "codigo", required = false) String codigo,
+            Model model) {
 
-        if (codigo.isBlank()) {
-            model.addAttribute("erro", "Informe o código do país (ex: BR, JP, FR).");
+        String query = resolveDestinationQuery(destino, codigo);
+        if (query.isBlank()) {
+            model.addAttribute("erro", "Informe o destino: código ISO de duas letras (ex.: BR, JP) ou nome em inglês (ex.: japan, france).");
             return "resultado";
         }
 
+        boolean isCodeQuery = CountryService.looksLikeIsoCode(query);
+
         try {
-            TravelOverview overview = travelService.getOverviewByCountryCode(codigo.trim());
+            TravelOverview overview = travelService.getOverviewByQuery(query);
             model.addAttribute("overview", overview);
+            model.addAttribute("termoBuscado", overview.country().getName());
         } catch (RuntimeException e) {
-            model.addAttribute("erro", "País não encontrado para o código: \"" + codigo.trim().toUpperCase() + "\". Verifique se o código ISO está correto (ex: BR, JP, US, FR).");
+            if (isCodeQuery) {
+                model.addAttribute("erro",
+                        "País não encontrado para o código \"" + query.toUpperCase(Locale.ROOT)
+                                + "\". Verifique se o código ISO está correto (ex.: BR, JP, US, FR).");
+            } else {
+                model.addAttribute("erro",
+                        "País não encontrado para \"" + query
+                                + "\". Tente o nome em inglês (ex.: japan, france) ou o código ISO (ex.: JP, FR).");
+            }
+            model.addAttribute("termoBuscado", isCodeQuery ? query.toUpperCase(Locale.ROOT) : query);
         }
 
-        model.addAttribute("codigoBuscado", codigo.trim().toUpperCase());
         return "resultado";
+    }
+
+    private String resolveDestinationQuery(String destino, String codigo) {
+        if (destino != null && !destino.isBlank()) {
+            return destino.trim();
+        }
+        if (codigo != null && !codigo.isBlank()) {
+            return codigo.trim();
+        }
+        return "";
     }
 
     @GetMapping("/recomendacoes")

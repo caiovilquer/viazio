@@ -33,12 +33,16 @@ Nessa primeira fase foi estabelecido uma sólida arquitetura utilizando **Java 2
 3. **Serviços e API REST:**
    * `CountryService`, `HolidayService`, `ExchangeService` e `TravelService` (visão agregada: país, feriados futuros e câmbio para BRL quando fizer sentido).
    * Controladores REST sob `/api/...` (por exemplo `/api/countries/...`, `/api/holidays/...`, `/api/exchange/...`, `/api/travel/...`).
+   * **Tratamento de erros centralizado (`@RestControllerAdvice`):** os serviços lançam exceções de domínio tipadas (`ResourceNotFoundException`, `ExternalApiException`) e o `GlobalExceptionHandler` as traduz em respostas HTTP consistentes — **404** (recurso inexistente: país/região/câmbio), **502** (falha de API externa) e **400** (entrada inválida, via `ResponseStatusException`/validação do Spring) —, sempre com um corpo JSON padronizado (`ApiError`: timestamp, status, error, message, path).
 4. **Integração via terminal (Spring Shell):**
    * Comandos registrados em `PlanejadorShellCommands`.
    * O comportamento do shell é configurado em `src/main/resources/application.properties` e, para o modo interativo explícito, em `application-shell.properties` (perfil `shell`).
    * Nos testes, o shell fica desligado em `src/test/resources/application.properties`, para a suíte rodar como aplicação web/API sem prompt.
 5. **Testes Automatizados:**
-   * Testes de integração em **JUnit 5** (`CountryServiceIntegrationTest`, `HolidayServiceIntegrationTest`, `ExchangeServiceIntegrationTest`, `TravelServiceIntegrationTest`).
+   * **Unitários com Mockito (sem rede):** os serviços de domínio são testados isolando as dependências externas via mocks — `CountryServiceTest` (mock de `RestCountriesClient`), `HolidayServiceTest` (mock de `NagerDateClient`), `ExchangeServiceTest` (mock de `AwesomeApiClient`) e `TravelServiceTest`. Cobrem mapeamento DTO→modelo, ordenação, deduplicação, janelas de data, casos de erro (lista vazia, falha de cliente, moeda inválida) e o atalho de BRL.
+   * **Web/controllers com `@WebMvcTest` + MockMvc (sem rede):** `CountryControllerTest`, `HolidayControllerTest`, `ExchangeControllerTest`, `TravelControllerTest` e o `WebControllerTest` da interface web (Thymeleaf) — todos com os serviços mockados (`@MockitoBean`). Os testes cobrem o caminho feliz e o mapeamento de erros (404/502).
+   * **CLI:** `PlanejadorShellCommandsTest` exercita todos os comandos do Spring Shell com serviços mockados.
+   * **Integração com APIs reais (`@Tag("integration")`):** `CountryServiceIntegrationTest`, `HolidayServiceIntegrationTest`, `ExchangeServiceIntegrationTest`, `TravelServiceIntegrationTest` — executados apenas com `./mvnw test -Pintegration`.
 
 #### Como usar o terminal (Spring Shell)
 
@@ -66,9 +70,9 @@ A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface
 #### Entrega 1 — Interface web e Facade (GoF)
 
 1. **Padrão Facade (`TravelService`):**
-   * O `TravelService` expõe uma única operação (`getOverviewByCountryCode`) que coordena `CountryService`, `HolidayService` e `ExchangeService`.
+   * O `TravelService` expõe operações que coordenam `CountryService`, `HolidayService` e `ExchangeService` — por código ISO (`getOverviewByCountryCode`), por nome/código com detecção automática (`getOverviewByQuery`) ou via API REST (`GET /api/travel/{code}`).
    * **Vantagem:** o `WebController` (e o CLI) não precisam conhecer as três APIs externas, nem tratar falhas de câmbio quando o país usa BRL. Sem o Facade, cada camada repetiria orquestração e lógica de negócio.
-   * Consumido por `GET /api/travel/{code}`, `GET /viagem?codigo=XX` e o comando shell `viagem`.
+   * Consumido por `GET /api/travel/{code}`, `GET /viagem?destino=...` (ou `?codigo=...` legado) e o comando shell `viagem`.
 
 2. **Interface Web com Thymeleaf:**
    * Dependência `spring-boot-starter-thymeleaf` no `pom.xml`.
@@ -77,10 +81,12 @@ A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface
    * Estilização via `static/style.css`.
 
 3. **Controller Web (`WebController`):**
-   * `@Controller` servindo HTML em `GET /` e `GET /viagem?codigo=XX`.
+   * `@Controller` servindo HTML em `GET /` e `GET /viagem?destino=...`.
+   * A busca aceita **código ISO de duas letras** (ex.: `JP`) ou **nome em inglês** (ex.: `japan`); entradas de 2 letras são tratadas como código, demais como nome.
+   * O parâmetro legado `?codigo=XX` continua funcionando (atalhos de destinos populares).
    * Tratamento amigável de erros (país não encontrado exibe mensagem clara, sem stack trace).
 
-4. **Testes:** `WebControllerTest` com MockMvc (rota `/`, busca válida/inválida, normalização de código).
+4. **Testes:** `WebControllerTest` com MockMvc (rota `/`, busca por código/nome, parâmetro legado, normalização).
 
 #### Entrega 2 — Motor decisor e Strategy (GoF)
 
@@ -133,8 +139,8 @@ Rode o servidor:
 Acesse no navegador: [http://localhost:8080](http://localhost:8080)
 
 **Consultar um destino (consulta individual):**
-* Digite um código de país (ex: `JP`, `FR`, `US`) no campo de busca e clique em **Buscar**.
-* Ou clique em um dos atalhos de destinos populares.
+* Digite o **código ISO** (ex.: `JP`, `FR`) ou o **nome em inglês** (ex.: `japan`, `france`) no campo de busca e clique em **Buscar**.
+* Ou clique em um dos atalhos de destinos populares (usam código ISO por trás).
 * A página de resultado exibe: nome do país, região, capital, idioma, moeda, fuso horário, câmbio para BRL (quando aplicável) e lista de feriados futuros no ano.
 
 **Comparar destinos (motor de recomendação):**
@@ -144,7 +150,7 @@ Acesse no navegador: [http://localhost:8080](http://localhost:8080)
   * **Por região:** selecione `Europe`, `Americas`, `Asia`, `Africa` ou `Oceania`.
 * Opcionalmente, defina **câmbio máximo (BRL)** e **limite de resultados** (1–15, padrão 10).
 * Clique em **Comparar destinos** para ver o ranking com score (0–100), feriadões no Brasil na janela, breakdown por critério e resumo de cada destino.
-* Use **Ver detalhes** em qualquer item do ranking para abrir a consulta individual daquele país (`/viagem?codigo=XX`).
+* Use **Ver detalhes** em qualquer item do ranking para abrir a consulta individual daquele país (`/viagem?codigo=XX` ou `/viagem?destino=nome`).
 * Destinos não avaliados aparecem discretamente na seção *Destinos não avaliados* (campo `skipped`).
 
 #### Como rodar os testes

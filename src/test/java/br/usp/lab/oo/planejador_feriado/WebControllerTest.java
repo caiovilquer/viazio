@@ -1,14 +1,16 @@
 package br.usp.lab.oo.planejador_feriado;
 
+import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoreEntry;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
+import br.usp.lab.oo.planejador_feriado.travel.model.TravelOverview;
 import br.usp.lab.oo.planejador_feriado.travel.service.TravelService;
+import br.usp.lab.oo.planejador_feriado.web.WebController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,15 +22,23 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(WebController.class)
 class WebControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockitoBean
+    private TravelService travelService;
+
+    @MockitoBean
     private TravelRecommendationEngine recommendationEngine;
+
+    private TravelOverview overviewFor(String name, String isoCode) {
+        Country country = new Country(name, isoCode, "Americas", "South America",
+                List.of("Brasília"), List.of("Portuguese"), List.of("BRL"), List.of("UTC-03:00"));
+        return new TravelOverview(country, List.of(), null);
+    }
 
     @Test
     void paginaInicialDeveRetornarTemplateIndex() throws Exception {
@@ -39,6 +49,19 @@ class WebControllerTest {
 
     @Test
     void buscaComCodigoValidoDeveRetornarTemplateResultado() throws Exception {
+        when(travelService.getOverviewByQuery("BR")).thenReturn(overviewFor("Brazil", "BR"));
+
+        mockMvc.perform(get("/viagem").param("destino", "BR"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("resultado"))
+                .andExpect(model().attributeExists("overview"))
+                .andExpect(model().attributeDoesNotExist("erro"));
+    }
+
+    @Test
+    void buscaComCodigoViaParametroLegadoDeveRetornarTemplateResultado() throws Exception {
+        when(travelService.getOverviewByQuery("BR")).thenReturn(overviewFor("Brazil", "BR"));
+
         mockMvc.perform(get("/viagem").param("codigo", "BR"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("resultado"))
@@ -47,8 +70,21 @@ class WebControllerTest {
     }
 
     @Test
+    void buscaComNomeValidoDeveRetornarTemplateResultado() throws Exception {
+        when(travelService.getOverviewByQuery("brazil")).thenReturn(overviewFor("Brazil", "BR"));
+
+        mockMvc.perform(get("/viagem").param("destino", "brazil"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("resultado"))
+                .andExpect(model().attributeExists("overview"))
+                .andExpect(model().attributeDoesNotExist("erro"));
+    }
+
+    @Test
     void buscaComCodigoInvalidoDeveRetornarErroAmigavel() throws Exception {
-        mockMvc.perform(get("/viagem").param("codigo", "ZZ"))
+        when(travelService.getOverviewByQuery("ZZ")).thenThrow(new RuntimeException("Country not found"));
+
+        mockMvc.perform(get("/viagem").param("destino", "ZZ"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("resultado"))
                 .andExpect(model().attributeExists("erro"))
@@ -56,18 +92,32 @@ class WebControllerTest {
     }
 
     @Test
-    void buscaComCodigoVazioDeveRetornarMensagemDeErro() throws Exception {
-        mockMvc.perform(get("/viagem").param("codigo", ""))
+    void buscaComNomeInvalidoDeveRetornarErroAmigavel() throws Exception {
+        when(travelService.getOverviewByQuery("pais-inexistente-xyz"))
+                .thenThrow(new RuntimeException("Country not found"));
+
+        mockMvc.perform(get("/viagem").param("destino", "pais-inexistente-xyz"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("resultado"))
+                .andExpect(model().attributeExists("erro"))
+                .andExpect(model().attributeDoesNotExist("overview"));
+    }
+
+    @Test
+    void buscaComDestinoVazioDeveRetornarMensagemDeErro() throws Exception {
+        mockMvc.perform(get("/viagem").param("destino", ""))
                 .andExpect(status().isOk())
                 .andExpect(view().name("resultado"))
                 .andExpect(model().attributeExists("erro"));
     }
 
     @Test
-    void buscaDevePreencherAtributoCodigoBuscado() throws Exception {
-        mockMvc.perform(get("/viagem").param("codigo", "jp"))
+    void buscaComCodigoDeveNormalizarTermoBuscado() throws Exception {
+        when(travelService.getOverviewByQuery("jp")).thenReturn(overviewFor("Japan", "JP"));
+
+        mockMvc.perform(get("/viagem").param("destino", "jp"))
                 .andExpect(status().isOk())
-                .andExpect(model().attribute("codigoBuscado", "JP"));
+                .andExpect(model().attribute("termoBuscado", "Japan"));
     }
 
     @Test
@@ -79,9 +129,7 @@ class WebControllerTest {
 
     @Test
     void recomendacoesComCountriesValidoDeveRetornarResultado() throws Exception {
-        RecommendationResponse response = mockRecommendationResponse();
-
-        when(recommendationEngine.recommend(any())).thenReturn(response);
+        when(recommendationEngine.recommend(any())).thenReturn(mockRecommendationResponse());
 
         mockMvc.perform(get("/recomendacoes")
                         .param("from", "2026-06-01")
@@ -95,9 +143,7 @@ class WebControllerTest {
 
     @Test
     void recomendacoesComRegionValidoDeveRetornarResultado() throws Exception {
-        RecommendationResponse response = mockRecommendationResponse();
-
-        when(recommendationEngine.recommend(any())).thenReturn(response);
+        when(recommendationEngine.recommend(any())).thenReturn(mockRecommendationResponse());
 
         mockMvc.perform(get("/recomendacoes")
                         .param("from", "2026-06-01")
@@ -113,6 +159,18 @@ class WebControllerTest {
     void recomendacoesComFromMaiorQueToDeveRetornarErroAmigavel() throws Exception {
         mockMvc.perform(get("/recomendacoes")
                         .param("from", "2026-06-30")
+                        .param("to", "2026-06-01")
+                        .param("countries", "JP"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("recomendacoes-resultado"))
+                .andExpect(model().attributeExists("erro"))
+                .andExpect(model().attributeDoesNotExist("resultado"));
+    }
+
+    @Test
+    void recomendacoesComDatasInvalidasDeveRetornarErroAmigavel() throws Exception {
+        mockMvc.perform(get("/recomendacoes")
+                        .param("from", "data-invalida")
                         .param("to", "2026-06-01")
                         .param("countries", "JP"))
                 .andExpect(status().isOk())
@@ -139,6 +197,33 @@ class WebControllerTest {
         mockMvc.perform(get("/recomendacoes")
                         .param("from", "2026-06-01")
                         .param("to", "2026-06-30"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("recomendacoes-resultado"))
+                .andExpect(model().attributeExists("erro"))
+                .andExpect(model().attributeDoesNotExist("resultado"));
+    }
+
+    @Test
+    void recomendacoesComLimiteInvalidoDeveRetornarErroAmigavel() throws Exception {
+        mockMvc.perform(get("/recomendacoes")
+                        .param("from", "2026-06-01")
+                        .param("to", "2026-06-30")
+                        .param("countries", "JP")
+                        .param("limit", "99"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("recomendacoes-resultado"))
+                .andExpect(model().attributeExists("erro"))
+                .andExpect(model().attributeDoesNotExist("resultado"));
+    }
+
+    @Test
+    void recomendacoesComEngineFalhandoDeveRetornarErroAmigavel() throws Exception {
+        when(recommendationEngine.recommend(any())).thenThrow(new RuntimeException("offline"));
+
+        mockMvc.perform(get("/recomendacoes")
+                        .param("from", "2026-06-01")
+                        .param("to", "2026-06-30")
+                        .param("countries", "JP"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("recomendacoes-resultado"))
                 .andExpect(model().attributeExists("erro"))

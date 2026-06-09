@@ -3,85 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="'Resultado — ' + ${codigoBuscado} + ' | Planejador de Feriadões'">Resultado</title>
+    <title th:text="${termoBuscado} + ' — Feriadões'">Resultado — Feriadões</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
 
-<header>
-    <span class="logo">✈️</span>
-    <h1><a href="/">Planejador de Feriadões</a></h1>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a href="/" class="site-logo">Feriadões</a>
+        <nav class="site-nav">
+            <a href="/">Início</a>
+        </nav>
+    </div>
 </header>
 
 <main>
 
-    <!-- Mensagem de erro (país não encontrado ou código vazio) -->
-    <div th:if="${erro}" class="aviso-erro">
-        <strong>⚠ Atenção:</strong>
+    <div th:if="${erro}" class="alert-erro">
+        <strong>Não encontramos o destino.</strong>
         <span th:text="${erro}"></span>
     </div>
 
-    <!-- Resultado com sucesso -->
-    <!-- TravelOverview é um record: overview.country(), overview.upcomingHolidays(), overview.exchangeToBrl() -->
-    <!-- Country é uma classe Java: overview.country.name, overview.country.isoCode, etc. (Thymeleaf chama getters automaticamente) -->
     <div th:if="${overview}" class="card">
 
-        <!-- Cabeçalho do país -->
-        <div class="pais-header">
-            <div class="pais-nome">
-                <div th:text="${overview.country.name}">Nome do País</div>
+        <div class="pais-hero">
+            <div>
+                <div class="pais-nome" th:text="${overview.country.name}">Nome do País</div>
                 <span class="pais-iso" th:text="${overview.country.isoCode}">XX</span>
             </div>
         </div>
 
-        <!-- Informações -->
         <div class="info-grade">
             <div class="info-item">
-                <span class="info-rotulo">🌍 Região</span>
+                <span class="info-rotulo">Região</span>
                 <span class="info-valor" th:text="${overview.country.region}">—</span>
             </div>
             <div class="info-item">
-                <span class="info-rotulo">📍 Sub-região</span>
+                <span class="info-rotulo">Sub-região</span>
                 <span class="info-valor" th:text="${overview.country.subregion}">—</span>
             </div>
             <div class="info-item">
-                <span class="info-rotulo">🏙️ Capital</span>
+                <span class="info-rotulo">Capital</span>
                 <span class="info-valor"
                       th:text="${not #lists.isEmpty(overview.country.capitals)} ? ${overview.country.capitals[0]} : '—'">—</span>
             </div>
             <div class="info-item">
-                <span class="info-rotulo">💬 Idioma principal</span>
+                <span class="info-rotulo">Idioma principal</span>
                 <span class="info-valor"
                       th:text="${overview.country.mainLanguage != null} ? ${overview.country.mainLanguage} : '—'">—</span>
             </div>
             <div class="info-item">
-                <span class="info-rotulo">💵 Moeda</span>
+                <span class="info-rotulo">Moeda</span>
                 <span class="info-valor"
                       th:text="${overview.country.mainCurrency != null} ? ${overview.country.mainCurrency} : '—'">—</span>
             </div>
             <div class="info-item">
-                <span class="info-rotulo">🕐 Fuso horário</span>
+                <span class="info-rotulo">Fuso horário</span>
                 <span class="info-valor"
                       th:text="${not #lists.isEmpty(overview.country.timezones)} ? ${overview.country.timezones[0]} : '—'">—</span>
             </div>
         </div>
 
-        <!-- Câmbio -->
-        <!-- Exchange é uma classe Java: overview.exchangeToBrl.currency, overview.exchangeToBrl.valueInReais -->
-        <div th:if="${overview.exchangeToBrl != null}" class="cambio-destaque">
-            <span class="cambio-icone">💱</span>
-            <div class="cambio-texto">
-                <strong th:text="'1 ' + ${overview.exchangeToBrl.currency} + ' = R$ ' + ${#numbers.formatDecimal(overview.exchangeToBrl.valueInReais, 1, 'POINT', 2, 'COMMA')}">
-                    Câmbio
-                </strong>
-                <span>Cotação em tempo real via AwesomeAPI</span>
-            </div>
+        <div th:if="${overview.exchangeToBrl != null}" class="cambio-card"
+             th:with="cambioValor=${overview.exchangeToBrl.valueInReais},
+                      cambioCasas=${cambioValor >= 1 ? 2 : (cambioValor >= 0.001 ? 4 : 6)}">
+            <p class="cambio-label">Câmbio atual para reais</p>
+            <p class="cambio-valor"
+               th:text="'1 ' + ${overview.exchangeToBrl.currency} + ' = R$ ' + ${#numbers.formatDecimal(cambioValor, 1, 'POINT', cambioCasas, 'COMMA')}">
+                1 USD = R$ 5,20
+            </p>
+            <p class="cambio-fonte">Cotação atualizada em tempo real</p>
         </div>
 
-        <!-- Feriados próximos -->
-        <!-- Holiday é uma classe Java: feriado.date, feriado.name, feriado.localName -->
         <div>
-            <p class="secao-titulo">📅 Próximos feriados em <span th:text="${overview.country.name}"></span></p>
+            <p class="secao-titulo">
+                Próximos feriados em <span th:text="${overview.country.name}"></span>
+            </p>
 
             <ul class="feriado-lista" th:if="${not #lists.isEmpty(overview.upcomingHolidays)}">
                 <li class="feriado-item" th:each="feriado : ${overview.upcomingHolidays}">
@@ -104,8 +104,7 @@
 
     </div>
 
-    <!-- Botão de voltar (sempre visível) -->
-    <a href="/" class="btn-voltar">← Nova busca</a>
+    <a href="/" class="btn-voltar">← Voltar</a>
 
 </main>
 

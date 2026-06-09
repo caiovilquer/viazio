@@ -3,119 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comparar destinos | Planejador de Feriadões</title>
+    <title>Ranking de destinos — Feriadões</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
 
-<header>
-    <span class="logo">✈️</span>
-    <h1><a href="/">Planejador de Feriadões</a></h1>
+<header class="site-header">
+    <div class="site-header-inner">
+        <a href="/" class="site-logo">Feriadões</a>
+        <nav class="site-nav">
+            <a href="/">Início</a>
+        </nav>
+    </div>
 </header>
 
 <main>
 
-    <div th:if="${erro}" class="aviso-erro">
-        <strong>⚠ Atenção:</strong>
+    <div th:if="${erro}" class="alert-erro">
+        <strong>Não foi possível gerar o ranking.</strong>
         <span th:text="${erro}"></span>
     </div>
 
     <div th:if="${resultado}" class="card">
-        <div class="janela-cabecalho">
-            <h2>Ranking de destinos</h2>
-            <p class="janela-periodo">
-                Janela consultada:
-                <strong th:text="${#temporals.format(resultado.from(), 'dd/MM/yyyy')}">01/07/2026</strong>
-                —
-                <strong th:text="${#temporals.format(resultado.to(), 'dd/MM/yyyy')}">31/07/2026</strong>
+
+        <div class="ranking-header">
+            <h1 class="ranking-title"
+                th:text="'Melhores destinos de ' + ${#temporals.format(resultado.from(), 'dd/MM')} + ' a ' + ${#temporals.format(resultado.to(), 'dd/MM/yyyy')}">
+                Melhores destinos de 01/07 a 31/07/2026
+            </h1>
+            <p class="ranking-periodo">
+                De <strong th:text="${#temporals.format(resultado.from(), 'dd/MM/yyyy')}">01/07/2026</strong>
+                até <strong th:text="${#temporals.format(resultado.to(), 'dd/MM/yyyy')}">31/07/2026</strong>
+                &mdash; analisado com base em feriados, câmbio e dias livres.
             </p>
         </div>
 
-        <section class="secao-recomendacao">
-            <p class="secao-titulo">🇧🇷 Feriadões no Brasil na janela</p>
-
-            <div th:if="${not #lists.isEmpty(resultado.brazilLongWeekends())}" class="feriadao-grid">
+        <div class="secao-bloco" th:if="${not #lists.isEmpty(resultado.brazilLongWeekends())}">
+            <p class="secao-bloco-titulo">Feriadões no Brasil nesta janela</p>
+            <div class="feriadao-grid">
                 <div class="feriadao-card" th:each="lw : ${resultado.brazilLongWeekends()}">
-                    <div class="feriadao-datas">
+                    <p class="feriadao-datas">
                         <span th:text="${#temporals.format(lw.start(), 'dd/MM')}">01/07</span>
-                        —
+                        &ndash;
                         <span th:text="${#temporals.format(lw.end(), 'dd/MM/yyyy')}">04/07/2026</span>
-                    </div>
-                    <div class="feriadao-info">
-                        <strong th:text="${lw.holidayName()}">Feriado</strong>
-                        <span th:text="${lw.totalDays()} + ' dias'">4 dias</span>
-                        <span th:if="${lw.bridgeDaysUsed() > 0}"
-                              class="feriadao-ponte"
-                              th:text="'(' + ${lw.bridgeDaysUsed()} + ' dia(s) de ponte)'">
-                            (1 dia de ponte)
-                        </span>
-                    </div>
+                    </p>
+                    <p class="feriadao-nome" th:text="${lw.holidayName()}">Feriado</p>
+                    <p class="feriadao-dias"
+                       th:text="${lw.totalDays()} + (${lw.totalDays()} == 1 ? ' dia' : ' dias')">4 dias</p>
+                    <p th:if="${lw.bridgeDaysUsed() > 0}" class="feriadao-ponte"
+                       th:text="${lw.bridgeDaysUsed()} + (${lw.bridgeDaysUsed()} == 1 ? ' dia de ponte incluído' : ' dias de ponte incluídos')">
+                        1 dia de ponte incluído
+                    </p>
                 </div>
             </div>
+        </div>
 
-            <p th:if="${#lists.isEmpty(resultado.brazilLongWeekends())}" class="sem-feriados">
-                Nenhum feriadão detectado no Brasil para esta janela.
-            </p>
-        </section>
-
-        <section class="secao-recomendacao">
-            <p class="secao-titulo">🏆 Ranking de recomendações</p>
+        <div class="secao-bloco">
+            <p class="secao-bloco-titulo">Ranking de recomendações</p>
 
             <p th:if="${#lists.isEmpty(resultado.recommendations())}" class="estado-vazio">
-                Nenhum destino ranqueado para os filtros informados.
+                Nenhum destino ranqueado para os filtros informados. Tente ampliar a janela de datas ou alterar os países selecionados.
             </p>
 
-            <ol th:if="${not #lists.isEmpty(resultado.recommendations())}" class="ranking-list">
-                <li class="ranking-item" th:each="rec : ${resultado.recommendations()}">
+            <ol th:if="${not #lists.isEmpty(resultado.recommendations())}" class="ranking-lista">
+                <li class="ranking-item" th:each="rec, recStat : ${resultado.recommendations()}"
+                    th:with="summaryBruto=${rec.summary()},
+                             summaryDesc=${summaryBruto.contains(': ') ? #strings.substringAfter(summaryBruto, ': ') : summaryBruto},
+                             summaryFinal=${#strings.length(summaryDesc) > 0 ? #strings.toUpperCase(#strings.substring(summaryDesc, 0, 1)) + #strings.substring(summaryDesc, 1) : summaryDesc},
+                             faixaScore=${rec.score() > 70 ? 'score-alto' : (rec.score() > 40 ? 'score-medio' : 'score-baixo')}">
+
                     <div class="ranking-cabecalho">
-                        <span class="ranking-posicao" th:text="${recStat.count}">1</span>
-                        <div class="ranking-pais">
-                            <strong th:text="${rec.countryName()}">Japan</strong>
-                            <span class="pais-iso" th:text="${rec.countryCode()}">JP</span>
+                        <span class="ranking-posicao" th:text="'#' + ${recStat.count}">#1</span>
+                        <span class="ranking-pais-nome" th:text="${rec.countryName()}">Japan</span>
+                        <span class="pais-iso" th:text="${rec.countryCode()}">JP</span>
+                    </div>
+
+                    <div class="score-container">
+                        <div class="score-meta">
+                            <span class="score-label">Compatibilidade</span>
+                            <span class="score-pct" th:classappend="${' ' + faixaScore}"
+                                  th:text="${#numbers.formatDecimal(rec.score(), 1, 'POINT', 0, 'COMMA')} + '%'">68%</span>
                         </div>
-                        <span class="score-badge" th:text="${#numbers.formatDecimal(rec.score(), 1, 'POINT', 0, 'COMMA')} + ' pts'">68 pts</span>
+                        <div class="score-bar"
+                             role="progressbar"
+                             aria-valuemin="0"
+                             aria-valuemax="100"
+                             th:attr="aria-label='Compatibilidade: ' + ${#numbers.formatDecimal(rec.score(), 1, 'POINT', 0, 'COMMA')} + ' por cento',aria-valuenow=${#numbers.formatDecimal(rec.score(), 1, 'POINT', 0, 'COMMA')}">
+                            <div class="score-bar-fill"
+                                 th:classappend="${' ' + faixaScore}"
+                                 th:style="'width:' + ${rec.score()} + '%'"></div>
+                        </div>
                     </div>
 
-                    <div class="score-bar" aria-hidden="true">
-                        <div class="score-bar-preenchido" th:style="'width:' + ${rec.score()} + '%'"></div>
-                    </div>
+                    <p class="ranking-resumo" th:text="${summaryFinal}">Câmbio muito favorável, feriados coincidentes.</p>
 
-                    <p class="ranking-resumo" th:text="${rec.summary()}">Resumo da recomendação</p>
-
-                    <details class="breakdown-detalhes">
-                        <summary>Ver breakdown do score</summary>
-                        <table class="breakdown-table">
-                            <thead>
-                                <tr>
-                                    <th>Critério</th>
-                                    <th>Pontos</th>
-                                    <th>Justificativa</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="entry : ${rec.breakdown()}">
-                                    <td th:text="${entry.criterion()}">CAMBIO</td>
-                                    <td th:text="${#numbers.formatDecimal(entry.points(), 1, 'POINT', 0, 'COMMA')} + ' / ' + ${#numbers.formatDecimal(entry.maxPoints(), 1, 'POINT', 0, 'COMMA')}">35 / 35</td>
-                                    <td th:text="${entry.justification()}">ok</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <details class="breakdown">
+                        <summary>Ver detalhes da pontuação</summary>
+                        <ul class="breakdown-lista">
+                            <li th:each="entry : ${rec.breakdown()}"
+                                th:with="criterioNome=${entry.criterion() == 'FERIADOS_NA_JANELA' ? 'Feriados e feriadões' : (entry.criterion() == 'CAMBIO' ? 'Câmbio' : (entry.criterion() == 'DIAS_LIVRES' ? 'Dias livres' : entry.criterion()))},
+                                         pct=${entry.maxPoints() > 0 ? entry.points() / entry.maxPoints() * 100 : 0}">
+                                <div class="breakdown-item-cabecalho">
+                                    <span class="breakdown-criterio" th:text="${criterioNome}">Câmbio</span>
+                                    <span class="breakdown-pontos">
+                                        <strong th:text="${#numbers.formatDecimal(entry.points(), 1, 'POINT', 0, 'COMMA')}">35</strong>
+                                        de
+                                        <span th:text="${#numbers.formatDecimal(entry.maxPoints(), 1, 'POINT', 0, 'COMMA')}">35</span>
+                                        pontos
+                                    </span>
+                                </div>
+                                <div class="breakdown-mini-bar">
+                                    <div class="breakdown-mini-fill" th:style="'width:' + ${pct} + '%'"></div>
+                                </div>
+                                <p class="breakdown-justificativa" th:text="${entry.justification()}">ok</p>
+                            </li>
+                        </ul>
                     </details>
 
-                    <a th:href="@{/viagem(codigo=${rec.countryCode()})}" class="btn-detalhes">Ver detalhes →</a>
+                    <a th:href="@{/viagem(codigo=${rec.countryCode()})}" class="btn-ver-mais">
+                        Ver informações completas de <span th:text="${rec.countryName()}">Japan</span> &rarr;
+                    </a>
+
                 </li>
             </ol>
-        </section>
+        </div>
 
-        <section th:if="${not #lists.isEmpty(resultado.skipped())}" class="secao-recomendacao">
-            <p class="secao-titulo skipped-titulo">Destinos não avaliados</p>
-            <ul class="skipped-list">
-                <li th:each="skip : ${resultado.skipped()}">
-                    <strong th:text="${skip.countryCode()}">XX</strong>
-                    <span th:text="${skip.reason()}">Motivo</span>
-                </li>
-            </ul>
-        </section>
+        <div th:if="${not #lists.isEmpty(resultado.skipped())}" class="secao-bloco">
+            <div class="skipped-bloco">
+                <p class="skipped-titulo">Alguns destinos não puderam ser analisados</p>
+                <ul class="skipped-lista">
+                    <li th:each="skip : ${resultado.skipped()}">
+                        <span class="skipped-codigo" th:text="${skip.countryCode()}">XX</span>
+                        <span th:text="${skip.reason()}">Motivo indisponível</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     <a href="/" class="btn-voltar">← Nova comparação</a>
