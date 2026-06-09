@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
+import br.usp.lab.oo.planejador_feriado.common.exception.ExternalApiException;
+import br.usp.lab.oo.planejador_feriado.common.exception.ResourceNotFoundException;
 import br.usp.lab.oo.planejador_feriado.country.client.RestCountriesClient;
 import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
@@ -23,12 +26,14 @@ public class CountryService {
         List<CountryDTO> responseList;
         try {
             responseList = client.getCountryByName(name);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("Country not found: " + name);
         } catch (RestClientException e) {
-            throw new RuntimeException("Country not found");
+            throw new ExternalApiException("Falha ao consultar serviço de países", e);
         }
 
         if (responseList == null || responseList.isEmpty()) {
-            throw new RuntimeException("Country not found");
+            throw new ResourceNotFoundException("Country not found");
         }
 
         return toModel(responseList.get(0));
@@ -38,27 +43,44 @@ public class CountryService {
         List<CountryDTO> responseList;
         try {
             responseList = client.getCountryByCode(code);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("Country not found: " + code);
         } catch (RestClientException e) {
-            throw new RuntimeException("Country not found");
+            throw new ExternalApiException("Falha ao consultar serviço de países", e);
         }
 
         if (responseList == null || responseList.isEmpty()) {
-            throw new RuntimeException("Country not found");
+            throw new ResourceNotFoundException("Country not found");
         }
 
         return toModel(responseList.get(0));
+    }
+
+    public Country getCountryByQuery(String query) {
+        String trimmed = query.trim();
+        if (looksLikeIsoCode(trimmed)) {
+            return getCountryByCode(trimmed);
+        }
+        return getCountryByName(trimmed);
+    }
+
+    public static boolean looksLikeIsoCode(String query) {
+        String trimmed = query.trim();
+        return trimmed.length() == 2 && trimmed.matches("[A-Za-z]{2}");
     }
 
     public List<Country> getCountriesByRegion(String region, int limit) {
         List<CountryDTO> responseList;
         try {
             responseList = client.getCountriesByRegion(region);
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("Region not found");
         } catch (RestClientException e) {
-            throw new RuntimeException("Region not found");
+            throw new ExternalApiException("Falha ao consultar serviço de países", e);
         }
 
         if (responseList == null || responseList.isEmpty()) {
-            throw new RuntimeException("Region not found");
+            throw new ResourceNotFoundException("Region not found");
         }
 
         return responseList.stream()

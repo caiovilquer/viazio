@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import br.usp.lab.oo.planejador_feriado.common.exception.ExternalApiException;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.holiday.client.NagerDateClient;
 import br.usp.lab.oo.planejador_feriado.holiday.dto.HolidayDTO;
 import br.usp.lab.oo.planejador_feriado.holiday.model.Holiday;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 
 @Service
 public class HolidayService {
@@ -21,7 +24,14 @@ public class HolidayService {
     }
 
     public List<Holiday> getHolidaysForYear(String isoCode, int year) {
-        List<HolidayDTO> responseList = client.getPublicHolidays(year, isoCode);
+        List<HolidayDTO> responseList;
+        try {
+            responseList = client.getPublicHolidays(year, isoCode);
+        } catch (HttpClientErrorException.NotFound e) {
+            return List.of();
+        } catch (RestClientException e) {
+            throw new ExternalApiException("Falha ao consultar serviço de feriados", e);
+        }
 
         if (responseList == null || responseList.isEmpty()) {
             return List.of();
