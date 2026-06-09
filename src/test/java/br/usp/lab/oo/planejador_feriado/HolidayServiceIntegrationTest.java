@@ -1,6 +1,6 @@
 package br.usp.lab.oo.planejador_feriado;
 
-
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,14 +10,14 @@ import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
 import br.usp.lab.oo.planejador_feriado.holiday.model.Holiday;
 import br.usp.lab.oo.planejador_feriado.holiday.service.HolidayService;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-public class HolidayServiceIntegrationTest {
+@Tag("integration")
+class HolidayServiceIntegrationTest {
 
     @Autowired
     private CountryService countryService;
@@ -28,72 +28,10 @@ public class HolidayServiceIntegrationTest {
     @Test
     void shouldReturnHolidaysForBrazil() {
         Country brazil = countryService.getCountryByName("brazil");
-    
+
         List<Holiday> holidays = service.getUpcomingHolidays(brazil);
 
         assertNotNull(holidays);
         assertFalse(holidays.isEmpty(), "Lista de feriados não deveria estar vazia");
-
-        Holiday first = holidays.get(0);
-
-        assertNotNull(first.getDate());
-        assertNotNull(first.getName());
-        assertNotNull(first.getLocalName());
-    }
-
-    @Test
-    void shouldContainChristmasDayInBrazilianHolidays() {
-        Country brazil = countryService.getCountryByName("brazil");
-
-        List<Holiday> holidays = service.getUpcomingHolidays(brazil);
-
-        assertNotNull(holidays);
-        assertFalse(holidays.isEmpty(), "Lista de feriados não está vazia");
-
-        // Exemplo: verificar Natal
-        boolean hasChristmas = holidays.stream().anyMatch(h ->
-                h.getName().equalsIgnoreCase("Christmas Day") &&
-                h.getLocalName().equalsIgnoreCase("Natal")
-        );
-
-        assertTrue(hasChristmas, "Deveria conter o feriado de Natal");
-
-        // // Exemplo: verificar Ano Novo
-        // boolean hasNewYear = holidays.stream().anyMatch(h ->
-        //         h.getLocalName().equalsIgnoreCase("Ano Novo")
-        // );
-
-        // assertTrue(hasNewYear, "Deveria conter Ano Novo");
-    }
-
-    @Test
-    void shouldHaveCorrectDateForChristmas() {
-        Country brazil = countryService.getCountryByName("brazil");
-        int year = LocalDate.now().getYear();
-
-        List<Holiday> holidays = service.getHolidaysForYear(brazil, year);
-
-        Holiday christmas = holidays.stream()
-                .filter(h -> h.getLocalName().equalsIgnoreCase("Natal"))
-                .findFirst()
-                .orElseThrow();
-
-        assertEquals(Month.DECEMBER, christmas.getDate().getMonth());
-        assertEquals(25, christmas.getDate().getDayOfMonth());
-    }
-
-    @Test
-    void shouldHaveSortedDates() {
-        Country brazil = countryService.getCountryByName("brazil");
-
-        List<Holiday> holidays = service.getUpcomingHolidays(brazil);
-
-        assertTrue(holidays.size() >= 5, "Deveria ter pelo menos 5 feriados");
-
-        List<LocalDate> dates = holidays.stream()
-                .map(Holiday::getDate)
-                .toList();
-
-        assertEquals(dates.stream().sorted().toList(), dates, "Datas devem estar ordenadas");
     }
 }

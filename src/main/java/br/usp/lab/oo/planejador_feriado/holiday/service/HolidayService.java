@@ -20,9 +20,8 @@ public class HolidayService {
         this.client = client;
     }
 
-    public List<Holiday> getHolidaysForYear(Country country, int year) {
-        List<HolidayDTO> responseList =
-                client.getPublicHolidays(year, country.getIsoCode());
+    public List<Holiday> getHolidaysForYear(String isoCode, int year) {
+        List<HolidayDTO> responseList = client.getPublicHolidays(year, isoCode);
 
         if (responseList == null || responseList.isEmpty()) {
             return List.of();
@@ -34,6 +33,22 @@ public class HolidayService {
         }
 
         return holidays.stream()
+                .sorted(Comparator.comparing(Holiday::getDate))
+                .toList();
+    }
+
+    public List<Holiday> getHolidaysForYear(Country country, int year) {
+        return getHolidaysForYear(country.getIsoCode(), year);
+    }
+
+    public List<Holiday> getHolidaysInWindow(String isoCode, LocalDate from, LocalDate to) {
+        List<Holiday> holidays = new ArrayList<>();
+        for (int year = from.getYear(); year <= to.getYear(); year++) {
+            holidays.addAll(getHolidaysForYear(isoCode, year));
+        }
+
+        return holidays.stream()
+                .filter(h -> !h.getDate().isBefore(from) && !h.getDate().isAfter(to))
                 .sorted(Comparator.comparing(Holiday::getDate))
                 .toList();
     }

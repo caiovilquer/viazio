@@ -32,4 +32,11 @@ public class RestCountriesClient {
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<CountryDTO>>() {});
     }
+
+    public List<CountryDTO> getCountriesByRegion(String region) {
+        return restClient.get()
+                .uri("/region/" + region)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<CountryDTO>>() {});
+    }
 }

@@ -49,6 +49,24 @@ public class CountryService {
         return toModel(responseList.get(0));
     }
 
+    public List<Country> getCountriesByRegion(String region, int limit) {
+        List<CountryDTO> responseList;
+        try {
+            responseList = client.getCountriesByRegion(region);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Region not found");
+        }
+
+        if (responseList == null || responseList.isEmpty()) {
+            throw new RuntimeException("Region not found");
+        }
+
+        return responseList.stream()
+                .limit(limit)
+                .map(this::toModel)
+                .toList();
+    }
+
     private Country toModel(CountryDTO dto) {
         return new Country(
             dto.name().common(),

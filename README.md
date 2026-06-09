@@ -61,29 +61,69 @@ No prompt, use `help` para listar comandos e `quit` para sair. Exemplos:
 ---
 
 ### Fase 2
-Nesta fase foi implementada a interface web completa do sistema. O usuário agora pode buscar um país pelo código ISO, visualizar informações geográficas, feriados futuros e a cotação da moeda local em BRL — tudo em uma interface visual responsiva e intuitiva.
+A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface web** com o padrão **Facade**; depois o **motor decisor de recomendação** com o padrão **Strategy**, que compara destinos em uma janela de datas e retorna ranking com score e justificativa.
 
-#### O que foi desenvolvido:
+#### Entrega 1 — Interface web e Facade (GoF)
 
-1. **Interface Web com Thymeleaf:**
-   * Adicionada a dependência `spring-boot-starter-thymeleaf` ao `pom.xml`.
-   * Criada a página inicial (`templates/index.html`) com formulário de busca e atalhos para destinos populares.
-   * Criada a página de resultado (`templates/resultado.html`) exibindo país, câmbio e lista de feriados próximos.
-   * Estilização via CSS (`static/style.css`).
+1. **Padrão Facade (`TravelService`):**
+   * O `TravelService` expõe uma única operação (`getOverviewByCountryCode`) que coordena `CountryService`, `HolidayService` e `ExchangeService`.
+   * **Vantagem:** o `WebController` (e o CLI) não precisam conhecer as três APIs externas, nem tratar falhas de câmbio quando o país usa BRL. Sem o Facade, cada camada repetiria orquestração e lógica de negócio.
+   * Consumido por `GET /api/travel/{code}`, `GET /viagem?codigo=XX` e o comando shell `viagem`.
 
-2. **Controller Web (`WebController`):**
-   * Criado `web/WebController.java` com `@Controller` (não `@RestController`) para servir páginas HTML.
-   * Rota `GET /` retorna a página inicial.
-   * Rota `GET /viagem?codigo=XX` retorna a página de resultado com os dados do país.
-   * Tratamento amigável de erros: país não encontrado exibe mensagem clara em vez de stack trace.
+2. **Interface Web com Thymeleaf:**
+   * Dependência `spring-boot-starter-thymeleaf` no `pom.xml`.
+   * Página inicial (`templates/index.html`) com formulário de busca e atalhos para destinos populares.
+   * Página de resultado (`templates/resultado.html`) com país, câmbio e feriados próximos.
+   * Estilização via `static/style.css`.
 
-3. **Padrão de Projeto GoF — Facade:**
-   * O `TravelService` implementa o padrão **Facade**: ele expõe uma única operação (`getOverviewByCountryCode`) que internamente coordena três subsistemas distintos (`CountryService`, `HolidayService` e `ExchangeService`), cada um comunicando com uma API externa diferente.
-   * **Vantagem real:** o `WebController` não precisa conhecer nenhuma das três APIs, nem lidar com erros de câmbio quando o país usa BRL, nem saber como buscar feriados por código ISO. Toda essa complexidade fica escondida atrás do `TravelService`. Sem o Facade, o controller teria que fazer três chamadas, tratar exceções individualmente e conter lógica de negócio, o que nao faria sentido com o princípio da responsabilidade única e tornaria o controller frágil a mudanças nas APIs.
+3. **Controller Web (`WebController`):**
+   * `@Controller` servindo HTML em `GET /` e `GET /viagem?codigo=XX`.
+   * Tratamento amigável de erros (país não encontrado exibe mensagem clara, sem stack trace).
 
-4. **Testes Automatizados:**
-   * Criado `WebControllerTest.java` com testes de integração usando MockMvc.
-   * Testa: rota `/` retorna template correto; busca com código válido retorna dados; busca com código inválido retorna mensagem de erro amigável; código vazio exibe erro; código é normalizado para maiúsculas.
+4. **Testes:** `WebControllerTest` com MockMvc (rota `/`, busca válida/inválida, normalização de código).
+
+#### Entrega 2 — Motor decisor e Strategy (GoF)
+
+1. **Motor Decisor de Recomendação (`/api/recommendations`):**
+   * `TravelRecommendationEngine` orquestra `CountryService`, `HolidayService` e `ExchangeService` (sem reimplementar integrações).
+   * Entrada: janela (`from`/`to`), lista ISO (`countries=JP,FR`) **ou** região (`region=Europe&limit=10`), opcional `maxRate` (câmbio máximo em BRL).
+   * Saída: ranking com score 0–100, breakdown por critério e summary (ex.: `JP — score 68: feriadão de 4 dias, câmbio muito favorável`).
+   * Detecção de feriadão/ponte no calendário **BR** (`LongWeekendDetector`) + bônus por feriados do **destino** na janela.
+   * **Algoritmo de score (total 100 pts):**
+     * Feriados/feriadões na janela — máx. **40 pts** (feriadão 4+ dias = 25; 3 dias = 18; feriado isolado = 8 cada, cap 30; bônus destino +5/feriado, cap 10).
+     * Câmbio para BRL — máx. **35 pts** (≤1 BRL = 35; ≤3 = 25; ≤5 = 15; >5 = 8; acima de `maxRate` = 0).
+     * Dias livres vs dias totais — máx. **25 pts** (fins de semana + feriados públicos BR na janela).
+   * Candidatos com falha vão para `skipped` sem derrubar o ranking.
+
+2. **Padrão Strategy (`ScoringStrategy`):**
+   * `HolidayWindowStrategy`, `ExchangeRateStrategy` e `FreeDaysRatioStrategy` — cada regra de score isolada e plugável via `List<ScoringStrategy>` no engine.
+   * Complementa o Facade: enquanto o `TravelService` agrega dados de **um** país, o motor compara **vários** destinos com regras extensíveis.
+
+3. **Refatoração e testes (pirâmide de testes):**
+   * `HolidayDeduplicator` extraído do `TravelService` (lógica reutilizada pelo engine).
+   * **Unitários (base, sem rede):** `HolidayDeduplicatorTest`, `TravelServiceTest`, `LongWeekendDetectorTest`, testes das 3 strategies, `TravelRecommendationEngineTest` (Mockito).
+   * **Integração enxuta (meio):** `RecommendationControllerTest` (`@WebMvcTest` + MockMvc).
+   * **Smoke com APIs reais (topo, `@Tag("integration")`):** testes de serviço reduzidos + `RecommendationIntegrationTest`. Rodam com `./mvnw test -Pintegration`.
+   * Padrão default `./mvnw test` executa só unitários e testes web sem rede.
+
+#### Padrões GoF na Fase 2
+
+| Padrão | Classe(s) | Entrega | Papel |
+|--------|-----------|---------|-------|
+| **Facade** | `TravelService` | 1 | Agrega país + feriados + câmbio de um destino |
+| **Strategy** | `ScoringStrategy` + 3 implementações | 2 | Regras de score plugáveis no motor de recomendação |
+
+#### Como usar a API de recomendações
+```bash
+# Comparar destinos por código ISO
+curl "http://localhost:8080/api/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR"
+
+# Comparar por região (máx. 10 países por padrão)
+curl "http://localhost:8080/api/recommendations?from=2026-06-01&to=2026-06-30&region=Europe&limit=5"
+
+# Com orçamento máximo de câmbio
+curl "http://localhost:8080/api/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR&maxRate=3.0"
+```
 
 #### Como usar a interface web
 Rode o servidor:
@@ -96,11 +136,28 @@ Acesse no navegador: [http://localhost:8080](http://localhost:8080)
 * Ou clique em um dos atalhos de destinos populares.
 * A página de resultado exibe: nome do país, região, capital, idioma, moeda, fuso horário, câmbio para BRL (quando aplicável) e lista de feriados futuros no ano.
 
+#### Como rodar os testes
+```bash
+# Unitários + web (sem rede) — padrão
+./mvnw test
+
+# Incluir smoke tests com APIs externas
+./mvnw test -Pintegration
+```
+
 ---
 
-### Fase 3
+### Fase 3 (planejado)
 Finalização do projeto, com melhorias na interface, refinamento das funcionalidades já implementadas, organização da arquitetura do sistema e conclusão da versão final para apresentação.
-- Ideia de implementação: aba a parte que mostra feriados nao oficiais dos países (como festa junina no Brasi), que possibilite que o usuario conheça outras datas que tenham eventos significativos nos países buscados. Combinando API's como Wikidata e Wikipedia (breve explicação do evento)
+
+**Padrões complementares planejados:**
+- **Chain of Responsibility:** pipeline de filtros de candidatos (orçamento, exclusões, visto) antes do scoring.
+- **Decorator (cache):** `CachingNagerDateClient` / `CachingAwesomeApiClient` para reduzir latência ao comparar N países.
+
+**Funcionalidades planejadas:**
+- Feriados não oficiais e eventos culturais via Wikidata/Wikipedia.
+- Frontend React consumindo `/api/recommendations`.
+- Normalização de câmbio por custo de vida (além da cotação bruta).
 
 **Planejamento(Até 06/Julho):** Entrega Final
 UX/UI: Deixar com o visual final, garantindo que o sistema seja responsivo, fluido e intuitivo para qualquer pessoa usar.
