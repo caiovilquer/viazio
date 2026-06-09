@@ -17,10 +17,14 @@
 
     <div class="hero">
         <h2>Planeje sua próxima viagem</h2>
-        <p>Consulte feriados, informações do país e câmbio para BRL em um único lugar.</p>
+        <p>Consulte feriados, compare destinos e veja câmbio para BRL em um único lugar.</p>
     </div>
 
-    <div class="card">
+    <!-- Seção 1: Consultar destino -->
+    <div class="card secao-card">
+        <h3 class="secao-card-titulo">Consultar destino</h3>
+        <p class="secao-card-descricao">Busque informações detalhadas de um único país.</p>
+
         <form class="form-busca" action="/viagem" method="get">
             <div>
                 <label for="codigo">
@@ -60,7 +64,149 @@
         </div>
     </div>
 
+    <!-- Seção 2: Comparar destinos -->
+    <div class="card secao-card">
+        <h3 class="secao-card-titulo">Comparar destinos</h3>
+        <p class="secao-card-descricao">Ranqueie vários países ou uma região inteira com base em feriados, câmbio e dias livres.</p>
+
+        <form class="form-comparacao" action="/recomendacoes" method="get"
+              th:with="proximoMes=${#temporals.createToday().plusMonths(1)},
+                       primeiroDia=${#temporals.createToday().plusMonths(1).withDayOfMonth(1)},
+                       ultimoDia=${proximoMes.withDayOfMonth(proximoMes.lengthOfMonth())}">
+            <div class="form-grid">
+                <div class="form-campo">
+                    <label for="from">Data inicial</label>
+                    <input
+                        type="date"
+                        id="from"
+                        name="from"
+                        required
+                        th:value="${#temporals.format(primeiroDia, 'yyyy-MM-dd')}"
+                    >
+                </div>
+                <div class="form-campo">
+                    <label for="to">Data final</label>
+                    <input
+                        type="date"
+                        id="to"
+                        name="to"
+                        required
+                        th:value="${#temporals.format(ultimoDia, 'yyyy-MM-dd')}"
+                    >
+                </div>
+            </div>
+
+            <fieldset class="modo-candidatos">
+                <legend>Modo de candidatos</legend>
+                <div class="modo-opcoes">
+                    <label class="modo-radio">
+                        <input type="radio" name="modo" value="countries" checked>
+                        Por países
+                    </label>
+                    <label class="modo-radio">
+                        <input type="radio" name="modo" value="region">
+                        Por região
+                    </label>
+                </div>
+
+                <div class="modo-painel modo-painel-countries">
+                    <label for="countries">Códigos ISO (separados por vírgula)</label>
+                    <input
+                        type="text"
+                        id="countries"
+                        name="countries"
+                        class="input-texto"
+                        placeholder="Ex: JP,FR,US"
+                        value="JP,FR,US"
+                    >
+                </div>
+
+                <div class="modo-painel modo-painel-region">
+                    <label for="region">Região</label>
+                    <select id="region" name="region" class="input-select">
+                        <option value="">Selecione…</option>
+                        <option value="Europe">Europe</option>
+                        <option value="Americas">Americas</option>
+                        <option value="Asia">Asia</option>
+                        <option value="Africa">Africa</option>
+                        <option value="Oceania">Oceania</option>
+                    </select>
+                </div>
+            </fieldset>
+
+            <div class="form-grid">
+                <div class="form-campo">
+                    <label for="maxRate">
+                        Câmbio máximo (BRL)
+                        <span class="dica">Opcional — exclui destinos acima deste valor</span>
+                    </label>
+                    <input
+                        type="number"
+                        id="maxRate"
+                        name="maxRate"
+                        class="input-texto"
+                        step="0.01"
+                        min="0"
+                        placeholder="Ex: 3.00"
+                    >
+                </div>
+                <div class="form-campo">
+                    <label for="limit">
+                        Limite de resultados
+                        <span class="dica">Entre 1 e 15 (padrão: 10)</span>
+                    </label>
+                    <input
+                        type="number"
+                        id="limit"
+                        name="limit"
+                        class="input-texto"
+                        value="10"
+                        min="1"
+                        max="15"
+                    >
+                </div>
+            </div>
+
+            <button type="submit" class="btn-buscar btn-comparar">Comparar destinos</button>
+        </form>
+    </div>
+
 </main>
+
+<script>
+    (function () {
+        var form = document.querySelector('.form-comparacao');
+        if (!form) return;
+
+        var radios = form.querySelectorAll('input[name="modo"]');
+        var countriesInput = form.querySelector('#countries');
+        var regionSelect = form.querySelector('#region');
+
+        function updateMode() {
+            var modo = form.querySelector('input[name="modo"]:checked').value;
+            var isCountries = modo === 'countries';
+            form.classList.toggle('modo-countries-ativo', isCountries);
+            form.classList.toggle('modo-region-ativo', !isCountries);
+            countriesInput.disabled = !isCountries;
+            regionSelect.disabled = isCountries;
+            if (isCountries) {
+                regionSelect.value = '';
+            } else {
+                countriesInput.value = '';
+            }
+        }
+
+        radios.forEach(function (radio) {
+            radio.addEventListener('change', updateMode);
+        });
+
+        form.addEventListener('submit', function () {
+            updateMode();
+        });
+
+        updateMode();
+    })();
+</script>
 
 </body>
 </html>

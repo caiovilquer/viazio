@@ -132,9 +132,20 @@ Rode o servidor:
 ```
 Acesse no navegador: [http://localhost:8080](http://localhost:8080)
 
+**Consultar um destino (consulta individual):**
 * Digite um código de país (ex: `JP`, `FR`, `US`) no campo de busca e clique em **Buscar**.
 * Ou clique em um dos atalhos de destinos populares.
 * A página de resultado exibe: nome do país, região, capital, idioma, moeda, fuso horário, câmbio para BRL (quando aplicável) e lista de feriados futuros no ano.
+
+**Comparar destinos (motor de recomendação):**
+* Na seção **Comparar destinos**, informe a janela de datas (`from` / `to`, máximo 92 dias).
+* Escolha o modo de candidatos:
+  * **Por países:** códigos ISO separados por vírgula (ex: `JP,FR,US`).
+  * **Por região:** selecione `Europe`, `Americas`, `Asia`, `Africa` ou `Oceania`.
+* Opcionalmente, defina **câmbio máximo (BRL)** e **limite de resultados** (1–15, padrão 10).
+* Clique em **Comparar destinos** para ver o ranking com score (0–100), feriadões no Brasil na janela, breakdown por critério e resumo de cada destino.
+* Use **Ver detalhes** em qualquer item do ranking para abrir a consulta individual daquele país (`/viagem?codigo=XX`).
+* Destinos não avaliados aparecem discretamente na seção *Destinos não avaliados* (campo `skipped`).
 
 #### Como rodar os testes
 ```bash

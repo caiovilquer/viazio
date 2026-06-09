@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparar destinos | Planejador de Feriadões</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+
+<header>
+    <span class="logo">✈️</span>
+    <h1><a href="/">Planejador de Feriadões</a></h1>
+</header>
+
+<main>
+
+    <div th:if="${erro}" class="aviso-erro">
+        <strong>⚠ Atenção:</strong>
+        <span th:text="${erro}"></span>
+    </div>
+
+    <div th:if="${resultado}" class="card">
+        <div class="janela-cabecalho">
+            <h2>Ranking de destinos</h2>
+            <p class="janela-periodo">
+                Janela consultada:
+                <strong th:text="${#temporals.format(resultado.from(), 'dd/MM/yyyy')}">01/07/2026</strong>
+                —
+                <strong th:text="${#temporals.format(resultado.to(), 'dd/MM/yyyy')}">31/07/2026</strong>
+            </p>
+        </div>
+
+        <section class="secao-recomendacao">
+            <p class="secao-titulo">🇧🇷 Feriadões no Brasil na janela</p>
+
+            <div th:if="${not #lists.isEmpty(resultado.brazilLongWeekends())}" class="feriadao-grid">
+                <div class="feriadao-card" th:each="lw : ${resultado.brazilLongWeekends()}">
+                    <div class="feriadao-datas">
+                        <span th:text="${#temporals.format(lw.start(), 'dd/MM')}">01/07</span>
+                        —
+                        <span th:text="${#temporals.format(lw.end(), 'dd/MM/yyyy')}">04/07/2026</span>
+                    </div>
+                    <div class="feriadao-info">
+                        <strong th:text="${lw.holidayName()}">Feriado</strong>
+                        <span th:text="${lw.totalDays()} + ' dias'">4 dias</span>
+                        <span th:if="${lw.bridgeDaysUsed() > 0}"
+                              class="feriadao-ponte"
+                              th:text="'(' + ${lw.bridgeDaysUsed()} + ' dia(s) de ponte)'">
+                            (1 dia de ponte)
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <p th:if="${#lists.isEmpty(resultado.brazilLongWeekends())}" class="sem-feriados">
+                Nenhum feriadão detectado no Brasil para esta janela.
+            </p>
+        </section>
+
+        <section class="secao-recomendacao">
+            <p class="secao-titulo">🏆 Ranking de recomendações</p>
+
+            <p th:if="${#lists.isEmpty(resultado.recommendations())}" class="estado-vazio">
+                Nenhum destino ranqueado para os filtros informados.
+            </p>
+
+            <ol th:if="${not #lists.isEmpty(resultado.recommendations())}" class="ranking-list">
+                <li class="ranking-item" th:each="rec : ${resultado.recommendations()}">
+                    <div class="ranking-cabecalho">
+                        <span class="ranking-posicao" th:text="${recStat.count}">1</span>
+                        <div class="ranking-pais">
+                            <strong th:text="${rec.countryName()}">Japan</strong>
+                            <span class="pais-iso" th:text="${rec.countryCode()}">JP</span>
+                        </div>
+                        <span class="score-badge" th:text="${#numbers.formatDecimal(rec.score(), 1, 'POINT', 0, 'COMMA')} + ' pts'">68 pts</span>
+                    </div>
+
+                    <div class="score-bar" aria-hidden="true">
+                        <div class="score-bar-preenchido" th:style="'width:' + ${rec.score()} + '%'"></div>
+                    </div>
+
+                    <p class="ranking-resumo" th:text="${rec.summary()}">Resumo da recomendação</p>
+
+                    <details class="breakdown-detalhes">
+                        <summary>Ver breakdown do score</summary>
+                        <table class="breakdown-table">
+                            <thead>
+                                <tr>
+                                    <th>Critério</th>
+                                    <th>Pontos</th>
+                                    <th>Justificativa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="entry : ${rec.breakdown()}">
+                                    <td th:text="${entry.criterion()}">CAMBIO</td>
+                                    <td th:text="${#numbers.formatDecimal(entry.points(), 1, 'POINT', 0, 'COMMA')} + ' / ' + ${#numbers.formatDecimal(entry.maxPoints(), 1, 'POINT', 0, 'COMMA')}">35 / 35</td>
+                                    <td th:text="${entry.justification()}">ok</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </details>
+
+                    <a th:href="@{/viagem(codigo=${rec.countryCode()})}" class="btn-detalhes">Ver detalhes →</a>
+                </li>
+            </ol>
+        </section>
+
+        <section th:if="${not #lists.isEmpty(resultado.skipped())}" class="secao-recomendacao">
+            <p class="secao-titulo skipped-titulo">Destinos não avaliados</p>
+            <ul class="skipped-list">
+                <li th:each="skip : ${resultado.skipped()}">
+                    <strong th:text="${skip.countryCode()}">XX</strong>
+                    <span th:text="${skip.reason()}">Motivo</span>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <a href="/" class="btn-voltar">← Nova comparação</a>
+
+</main>
+
+</body>
+</html>
