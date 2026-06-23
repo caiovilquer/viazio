@@ -9,16 +9,16 @@ import org.springframework.web.client.RestClientException;
 
 import br.usp.lab.oo.planejador_feriado.common.exception.ExternalApiException;
 import br.usp.lab.oo.planejador_feriado.common.exception.ResourceNotFoundException;
-import br.usp.lab.oo.planejador_feriado.country.client.RestCountriesClient;
+import br.usp.lab.oo.planejador_feriado.country.client.CountryClient;
 import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 
 @Service
 public class CountryService {
 
-    private final RestCountriesClient client;
+    private final CountryClient client;
 
-    public CountryService(RestCountriesClient client) {
+    public CountryService(CountryClient client) {
         this.client = client;
     }
 

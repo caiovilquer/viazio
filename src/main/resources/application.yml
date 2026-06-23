@@ -18,3 +18,25 @@ app:
       base-url: https://date.nager.at/api/v3
     awesome-api:
       base-url: https://economia.awesomeapi.com.br/json
+    connect-timeout: 3s
+    read-timeout: 5s
+
+resilience4j:
+  retry:
+    instances:
+      externalApi:
+        max-attempts: 3
+        wait-duration: 300ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+  circuitbreaker:
+    instances:
+      externalApi:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3

@@ -7,7 +7,7 @@ import java.util.List;
 
 import br.usp.lab.oo.planejador_feriado.common.exception.ExternalApiException;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
-import br.usp.lab.oo.planejador_feriado.holiday.client.NagerDateClient;
+import br.usp.lab.oo.planejador_feriado.holiday.client.HolidayClient;
 import br.usp.lab.oo.planejador_feriado.holiday.dto.HolidayDTO;
 import br.usp.lab.oo.planejador_feriado.holiday.model.Holiday;
 import org.springframework.stereotype.Service;
@@ -17,9 +17,9 @@ import org.springframework.web.client.RestClientException;
 @Service
 public class HolidayService {
 
-    private final NagerDateClient client;
+    private final HolidayClient client;
 
-    public HolidayService(NagerDateClient client) {
+    public HolidayService(HolidayClient client) {
         this.client = client;
     }
 

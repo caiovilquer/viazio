@@ -1,0 +1,47 @@
+package br.usp.lab.oo.planejador_feriado.country.client;
+
+import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Decorator (GoF) que adiciona cache em memória sobre {@link RestCountriesClient}.
+ * Dados de país praticamente não mudam, então uma janela de cache longa reduz
+ * drasticamente o número de chamadas externas ao comparar vários destinos.
+ */
+@Primary
+@Component
+public class CachingCountryClient implements CountryClient {
+
+    private final CountryClient delegate;
+    private final Cache<String, List<CountryDTO>> cache;
+
+    public CachingCountryClient(RestCountriesClient delegate) {
+        this.delegate = delegate;
+        this.cache = Caffeine.newBuilder()
+                .maximumSize(500)
+                .expireAfterWrite(Duration.ofHours(24))
+                .build();
+    }
+
+    @Override
+    public List<CountryDTO> getCountryByCode(String countryCode) {
+        return cache.get("code:" + countryCode.toUpperCase(Locale.ROOT), key -> delegate.getCountryByCode(countryCode));
+    }
+
+    @Override
+    public List<CountryDTO> getCountryByName(String countryName) {
+        return cache.get("name:" + countryName.toLowerCase(Locale.ROOT), key -> delegate.getCountryByName(countryName));
+    }
+
+    @Override
+    public List<CountryDTO> getCountriesByRegion(String region) {
+        return cache.get("region:" + region.toLowerCase(Locale.ROOT), key -> delegate.getCountriesByRegion(region));
+    }
+}

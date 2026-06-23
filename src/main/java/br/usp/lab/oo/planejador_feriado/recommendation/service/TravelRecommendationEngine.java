@@ -24,6 +24,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
@@ -62,32 +66,25 @@ public class TravelRecommendationEngine {
         List<TravelRecommendation> recommendations = new ArrayList<>();
         List<SkippedCandidate> skipped = new ArrayList<>();
 
-        for (String code : candidateCodes) {
-            try {
-                Country country = countryService.getCountryByCode(code);
-                if (BRAZIL_ISO.equalsIgnoreCase(country.getIsoCode())) {
-                    skipped.add(new SkippedCandidate(code, "País de origem ignorado na comparação"));
-                    continue;
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<Future<CandidateResult>> futures = candidateCodes.stream()
+                    .map(code -> executor.submit(
+                            () -> evaluateCandidate(code, request, brazilHolidays, brazilLongWeekends)))
+                    .toList();
+
+            for (Future<CandidateResult> future : futures) {
+                CandidateResult result = future.get();
+                if (result.recommendation() != null) {
+                    recommendations.add(result.recommendation());
+                } else {
+                    skipped.add(result.skipped());
                 }
-
-                List<Holiday> destinationHolidays = HolidayDeduplicator.deduplicate(
-                        holidayService.getHolidaysInWindow(country.getIsoCode(), request.from(), request.to())
-                );
-                Exchange exchange = resolveExchangeToBrl(country);
-
-                RecommendationContext context = new RecommendationContext(
-                        country,
-                        destinationHolidays,
-                        brazilHolidays,
-                        brazilLongWeekends,
-                        exchange,
-                        request
-                );
-
-                recommendations.add(buildRecommendation(context));
-            } catch (RuntimeException e) {
-                skipped.add(new SkippedCandidate(code, e.getMessage() != null ? e.getMessage() : "Erro ao processar candidato"));
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrompido ao gerar recomendações", e);
+        } catch (ExecutionException e) {
+            throw new IllegalStateException("Erro ao gerar recomendações", e.getCause());
         }
 
         recommendations.sort(Comparator.comparingDouble(TravelRecommendation::score).reversed());
@@ -99,6 +96,49 @@ public class TravelRecommendationEngine {
                 recommendations,
                 skipped
         );
+    }
+
+    private CandidateResult evaluateCandidate(
+            String code,
+            RecommendationRequest request,
+            List<Holiday> brazilHolidays,
+            List<LongWeekend> brazilLongWeekends) {
+
+        try {
+            Country country = countryService.getCountryByCode(code);
+            if (BRAZIL_ISO.equalsIgnoreCase(country.getIsoCode())) {
+                return CandidateResult.skipped(new SkippedCandidate(code, "País de origem ignorado na comparação"));
+            }
+
+            List<Holiday> destinationHolidays = HolidayDeduplicator.deduplicate(
+                    holidayService.getHolidaysInWindow(country.getIsoCode(), request.from(), request.to())
+            );
+            Exchange exchange = resolveExchangeToBrl(country);
+
+            RecommendationContext context = new RecommendationContext(
+                    country,
+                    destinationHolidays,
+                    brazilHolidays,
+                    brazilLongWeekends,
+                    exchange,
+                    request
+            );
+
+            return CandidateResult.recommendation(buildRecommendation(context));
+        } catch (RuntimeException e) {
+            return CandidateResult.skipped(
+                    new SkippedCandidate(code, e.getMessage() != null ? e.getMessage() : "Erro ao processar candidato"));
+        }
+    }
+
+    private record CandidateResult(TravelRecommendation recommendation, SkippedCandidate skipped) {
+        static CandidateResult recommendation(TravelRecommendation recommendation) {
+            return new CandidateResult(recommendation, null);
+        }
+
+        static CandidateResult skipped(SkippedCandidate skipped) {
+            return new CandidateResult(null, skipped);
+        }
     }
 
     private List<String> resolveCandidateCodes(RecommendationRequest request) {

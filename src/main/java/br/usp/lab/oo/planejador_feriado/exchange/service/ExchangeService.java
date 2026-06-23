@@ -2,7 +2,7 @@ package br.usp.lab.oo.planejador_feriado.exchange.service;
 
 import br.usp.lab.oo.planejador_feriado.common.exception.ExternalApiException;
 import br.usp.lab.oo.planejador_feriado.common.exception.ResourceNotFoundException;
-import br.usp.lab.oo.planejador_feriado.exchange.client.AwesomeApiClient;
+import br.usp.lab.oo.planejador_feriado.exchange.client.ExchangeClient;
 import br.usp.lab.oo.planejador_feriado.exchange.dto.ExchangeDTO;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 import org.springframework.stereotype.Service;
@@ -14,9 +14,9 @@ import java.util.Map;
 @Service
 public class ExchangeService {
 
-    private final AwesomeApiClient client;
+    private final ExchangeClient client;
 
-    public ExchangeService(AwesomeApiClient client) {
+    public ExchangeService(ExchangeClient client) {
         this.client = client;
     }
 
