@@ -4,6 +4,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import br.usp.lab.oo.planejador_feriado.common.config.ExternalApisProperties;
 import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
 
 import java.util.List;
@@ -13,9 +14,9 @@ public class RestCountriesClient {
 
     private final RestClient restClient;
 
-    public RestCountriesClient() {
+    public RestCountriesClient(ExternalApisProperties properties) {
         this.restClient = RestClient.builder()
-                .baseUrl("https://restcountries.com/v3.1")
+                .baseUrl(properties.restCountries().baseUrl())
                 .build();
     }
 

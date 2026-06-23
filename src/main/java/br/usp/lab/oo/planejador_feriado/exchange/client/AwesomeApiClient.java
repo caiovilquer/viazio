@@ -1,5 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.exchange.client;
 
+import br.usp.lab.oo.planejador_feriado.common.config.ExternalApisProperties;
 import br.usp.lab.oo.planejador_feriado.exchange.dto.ExchangeDTO;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -12,9 +13,9 @@ public class AwesomeApiClient {
 
     private final RestClient restClient;
 
-    public AwesomeApiClient() {
-        this.restClient = RestClient.builder()                              //API de Economia
-                .baseUrl("https://economia.awesomeapi.com.br/json")
+    public AwesomeApiClient(ExternalApisProperties properties) {
+        this.restClient = RestClient.builder()
+                .baseUrl(properties.awesomeApi().baseUrl())
                 .build();
     }
 
