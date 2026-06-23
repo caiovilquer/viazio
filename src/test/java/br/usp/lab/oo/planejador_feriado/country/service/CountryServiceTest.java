@@ -43,7 +43,8 @@ class CountryServiceTest {
                 List.of("Brasília"),
                 Map.of("por", "Portuguese"),
                 Map.of("BRL", new CountryDTO.CurrencyDTO("Brazilian real", "R$")),
-                List.of("UTC-03:00")
+                List.of("UTC-03:00"),
+                List.of(-10.0, -55.0)
         );
     }
 
@@ -61,6 +62,9 @@ class CountryServiceTest {
         assertEquals("Portuguese", country.getMainLanguage());
         assertEquals("BRL", country.getMainCurrency());
         assertEquals(List.of("UTC-03:00"), country.getTimezones());
+        assertTrue(country.hasCoordinates());
+        assertEquals(-10.0, country.getLatitude());
+        assertEquals(-55.0, country.getLongitude());
         verify(client).getCountryByCode("BR");
     }
 
@@ -146,13 +150,13 @@ class CountryServiceTest {
     void getCountriesByRegionShouldRespectLimit() {
         CountryDTO france = new CountryDTO(new CountryDTO.NameDTO("France"), "FR", "Europe", "Western Europe",
                 List.of("Paris"), Map.of("fra", "French"),
-                Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"));
+                Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"), List.of(46.0, 2.0));
         CountryDTO italy = new CountryDTO(new CountryDTO.NameDTO("Italy"), "IT", "Europe", "Southern Europe",
                 List.of("Rome"), Map.of("ita", "Italian"),
-                Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"));
+                Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"), List.of(42.8, 12.8));
         CountryDTO spain = new CountryDTO(new CountryDTO.NameDTO("Spain"), "ES", "Europe", "Southern Europe",
                 List.of("Madrid"), Map.of("spa", "Spanish"),
-                Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"));
+                Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"), List.of(40.0, -4.0));
 
         when(client.getCountriesByRegion("Europe")).thenReturn(List.of(france, italy, spain));
 

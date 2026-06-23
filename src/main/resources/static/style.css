@@ -1053,6 +1053,46 @@ body.is-loading {
     font-size: 0.83rem;
     font-weight: 600;
     color: var(--c-text);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Highlights (chips de destaque do destino) */
+.highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: var(--sp-2) 0;
+}
+
+.highlight-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--c-primary-chip);
+    color: var(--c-primary-dark);
+    border-radius: var(--r-full);
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.ranking-perfil {
+    font-size: 0.83rem;
+    color: var(--c-text-muted);
+    margin-bottom: var(--sp-3);
+}
+
+.breakdown-peso {
+    color: var(--c-text-subtle);
+    font-weight: 400;
+}
+
+.breakdown-na {
+    font-style: italic;
+}
+
+.breakdown-indisponivel {
+    opacity: 0.6;
 }
 
 .breakdown-pontos {

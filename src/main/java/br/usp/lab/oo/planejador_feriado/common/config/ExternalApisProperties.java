@@ -9,6 +9,8 @@ public record ExternalApisProperties(
         Api restCountries,
         Api nagerDate,
         Api awesomeApi,
+        Api openMeteo,
+        Api worldBank,
         Duration connectTimeout,
         Duration readTimeout
 ) {

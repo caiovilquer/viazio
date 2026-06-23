@@ -63,6 +63,9 @@
 
         <div class="secao-bloco">
             <p class="secao-bloco-titulo">Ranking de recomendações</p>
+            <p class="ranking-perfil" th:if="${resultado.profile() != null}">
+                Critérios ponderados pelo perfil <strong th:text="${resultado.profile()}">equilibrado</strong>.
+            </p>
 
             <p th:if="${#lists.isEmpty(resultado.recommendations())}" class="estado-vazio">
                 Nenhum destino ranqueado para os filtros informados. Tente ampliar a janela de datas ou alterar os países selecionados.
@@ -98,25 +101,31 @@
                         </div>
                     </div>
 
-                    <p class="ranking-resumo" th:text="${summaryFinal}">Câmbio muito favorável, feriados coincidentes.</p>
+                    <p class="ranking-resumo" th:text="${summaryFinal}">Clima ótimo, custo de vida baixo.</p>
+
+                    <div class="highlights" th:if="${not #lists.isEmpty(rec.highlights())}">
+                        <span class="highlight-chip" th:each="h : ${rec.highlights()}" th:text="${h}">clima ótimo</span>
+                    </div>
 
                     <details class="breakdown">
                         <summary>Ver detalhes da pontuação</summary>
                         <ul class="breakdown-lista">
                             <li th:each="entry : ${rec.breakdown()}"
-                                th:with="criterioNome=${entry.criterion() == 'FERIADOS_NA_JANELA' ? 'Feriados e feriadões' : (entry.criterion() == 'CAMBIO' ? 'Câmbio' : (entry.criterion() == 'DIAS_LIVRES' ? 'Dias livres' : entry.criterion()))},
-                                         pct=${entry.maxPoints() > 0 ? entry.points() / entry.maxPoints() * 100 : 0}">
+                                th:classappend="${entry.available()} ? '' : ' breakdown-indisponivel'">
                                 <div class="breakdown-item-cabecalho">
-                                    <span class="breakdown-criterio" th:text="${criterioNome}">Câmbio</span>
-                                    <span class="breakdown-pontos">
-                                        <strong th:text="${#numbers.formatDecimal(entry.points(), 1, 'POINT', 0, 'COMMA')}">35</strong>
-                                        de
-                                        <span th:text="${#numbers.formatDecimal(entry.maxPoints(), 1, 'POINT', 0, 'COMMA')}">35</span>
-                                        pontos
+                                    <span class="breakdown-criterio">
+                                        <span aria-hidden="true" th:text="${entry.icon()}">☀️</span>
+                                        <span th:text="${entry.label()}">Clima</span>
                                     </span>
+                                    <span class="breakdown-pontos" th:if="${entry.available()}">
+                                        <strong th:text="${#numbers.formatDecimal(entry.score(), 1, 'POINT', 0, 'COMMA')}">80</strong>/100
+                                        <span class="breakdown-peso"
+                                              th:text="'· peso ' + ${#numbers.formatDecimal(entry.weight() * 100, 0, 'POINT', 0, 'COMMA')} + '%'">· peso 20%</span>
+                                    </span>
+                                    <span class="breakdown-pontos breakdown-na" th:unless="${entry.available()}">indisponível</span>
                                 </div>
-                                <div class="breakdown-mini-bar">
-                                    <div class="breakdown-mini-fill" th:style="'width:' + ${pct} + '%'"></div>
+                                <div class="breakdown-mini-bar" th:if="${entry.available()}">
+                                    <div class="breakdown-mini-fill" th:style="'width:' + ${entry.score()} + '%'"></div>
                                 </div>
                                 <p class="breakdown-justificativa" th:text="${entry.justification()}">ok</p>
                             </li>

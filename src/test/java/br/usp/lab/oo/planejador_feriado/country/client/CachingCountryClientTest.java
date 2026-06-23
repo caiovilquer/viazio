@@ -24,7 +24,8 @@ class CachingCountryClientTest {
     void cachesRepeatedCallsByCode() {
         List<CountryDTO> brazil = List.of(new CountryDTO(
                 new CountryDTO.NameDTO("Brazil"), "BR", "Americas", "South America",
-                List.of("Brasília"), Map.of("por", "Portuguese"), Map.of(), List.of("UTC-03:00")));
+                List.of("Brasília"), Map.of("por", "Portuguese"), Map.of(), List.of("UTC-03:00"),
+                List.of(-10.0, -55.0)));
         when(delegate.getCountryByCode("BR")).thenReturn(brazil);
 
         CachingCountryClient client = new CachingCountryClient(delegate);

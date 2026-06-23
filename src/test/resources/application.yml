@@ -13,3 +13,30 @@ app:
       base-url: https://date.nager.at/api/v3
     awesome-api:
       base-url: https://economia.awesomeapi.com.br/json
+    open-meteo:
+      base-url: https://archive-api.open-meteo.com/v1
+    world-bank:
+      base-url: https://api.worldbank.org/v2
+  recommendation:
+    default-weights:
+      holidays: 0.25
+      weather: 0.20
+      cost: 0.20
+      exchange: 0.15
+      distance: 0.10
+      festivities: 0.10
+    profiles:
+      economico:
+        cost: 0.32
+        exchange: 0.28
+        holidays: 0.20
+        distance: 0.12
+        weather: 0.05
+        festivities: 0.03
+      clima-perfeito:
+        weather: 0.45
+        holidays: 0.20
+        cost: 0.13
+        festivities: 0.10
+        distance: 0.07
+        exchange: 0.05

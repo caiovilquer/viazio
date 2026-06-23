@@ -90,6 +90,7 @@ public class WebController {
             @RequestParam(required = false) String region,
             @RequestParam(required = false) Double maxRate,
             @RequestParam(required = false, defaultValue = "10") int limit,
+            @RequestParam(required = false) String profile,
             Model model) {
 
         if (from == null || from.isBlank() || to == null || to.isBlank()) {
@@ -121,7 +122,10 @@ public class WebController {
                 countryCodes,
                 normalizeRegion(region),
                 maxRate,
-                limit
+                limit,
+                normalizeProfile(profile),
+                java.util.Map.of(),
+                List.of()
         );
 
         try {
@@ -184,5 +188,12 @@ public class WebController {
             return null;
         }
         return region.trim();
+    }
+
+    private String normalizeProfile(String profile) {
+        if (profile == null || profile.isBlank()) {
+            return null;
+        }
+        return profile.trim().toLowerCase(Locale.ROOT);
     }
 }

@@ -24,8 +24,58 @@ app:
       base-url: https://date.nager.at/api/v3
     awesome-api:
       base-url: https://economia.awesomeapi.com.br/json
+    open-meteo:
+      base-url: https://archive-api.open-meteo.com/v1
+    world-bank:
+      base-url: https://api.worldbank.org/v2
     connect-timeout: 3s
     read-timeout: 5s
+  recommendation:
+    # Pesos padrão (somam 1) usados quando nenhum perfil é escolhido.
+    default-weights:
+      holidays: 0.25
+      weather: 0.20
+      cost: 0.20
+      exchange: 0.15
+      distance: 0.10
+      festivities: 0.10
+    # Presets nomeados de pesos; podem ser ajustados ponto a ponto via ?weights=...
+    profiles:
+      equilibrado:
+        holidays: 0.17
+        weather: 0.17
+        cost: 0.17
+        exchange: 0.17
+        distance: 0.16
+        festivities: 0.16
+      economico:
+        cost: 0.32
+        exchange: 0.28
+        holidays: 0.20
+        distance: 0.12
+        weather: 0.05
+        festivities: 0.03
+      aventura:
+        distance: 0.30
+        festivities: 0.22
+        holidays: 0.20
+        weather: 0.18
+        cost: 0.06
+        exchange: 0.04
+      clima-perfeito:
+        weather: 0.45
+        holidays: 0.20
+        cost: 0.13
+        festivities: 0.10
+        distance: 0.07
+        exchange: 0.05
+      cultural:
+        festivities: 0.35
+        holidays: 0.25
+        weather: 0.15
+        cost: 0.12
+        distance: 0.08
+        exchange: 0.05
 
 resilience4j:
   retry:

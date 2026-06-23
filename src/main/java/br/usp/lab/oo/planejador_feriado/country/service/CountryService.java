@@ -90,6 +90,13 @@ public class CountryService {
     }
 
     private Country toModel(CountryDTO dto) {
+        Double latitude = null;
+        Double longitude = null;
+        if (dto.latlng() != null && dto.latlng().size() >= 2) {
+            latitude = dto.latlng().get(0);
+            longitude = dto.latlng().get(1);
+        }
+
         return new Country(
             dto.name().common(),
             dto.isoCode(),
@@ -102,7 +109,9 @@ public class CountryService {
             dto.currencies() != null ?
                 new ArrayList<>(dto.currencies().keySet()) :
                 List.of(),
-            dto.timezones()
+            dto.timezones(),
+            latitude,
+            longitude
         );
     }
 }

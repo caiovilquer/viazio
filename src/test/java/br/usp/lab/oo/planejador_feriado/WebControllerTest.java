@@ -2,7 +2,7 @@ package br.usp.lab.oo.planejador_feriado;
 
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
-import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoreEntry;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoredCriterion;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
 import br.usp.lab.oo.planejador_feriado.travel.model.TravelOverview;
@@ -234,13 +234,16 @@ class WebControllerTest {
         return new RecommendationResponse(
                 LocalDate.of(2026, 6, 1),
                 LocalDate.of(2026, 6, 30),
+                "padrão",
+                java.util.Map.of("exchange", 0.15, "weather", 0.20),
                 List.of(),
                 List.of(new TravelRecommendation(
                         "JP",
                         "Japan",
                         68.0,
-                        List.of(new ScoreEntry("CAMBIO", 35, 35, "ok")),
-                        "JP — score 68: câmbio muito favorável"
+                        List.of(new ScoredCriterion("exchange", "Câmbio", "💱", true, 100.0, 0.15, 15.0, "ok")),
+                        List.of("câmbio favorável"),
+                        "JP — score 68: câmbio favorável"
                 )),
                 List.of()
         );

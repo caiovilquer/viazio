@@ -3,21 +3,33 @@ package br.usp.lab.oo.planejador_feriado.country.model;
 import java.util.List;
 
 public class Country {
-    private final String name; 
-    private final String isoCode; 
-    private final String region; 
-    private final String subregion; 
-    private final List<String> capitals; 
-    private final List<String> languages; 
-    private final List<String> currencies; 
+    private final String name;
+    private final String isoCode;
+    private final String region;
+    private final String subregion;
+    private final List<String> capitals;
+    private final List<String> languages;
+    private final List<String> currencies;
     private final List<String> timezones;
-    
+    private final Double latitude;
+    private final Double longitude;
+
     public Country(
             String name, String isoCode,
             String region, String subregion,
             List<String> capitals, List<String> languages,
             List<String> currencies, List<String> timezones
-        ){ 
+        ){
+        this(name, isoCode, region, subregion, capitals, languages, currencies, timezones, null, null);
+    }
+
+    public Country(
+            String name, String isoCode,
+            String region, String subregion,
+            List<String> capitals, List<String> languages,
+            List<String> currencies, List<String> timezones,
+            Double latitude, Double longitude
+        ){
         this.name = name;
         this.isoCode = isoCode;
         this.region = region;
@@ -26,6 +38,8 @@ public class Country {
         this.languages = languages != null ? List.copyOf(languages) : List.of();
         this.currencies = currencies != null ? List.copyOf(currencies) : List.of();
         this.timezones = timezones != null ? List.copyOf(timezones) : List.of();
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     public String getMainCurrency() {
@@ -34,6 +48,11 @@ public class Country {
 
     public String getMainLanguage() {
         return this.languages.isEmpty() ? null : this.languages.get(0);
+    }
+
+    /** Indica se o país tem coordenadas geográficas conhecidas (necessárias p/ clima e distância). */
+    public boolean hasCoordinates() {
+        return latitude != null && longitude != null;
     }
 
     @Override
@@ -71,5 +90,11 @@ public class Country {
     }
     public List<String> getCurrencies() {
         return currencies;
+    }
+    public Double getLatitude() {
+        return latitude;
+    }
+    public Double getLongitude() {
+        return longitude;
     }
 }

@@ -15,6 +15,8 @@ class RestClientFactoryTest {
                 new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),
+                new ExternalApisProperties.Api("https://example.com"),
+                new ExternalApisProperties.Api("https://example.com"),
                 Duration.ofSeconds(1),
                 Duration.ofSeconds(2));
 
@@ -27,6 +29,8 @@ class RestClientFactoryTest {
     @Test
     void fallsBackToDefaultTimeoutsWhenNotConfigured() {
         ExternalApisProperties properties = new ExternalApisProperties(
+                new ExternalApisProperties.Api("https://example.com"),
+                new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),

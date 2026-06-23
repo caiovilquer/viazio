@@ -127,8 +127,14 @@ curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30
 # Comparar por região (máx. 10 países por padrão)
 curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&region=Europe&limit=5"
 
-# Com orçamento máximo de câmbio
-curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR&maxRate=3.0"
+# Com perfil de pesos (economico, clima-perfeito, aventura, cultural, equilibrado)
+curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR,AR&profile=economico"
+
+# Ajuste fino de pesos por critério + orçamento + exclusões
+curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&region=Americas&weights=clima:0.4,custo:0.3&maxRate=4.0&exclude=US"
+
+# Melhores janelas de viagem (feriadões) num período, com destinos por janela
+curl "http://localhost:8080/api/v1/recommendations/best-windows?from=2026-01-01&to=2026-12-31&minDays=4&countries=AR,CL,PT"
 ```
 
 #### Como usar a interface web
@@ -214,19 +220,61 @@ Como o frontend React (próxima etapa) roda em processo separado (Vite, `localho
 
 7. **Testes:** `RateLimitFilterTest` (consumo de tokens, bloqueio ao exceder, isolamento por IP); todos os testes de controller (`@WebMvcTest`) atualizados para os paths `/api/v1/...`.
 
+#### Entrega 3 — Motor de decisão completo
+
+O ponto fraco do motor anterior: ~55–65 dos 100 pontos vinham do calendário do Brasil (idêntico para todo destino), então o ranking era basicamente "moeda mais barata" — e câmbio nominal engana (1 JPY barato ≠ Japão barato). Esta entrega reconstrói o motor para comparar destinos de forma honesta, explicável e personalizável.
+
+1. **Score normalizado + média ponderada:**
+   * Cada `ScoringStrategy` devolve uma nota **0–100** comparável entre critérios (`ScoreEntry`), não mais pontos absolutos que se somam.
+   * O score final é a **média ponderada** das notas dos critérios disponíveis. Quando um dado falta (ex.: clima/custo que a API não retornou), o critério fica `available=false` e é **excluído da média** (renormalizada) — em vez de penalizar o destino com zero.
+   * O breakdown (`ScoredCriterion`) expõe, por critério: nota 0–100, peso aplicado, **contribuição** efetiva no score, rótulo, ícone e justificativa — tudo pronto para a UI renderizar sem de/para próprio.
+
+2. **Seis critérios (Strategy):**
+
+   | Critério | Strategy | Fonte |
+   |----------|----------|-------|
+   | 🎉 Feriados e pontes | `HolidayWindowStrategy` | Nager.Date (calendário BR) |
+   | ☀️ Clima | `WeatherStrategy` | Open-Meteo Archive (climatologia) |
+   | 💰 Custo de vida | `CostOfLivingStrategy` | World Bank (nível de preços PPP) |
+   | 💱 Câmbio | `ExchangeRateStrategy` | AwesomeAPI |
+   | ✈️ Distância | `DistanceStrategy` | great-circle (Haversine) a partir do Brasil |
+   | 🎊 Festividades no destino | `DestinationFestivitiesStrategy` | Nager.Date (feriados do destino) |
+
+   O critério de **custo (PPP)** corrige o engano do câmbio nominal: mede se as coisas são de fato mais baratas que no Brasil ("custo de vida ~70% do Brasil").
+
+3. **Pesos configuráveis: perfis + ajuste fino:**
+   * Pesos padrão e **perfis** nomeados (`economico`, `clima-perfeito`, `aventura`, `cultural`, `equilibrado`) ficam em `application.yml` (`app.recommendation`), via `@ConfigurationProperties` (`ScoringProperties`).
+   * `WeightResolver` combina **pesos padrão → perfil → ajuste fino por critério** (`?weights=clima:0.4,custo:0.2`), normalizando para somar 1. A resposta **ecoa** o perfil e os pesos aplicados, para a UI exibir/ajustar.
+   * Endpoint: `?profile=economico` e/ou `?weights=...`.
+
+4. **Filtros de candidatos (Chain of Responsibility):**
+   * `CandidateFilter` encadeia filtros que descartam candidatos **antes** do scoring: `ExcludedCountriesFilter` (exclusões do usuário) e `MaxExchangeRateFilter` (orçamento). Incluir/remover um filtro é só adicionar/remover um bean — o motor só conhece o primeiro elo.
+   * Descartados aparecem em `skipped` com o motivo.
+
+5. **Endpoint "melhores janelas" (`GET /api/v1/recommendations/best-windows`):**
+   * Em vez de exigir que o usuário adivinhe as datas, dado um período amplo o sistema encontra os **melhores feriadões/pontes** do calendário BR (reaproveitando o `LongWeekendDetector`), ranqueados por qualidade do timing; opcionalmente rankeia os melhores destinos **dentro de cada janela** (reaproveitando o motor).
+
+6. **Coleta paralela e degradação graciosa:**
+   * As strategies são funções puras sobre um `RecommendationContext` rico; todo o I/O (país, feriados, câmbio, clima, custo, distância) acontece no motor, por candidato, em **virtual threads**. Falha de enriquecimento (clima/custo) vira critério indisponível, não derruba o candidato.
+
+7. **Testes:** strategies novas (`WeatherStrategyTest`, `DistanceStrategyTest`, `CostOfLivingStrategyTest`, `DestinationFestivitiesStrategyTest`), `WeightResolverTest`, `CandidateFilterChainTest`, `GeoCalculatorTest`, `BestWindowsServiceTest`, além do `TravelRecommendationEngineTest` e dos controllers atualizados — **129 testes** no total.
+
+> Nota de integração: a API gratuita do **RestCountries v3.1 foi descontinuada** (passou a exigir chave). O motor, o cache, os filtros e as demais integrações (Nager.Date, AwesomeAPI, Open-Meteo, World Bank) seguem funcionando; a fonte de dados de países será migrada (dataset estático embarcado ou API com chave) numa etapa dedicada.
+
 #### Padrões GoF na Fase 3
 
 | Padrão | Classe(s) | Papel |
 |--------|-----------|-------|
-| **Decorator** | `CachingCountryClient`, `CachingHolidayClient`, `CachingExchangeClient` | Adiciona cache em memória sobre os clients HTTP reais sem alterar sua interface |
-
-**Padrões complementares planejados:**
-- **Chain of Responsibility:** pipeline de filtros de candidatos (orçamento, exclusões, visto) antes do scoring.
+| **Decorator** | `CachingCountryClient`, `CachingHolidayClient`, `CachingExchangeClient`, `CachingWeatherClient`, `CachingCostOfLivingClient` | Adiciona cache em memória sobre os clients HTTP reais sem alterar sua interface |
+| **Strategy** | `ScoringStrategy` + 6 implementações | Critérios de score plugáveis, combinados por média ponderada |
+| **Chain of Responsibility** | `CandidateFilter` + filtros | Descarta candidatos (orçamento, exclusões) antes do scoring |
+| **Facade** | `TravelRecommendationEngine` | Orquestra os serviços de domínio e a coleta de dados externos |
 
 **Funcionalidades planejadas:**
-- Feriados não oficiais e eventos culturais via Wikidata/Wikipedia.
+- Migração da fonte de dados de países (dataset estático embarcado ou API com chave).
+- Filtro de visto na cadeia de candidatos.
+- Descrição e imagem do destino via Wikipedia.
 - Frontend React consumindo `/api/v1/recommendations`.
-- Normalização de câmbio por custo de vida (além da cotação bruta).
 
 **Planejamento (até 06/Julho):** Entrega Final
 UX/UI: Deixar com o visual final, garantindo que o sistema seja responsivo, fluido e intuitivo para qualquer pessoa usar.

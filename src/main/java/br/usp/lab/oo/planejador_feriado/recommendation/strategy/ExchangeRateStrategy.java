@@ -1,70 +1,67 @@
 package br.usp.lab.oo.planejador_feriado.recommendation.strategy;
 
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.Criterion;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationContext;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoreEntry;
 import org.springframework.stereotype.Component;
 
+import java.util.Locale;
+
+/**
+ * Avalia o câmbio nominal da moeda do destino para o real. É o sentimento de
+ * "quanto custa comprar a moeda de lá" — complementado pelo critério de custo de
+ * vida (PPP), que corrige o engano de que moeda barata por unidade significa país
+ * barato. O teto de orçamento ({@code maxExchangeRate}) é tratado antes, como filtro.
+ */
 @Component
 public class ExchangeRateStrategy implements ScoringStrategy {
 
-    private static final double MAX_POINTS = 35.0;
-    private static final String CRITERION = "CAMBIO";
+    @Override
+    public Criterion criterion() {
+        return Criterion.EXCHANGE;
+    }
 
     @Override
     public ScoreEntry evaluate(RecommendationContext context) {
         Exchange exchange = context.exchangeToBrl();
-        Double maxRate = context.request().maxExchangeRate();
-
         if (exchange == null) {
-            return new ScoreEntry(
-                    CRITERION,
-                    0.0,
-                    MAX_POINTS,
-                    "Câmbio indisponível ou moeda local é BRL"
-            );
+            return ScoreEntry.unavailable(criterion(), "Câmbio indisponível ou moeda local é BRL");
         }
 
         double rate = exchange.getValueInReais();
-        if (maxRate != null && rate > maxRate) {
-            return new ScoreEntry(
-                    CRITERION,
-                    0.0,
-                    MAX_POINTS,
-                    String.format("Acima do orçamento: 1 %s = R$ %.2f (máx. R$ %.2f)",
-                            exchange.getCurrency(), rate, maxRate)
-            );
-        }
-
-        double points = pointsForRate(rate);
-        String justification = justificationForRate(exchange.getCurrency(), rate, points);
-
-        return new ScoreEntry(CRITERION, points, MAX_POINTS, justification);
+        double score = scoreForRate(rate);
+        String justification = String.format(Locale.ROOT,
+                "%s: 1 %s = R$ %.2f", qualitative(score), exchange.getCurrency(), rate);
+        return ScoreEntry.of(criterion(), score, justification);
     }
 
-    private double pointsForRate(double rate) {
-        if (rate <= 1.00) {
-            return 35.0;
+    private double scoreForRate(double rate) {
+        if (rate <= 1.0) {
+            return 100.0;
         }
-        if (rate <= 3.00) {
+        if (rate <= 3.0) {
+            return 70.0;
+        }
+        if (rate <= 5.0) {
+            return 45.0;
+        }
+        if (rate <= 8.0) {
             return 25.0;
         }
-        if (rate <= 5.00) {
-            return 15.0;
-        }
-        return 8.0;
+        return 12.0;
     }
 
-    private String justificationForRate(String currency, double rate, double points) {
-        if (points >= 35.0) {
-            return String.format("Câmbio muito favorável: 1 %s = R$ %.2f", currency, rate);
+    private String qualitative(double score) {
+        if (score >= 90.0) {
+            return "Câmbio muito favorável";
         }
-        if (points >= 25.0) {
-            return String.format("Câmbio favorável: 1 %s = R$ %.2f", currency, rate);
+        if (score >= 60.0) {
+            return "Câmbio favorável";
         }
-        if (points >= 15.0) {
-            return String.format("Câmbio moderado: 1 %s = R$ %.2f", currency, rate);
+        if (score >= 40.0) {
+            return "Câmbio moderado";
         }
-        return String.format("Câmbio desfavorável: 1 %s = R$ %.2f", currency, rate);
+        return "Câmbio desfavorável";
     }
 }
