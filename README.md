@@ -36,8 +36,8 @@ Nessa primeira fase foi estabelecido uma sólida arquitetura utilizando **Java 2
    * **Tratamento de erros centralizado (`@RestControllerAdvice`):** os serviços lançam exceções de domínio tipadas (`ResourceNotFoundException`, `ExternalApiException`) e o `GlobalExceptionHandler` as traduz em respostas HTTP consistentes — **404** (recurso inexistente: país/região/câmbio), **502** (falha de API externa) e **400** (entrada inválida, via `ResponseStatusException`/validação do Spring) —, sempre com um corpo JSON padronizado (`ApiError`: timestamp, status, error, message, path).
 4. **Integração via terminal (Spring Shell):**
    * Comandos registrados em `PlanejadorShellCommands`.
-   * O comportamento do shell é configurado em `src/main/resources/application.properties` e, para o modo interativo explícito, em `application-shell.properties` (perfil `shell`).
-   * Nos testes, o shell fica desligado em `src/test/resources/application.properties`, para a suíte rodar como aplicação web/API sem prompt.
+   * O comportamento do shell é configurado em `src/main/resources/application.yml` (desligado por padrão) e, para o modo interativo explícito, em `application-shell.yml` (perfil `shell`).
+   * Nos testes, o shell fica desligado em `src/test/resources/application.yml`, para a suíte rodar como aplicação web/API sem prompt.
 5. **Testes Automatizados:**
    * **Unitários com Mockito (sem rede):** os serviços de domínio são testados isolando as dependências externas via mocks — `CountryServiceTest` (mock de `RestCountriesClient`), `HolidayServiceTest` (mock de `NagerDateClient`), `ExchangeServiceTest` (mock de `AwesomeApiClient`) e `TravelServiceTest`. Cobrem mapeamento DTO→modelo, ordenação, deduplicação, janelas de data, casos de erro (lista vazia, falha de cliente, moeda inválida) e o atalho de BRL.
    * **Web/controllers com `@WebMvcTest` + MockMvc (sem rede):** `CountryControllerTest`, `HolidayControllerTest`, `ExchangeControllerTest`, `TravelControllerTest` e o `WebControllerTest` da interface web (Thymeleaf) — todos com os serviços mockados (`@MockitoBean`). Os testes cobrem o caminho feliz e o mapeamento de erros (404/502).
