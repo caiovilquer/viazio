@@ -164,20 +164,46 @@ Acesse no navegador: [http://localhost:8080](http://localhost:8080)
 
 ---
 
-### Fase 3 (planejado)
+### Fase 3
 Finalização do projeto, com melhorias na interface, refinamento das funcionalidades já implementadas, organização da arquitetura do sistema e conclusão da versão final para apresentação.
+
+#### Entrega 1 — Robustez de integração e Decorator (GoF)
+
+As APIs externas gratuitas (RestCountries, Nager.Date, AwesomeAPI) não têm SLA garantido e o motor de recomendação pode repetir a mesma chamada várias vezes ao comparar N destinos (ex.: o calendário de feriados do Brasil é consultado uma vez por candidato). Esta entrega ataca latência e resiliência sem mudar o comportamento observável da API.
+
+1. **Padrão Decorator (`Caching*Client`):**
+   * `CountryClient`, `HolidayClient` e `ExchangeClient` passaram a ser interfaces; `RestCountriesClient`, `NagerDateClient` e `AwesomeApiClient` são as implementações reais (chamam a API via `RestClient`).
+   * `CachingCountryClient`, `CachingHolidayClient` e `CachingExchangeClient` decoram essas implementações com cache em memória (Caffeine), interceptando as mesmas chamadas sem alterar a interface nem o client real.
+   * **Vantagem:** evita chamadas externas redundantes dentro de uma mesma comparação (ex.: feriados do Brasil consultados uma única vez, não uma por candidato), sem acoplar a lógica de cache ao código de integração HTTP.
+   * **TTL por volatilidade dos dados:** país 24h (quase nunca muda), feriados 12h (calendário do ano é estável), câmbio 5min (cotação varia rápido — o cache aqui só evita duplicar chamadas dentro da mesma requisição de comparação).
+   * Os serviços (`CountryService`, `HolidayService`, `ExchangeService`) dependem da interface, não da implementação concreta; o Spring injeta automaticamente a versão decorada (`@Primary`) em produção.
+
+2. **Resiliência (Resilience4j) e timeouts centralizados:**
+   * `@Retry` + `@CircuitBreaker` (`resilience4j-spring-boot3`) em todos os métodos dos clients reais, configurados em `application.yml` (`resilience4j.retry.instances.externalApi`, `resilience4j.circuitbreaker.instances.externalApi`).
+   * `RestClientFactory` centraliza a criação dos `RestClient` com timeout de conexão (3s) e leitura (5s) configuráveis via `app.external-apis.connect-timeout`/`read-timeout`, evitando que uma API externa lenta bloqueie a aplicação indefinidamente.
+
+3. **Paralelização do motor de recomendação:**
+   * `TravelRecommendationEngine` avaliava cada candidato sequencialmente; agora usa **virtual threads** (Java 21, `Executors.newVirtualThreadPerTaskExecutor()`) para avaliar todos os candidatos em paralelo, reduzindo o tempo total da comparação proporcionalmente ao número de destinos.
+   * O tratamento de erro por candidato (skip com mensagem, sem derrubar o ranking) foi preservado integralmente.
+
+4. **Testes:** `CachingCountryClientTest`, `CachingHolidayClientTest`, `CachingExchangeClientTest` (cache hit/miss por chave) e `RestClientFactoryTest`.
+
+#### Padrões GoF na Fase 3
+
+| Padrão | Classe(s) | Papel |
+|--------|-----------|-------|
+| **Decorator** | `CachingCountryClient`, `CachingHolidayClient`, `CachingExchangeClient` | Adiciona cache em memória sobre os clients HTTP reais sem alterar sua interface |
 
 **Padrões complementares planejados:**
 - **Chain of Responsibility:** pipeline de filtros de candidatos (orçamento, exclusões, visto) antes do scoring.
-- **Decorator (cache):** `CachingNagerDateClient` / `CachingAwesomeApiClient` para reduzir latência ao comparar N países.
 
 **Funcionalidades planejadas:**
 - Feriados não oficiais e eventos culturais via Wikidata/Wikipedia.
 - Frontend React consumindo `/api/recommendations`.
 - Normalização de câmbio por custo de vida (além da cotação bruta).
 
-**Planejamento(Até 06/Julho):** Entrega Final
+**Planejamento (até 06/Julho):** Entrega Final
 UX/UI: Deixar com o visual final, garantindo que o sistema seja responsivo, fluido e intuitivo para qualquer pessoa usar.
 
-Reta Final: Revisar se todos os testes automatizados estão passando, finalizar a documentação explicando as vantagens desses padrões e preparar a demonstração para a nossa Apresentação Final. 
+Reta Final: Revisar se todos os testes automatizados estão passando, finalizar a documentação explicando as vantagens desses padrões e preparar a demonstração para a nossa Apresentação Final.
 
