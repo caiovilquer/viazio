@@ -32,7 +32,7 @@ Nessa primeira fase foi estabelecido uma sólida arquitetura utilizando **Java 2
      * *AwesomeAPI:* Busca de cotação de câmbio em tempo real.
 3. **Serviços e API REST:**
    * `CountryService`, `HolidayService`, `ExchangeService` e `TravelService` (visão agregada: país, feriados futuros e câmbio para BRL quando fizer sentido).
-   * Controladores REST sob `/api/...` (por exemplo `/api/countries/...`, `/api/holidays/...`, `/api/exchange/...`, `/api/travel/...`).
+   * Controladores REST sob `/api/v1/...` (por exemplo `/api/v1/countries/...`, `/api/v1/holidays/...`, `/api/v1/exchange/...`, `/api/v1/travel/...`). O prefixo de versão é aplicado automaticamente pelo `WebConfig` (Fase 3) a todo `@RestController`, sem precisar repeti-lo em cada `@RequestMapping`.
    * **Tratamento de erros centralizado (`@RestControllerAdvice`):** os serviços lançam exceções de domínio tipadas (`ResourceNotFoundException`, `ExternalApiException`) e o `GlobalExceptionHandler` as traduz em respostas HTTP consistentes — **404** (recurso inexistente: país/região/câmbio), **502** (falha de API externa) e **400** (entrada inválida, via `ResponseStatusException`/validação do Spring) —, sempre com um corpo JSON padronizado (`ApiError`: timestamp, status, error, message, path).
 4. **Integração via terminal (Spring Shell):**
    * Comandos registrados em `PlanejadorShellCommands`.
@@ -70,9 +70,9 @@ A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface
 #### Entrega 1 — Interface web e Facade (GoF)
 
 1. **Padrão Facade (`TravelService`):**
-   * O `TravelService` expõe operações que coordenam `CountryService`, `HolidayService` e `ExchangeService` — por código ISO (`getOverviewByCountryCode`), por nome/código com detecção automática (`getOverviewByQuery`) ou via API REST (`GET /api/travel/{code}`).
+   * O `TravelService` expõe operações que coordenam `CountryService`, `HolidayService` e `ExchangeService` — por código ISO (`getOverviewByCountryCode`), por nome/código com detecção automática (`getOverviewByQuery`) ou via API REST (`GET /api/v1/travel/{code}`).
    * **Vantagem:** o `WebController` (e o CLI) não precisam conhecer as três APIs externas, nem tratar falhas de câmbio quando o país usa BRL. Sem o Facade, cada camada repetiria orquestração e lógica de negócio.
-   * Consumido por `GET /api/travel/{code}`, `GET /viagem?destino=...` (ou `?codigo=...` legado) e o comando shell `viagem`.
+   * Consumido por `GET /api/v1/travel/{code}`, `GET /viagem?destino=...` (ou `?codigo=...` legado) e o comando shell `viagem`.
 
 2. **Interface Web com Thymeleaf:**
    * Dependência `spring-boot-starter-thymeleaf` no `pom.xml`.
@@ -90,7 +90,7 @@ A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface
 
 #### Entrega 2 — Motor decisor e Strategy (GoF)
 
-1. **Motor Decisor de Recomendação (`/api/recommendations`):**
+1. **Motor Decisor de Recomendação (`/api/v1/recommendations`):**
    * `TravelRecommendationEngine` orquestra `CountryService`, `HolidayService` e `ExchangeService` (sem reimplementar integrações).
    * Entrada: janela (`from`/`to`), lista ISO (`countries=JP,FR`) **ou** região (`region=Europe&limit=10`), opcional `maxRate` (câmbio máximo em BRL).
    * Saída: ranking com score 0–100, breakdown por critério e summary (ex.: `JP — score 68: feriadão de 4 dias, câmbio muito favorável`).
@@ -122,13 +122,13 @@ A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface
 #### Como usar a API de recomendações
 ```bash
 # Comparar destinos por código ISO
-curl "http://localhost:8080/api/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR"
+curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR"
 
 # Comparar por região (máx. 10 países por padrão)
-curl "http://localhost:8080/api/recommendations?from=2026-06-01&to=2026-06-30&region=Europe&limit=5"
+curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&region=Europe&limit=5"
 
 # Com orçamento máximo de câmbio
-curl "http://localhost:8080/api/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR&maxRate=3.0"
+curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR&maxRate=3.0"
 ```
 
 #### Como usar a interface web
@@ -188,6 +188,32 @@ As APIs externas gratuitas (RestCountries, Nager.Date, AwesomeAPI) não têm SLA
 
 4. **Testes:** `CachingCountryClientTest`, `CachingHolidayClientTest`, `CachingExchangeClientTest` (cache hit/miss por chave) e `RestClientFactoryTest`.
 
+#### Entrega 2 — Segurança e API moderna
+
+Como o frontend React (próxima etapa) roda em processo separado (Vite, `localhost:5173`) e o projeto optou por **não** ter login, esta entrega endurece a API por outras frentes: isolamento de origem (CORS), limite de abuso (rate limit), não vazamento de detalhes internos em erros, observabilidade básica (Actuator) e documentação/versionamento formais.
+
+1. **Versionamento (`/api/v1`):**
+   * `WebConfig` (`configurePathMatch`) aplica o prefixo `/api/v1` a todo `@RestController` do pacote da aplicação automaticamente — os controllers continuam mapeando apenas o recurso (`/countries`, `/holidays`, etc.), sem repetir o prefixo. Isso permite evoluir para `/api/v2` no futuro sem reescrever cada controller.
+   * O `WebController` (HTML) não é afetado, pois usa `@Controller`, não `@RestController`.
+
+2. **CORS restrito (`app.cors.allowed-origins`):**
+   * `WebConfig` libera apenas as origens configuradas em `application.yml` (por padrão, `http://localhost:5173`, o dev server do Vite) para `/api/v1/**`. Qualquer outra origem recebe `403` no preflight.
+
+3. **Rate limiting (Bucket4j):**
+   * `RateLimitFilter` (registrado via `FilterRegistrationBean` apenas para `/api/v1/*`) aplica um *token bucket* por IP (`app.rate-limit.capacity`/`refill-per-minute`, padrão 60 req/min). Ao exceder, responde `429 Too Many Requests` com corpo JSON, sem tocar nos serviços de domínio.
+   * Protege a aplicação de uso abusivo e, indiretamente, preserva a cota das APIs externas gratuitas que ela consome.
+
+4. **Handler de erros sem vazamento + `traceId`:**
+   * `ApiError` ganhou o campo `traceId`. Para exceções de domínio (`ResourceNotFoundException`, `ExternalApiException`) a mensagem já era segura e continua sendo devolvida; para qualquer exceção **não mapeada**, o `GlobalExceptionHandler` não repassa `ex.getMessage()` ao cliente — devolve uma mensagem genérica e loga o stack trace completo no servidor correlacionado pelo `traceId`, permitindo investigar sem expor detalhes internos (stack trace, nomes de classe, etc.) na resposta HTTP.
+
+5. **Observabilidade (Spring Boot Actuator):**
+   * Apenas `/actuator/health` e `/actuator/info` são expostos (`management.endpoints.web.exposure.include`); os demais (`env`, `beans`, `heapdump`, etc.) ficam desligados por padrão para não vazar configuração/segredos. `show-details: never` no health evita detalhar o status de cada dependência (ex.: APIs externas) para clientes não autenticados.
+
+6. **OpenAPI customizado:**
+   * `OpenApiConfig` define título, descrição, versão (`v1`), contato e licença (MIT) exibidos em `/v3/api-docs` e na UI (`/swagger-ui.html`), em vez dos valores genéricos do springdoc.
+
+7. **Testes:** `RateLimitFilterTest` (consumo de tokens, bloqueio ao exceder, isolamento por IP); todos os testes de controller (`@WebMvcTest`) atualizados para os paths `/api/v1/...`.
+
 #### Padrões GoF na Fase 3
 
 | Padrão | Classe(s) | Papel |
@@ -199,7 +225,7 @@ As APIs externas gratuitas (RestCountries, Nager.Date, AwesomeAPI) não têm SLA
 
 **Funcionalidades planejadas:**
 - Feriados não oficiais e eventos culturais via Wikidata/Wikipedia.
-- Frontend React consumindo `/api/recommendations`.
+- Frontend React consumindo `/api/v1/recommendations`.
 - Normalização de câmbio por custo de vida (além da cotação bruta).
 
 **Planejamento (até 06/Julho):** Entrega Final

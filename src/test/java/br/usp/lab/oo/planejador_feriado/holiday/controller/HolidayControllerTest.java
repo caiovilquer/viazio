@@ -41,7 +41,7 @@ class HolidayControllerTest {
         when(countryService.getCountryByCode("BR")).thenReturn(brazil);
         when(holidayService.getUpcomingHolidays(any(Country.class))).thenReturn(List.of(holiday));
 
-        mockMvc.perform(get("/api/holidays/BR"))
+        mockMvc.perform(get("/api/v1/holidays/BR"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Christmas Day"))
                 .andExpect(jsonPath("$[0].date").value("2026-12-25"));
@@ -52,9 +52,9 @@ class HolidayControllerTest {
         when(countryService.getCountryByCode("ZZ"))
                 .thenThrow(new ResourceNotFoundException("Country not found: ZZ"));
 
-        mockMvc.perform(get("/api/holidays/ZZ"))
+        mockMvc.perform(get("/api/v1/holidays/ZZ"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.path").value("/api/holidays/ZZ"));
+                .andExpect(jsonPath("$.path").value("/api/v1/holidays/ZZ"));
     }
 }

@@ -47,7 +47,7 @@ class RecommendationControllerTest {
 
         when(recommendationEngine.recommend(any())).thenReturn(response);
 
-        mockMvc.perform(get("/api/recommendations")
+        mockMvc.perform(get("/api/v1/recommendations")
                         .param("from", "2026-06-01")
                         .param("to", "2026-06-30")
                         .param("countries", "JP,FR")
@@ -59,7 +59,7 @@ class RecommendationControllerTest {
 
     @Test
     void shouldReturnBadRequestWhenWindowInvalid() throws Exception {
-        mockMvc.perform(get("/api/recommendations")
+        mockMvc.perform(get("/api/v1/recommendations")
                         .param("from", "2026-06-30")
                         .param("to", "2026-06-01")
                         .param("countries", "JP"))
@@ -68,7 +68,7 @@ class RecommendationControllerTest {
 
     @Test
     void shouldReturnBadRequestWhenBothCountriesAndRegionProvided() throws Exception {
-        mockMvc.perform(get("/api/recommendations")
+        mockMvc.perform(get("/api/v1/recommendations")
                         .param("from", "2026-06-01")
                         .param("to", "2026-06-30")
                         .param("countries", "JP")
@@ -78,7 +78,7 @@ class RecommendationControllerTest {
 
     @Test
     void shouldReturnBadRequestWhenNeitherCountriesNorRegionProvided() throws Exception {
-        mockMvc.perform(get("/api/recommendations")
+        mockMvc.perform(get("/api/v1/recommendations")
                         .param("from", "2026-06-01")
                         .param("to", "2026-06-30"))
                 .andExpect(status().isBadRequest());

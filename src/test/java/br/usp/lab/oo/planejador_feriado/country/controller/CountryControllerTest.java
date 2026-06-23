@@ -35,7 +35,7 @@ class CountryControllerTest {
     void shouldReturnCountryByCode() throws Exception {
         when(countryService.getCountryByCode("JP")).thenReturn(japan());
 
-        mockMvc.perform(get("/api/countries/JP"))
+        mockMvc.perform(get("/api/v1/countries/JP"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Japan"))
                 .andExpect(jsonPath("$.isoCode").value("JP"));
@@ -46,11 +46,11 @@ class CountryControllerTest {
         when(countryService.getCountryByCode("ZZ"))
                 .thenThrow(new ResourceNotFoundException("Country not found: ZZ"));
 
-        mockMvc.perform(get("/api/countries/ZZ"))
+        mockMvc.perform(get("/api/v1/countries/ZZ"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Country not found: ZZ"))
-                .andExpect(jsonPath("$.path").value("/api/countries/ZZ"));
+                .andExpect(jsonPath("$.path").value("/api/v1/countries/ZZ"));
     }
 
     @Test
@@ -58,7 +58,7 @@ class CountryControllerTest {
         when(countryService.getCountryByCode("JP"))
                 .thenThrow(new ExternalApiException("Falha ao consultar serviço de países", new RuntimeException()));
 
-        mockMvc.perform(get("/api/countries/JP"))
+        mockMvc.perform(get("/api/v1/countries/JP"))
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.status").value(502));
     }
@@ -67,7 +67,7 @@ class CountryControllerTest {
     void shouldSearchCountryByName() throws Exception {
         when(countryService.getCountryByName("japan")).thenReturn(japan());
 
-        mockMvc.perform(get("/api/countries/search").param("name", "japan"))
+        mockMvc.perform(get("/api/v1/countries/search").param("name", "japan"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Japan"));
     }

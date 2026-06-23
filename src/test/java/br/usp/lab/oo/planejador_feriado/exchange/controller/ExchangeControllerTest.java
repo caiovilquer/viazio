@@ -28,7 +28,7 @@ class ExchangeControllerTest {
     void shouldReturnExchangeRate() throws Exception {
         when(service.getExchangeRate("USD")).thenReturn(new Exchange("USD", 5.12));
 
-        mockMvc.perform(get("/api/exchange/USD"))
+        mockMvc.perform(get("/api/v1/exchange/USD"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.currency").value("USD"))
                 .andExpect(jsonPath("$.valueInReais").value(5.12));
@@ -39,7 +39,7 @@ class ExchangeControllerTest {
         when(service.getExchangeRate("ZZZ"))
                 .thenThrow(new ResourceNotFoundException("Câmbio não encontrado: ZZZ"));
 
-        mockMvc.perform(get("/api/exchange/ZZZ"))
+        mockMvc.perform(get("/api/v1/exchange/ZZZ"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message").value("Câmbio não encontrado: ZZZ"));
@@ -50,7 +50,7 @@ class ExchangeControllerTest {
         when(service.getExchangeRate("USD"))
                 .thenThrow(new ExternalApiException("Falha ao consultar serviço de câmbio", new RuntimeException()));
 
-        mockMvc.perform(get("/api/exchange/USD"))
+        mockMvc.perform(get("/api/v1/exchange/USD"))
                 .andExpect(status().isBadGateway())
                 .andExpect(jsonPath("$.status").value(502));
     }

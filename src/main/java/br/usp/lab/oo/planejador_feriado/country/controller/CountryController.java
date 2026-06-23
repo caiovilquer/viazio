@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/countries")
+@RequestMapping("/countries")
 public class CountryController {
 
     private final CountryService countryService;

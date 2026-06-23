@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/travel")
+@RequestMapping("/travel")
 public class TravelController {
 
     private final TravelService travelService;

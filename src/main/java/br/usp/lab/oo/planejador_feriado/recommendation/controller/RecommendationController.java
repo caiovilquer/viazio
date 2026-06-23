@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/recommendations")
+@RequestMapping("/recommendations")
 public class RecommendationController {
 
     private static final int DEFAULT_LIMIT = 10;

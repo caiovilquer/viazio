@@ -35,7 +35,7 @@ class TravelControllerTest {
 
         when(travelService.getOverviewByCountryCode("JP")).thenReturn(overview);
 
-        mockMvc.perform(get("/api/travel/JP"))
+        mockMvc.perform(get("/api/v1/travel/JP"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.country.name").value("Japan"))
                 .andExpect(jsonPath("$.exchangeToBrl.currency").value("JPY"));
@@ -46,9 +46,9 @@ class TravelControllerTest {
         when(travelService.getOverviewByCountryCode("ZZ"))
                 .thenThrow(new ResourceNotFoundException("Country not found: ZZ"));
 
-        mockMvc.perform(get("/api/travel/ZZ"))
+        mockMvc.perform(get("/api/v1/travel/ZZ"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.path").value("/api/travel/ZZ"));
+                .andExpect(jsonPath("$.path").value("/api/v1/travel/ZZ"));
     }
 }

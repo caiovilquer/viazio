@@ -21,7 +21,7 @@ class RecommendationIntegrationTest {
 
     @Test
     void shouldReturnRankedRecommendationsFromRealApis() throws Exception {
-        mockMvc.perform(get("/api/recommendations")
+        mockMvc.perform(get("/api/v1/recommendations")
                         .param("from", "2026-06-01")
                         .param("to", "2026-06-30")
                         .param("countries", "JP,FR"))

@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/holidays")
+@RequestMapping("/holidays")
 public class HolidayController {
 
     private final CountryService countryService;
