@@ -1,9 +1,4 @@
 spring:
-  application:
-    name: planejador-feriado
-  # Por padrão a aplicação roda como servidor web/API (sem prompt). Para o menu
-  # interativo via terminal, ative o perfil "shell" (ver application-shell.yml):
-  #   ./mvnw spring-boot:run -Dspring-boot.run.profiles=shell
   shell:
     interactive:
       enabled: false
