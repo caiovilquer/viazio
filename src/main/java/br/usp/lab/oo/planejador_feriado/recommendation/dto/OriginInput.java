@@ -28,7 +28,7 @@ public record OriginInput(
         @Schema(example = "-46.6333")
         Double longitude,
 
-        @Size(max = 100)
+        @Size(max = 100, message = "deve ter no máximo 100 caracteres")
         @Schema(example = "São Paulo")
         String city
 ) {

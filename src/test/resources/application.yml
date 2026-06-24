@@ -6,6 +6,11 @@ spring:
       enabled: false
 
 app:
+  rate-limit:
+    capacity: 60
+    refill-per-minute: 60
+    maximum-clients: 1000
+    trust-forwarded-headers: false
   external-apis:
     nager-date:
       base-url: https://date.nager.at/api/v3
@@ -37,3 +42,18 @@ app:
         cost: 0.18
         festivities: 0.12
         distance: 0.10
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: never
+    prometheus:
+      access: read-only
+  prometheus:
+    metrics:
+      export:
+        enabled: true

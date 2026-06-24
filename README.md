@@ -191,6 +191,18 @@ Acesse no navegador: [http://localhost:8080](http://localhost:8080)
 ./mvnw test -Pintegration
 ```
 
+#### Como executar em contêiner
+```bash
+docker build -t planejador-feriado .
+docker run --rm -p 8080:8080 planejador-feriado
+```
+
+Endpoints operacionais:
+* Health: [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
+* Métricas Prometheus: [http://localhost:8080/actuator/prometheus](http://localhost:8080/actuator/prometheus)
+* OpenAPI: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+* Swagger UI: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
 ---
 
 ### Fase 3
@@ -208,7 +220,8 @@ As APIs externas gratuitas (RestCountries, Nager.Date, AwesomeAPI) não têm SLA
    * Os serviços (`CountryService`, `HolidayService`, `ExchangeService`) dependem da interface, não da implementação concreta; o Spring injeta automaticamente a versão decorada (`@Primary`) em produção.
 
 2. **Resiliência (Resilience4j) e timeouts centralizados:**
-   * `@Retry` + `@CircuitBreaker` (`resilience4j-spring-boot3`) em todos os métodos dos clients reais, configurados em `application.yml` (`resilience4j.retry.instances.externalApi`, `resilience4j.circuitbreaker.instances.externalApi`).
+   * Cada provedor possui estado próprio de `@Retry`, `@CircuitBreaker` e `@Bulkhead`: `holidayApi`, `exchangeApi`, `weatherApi`, `worldBankApi` e `wikipediaApi`. Uma indisponibilidade da Wikipédia, por exemplo, não abre o circuito do Banco Mundial.
+   * Bulkheads limitam chamadas concorrentes por integração e evitam que o paralelismo do ranking pressione uma API gratuita além do necessário.
    * `RestClientFactory` centraliza a criação dos `RestClient` com timeout de conexão (3s) e leitura (5s) configuráveis via `app.external-apis.connect-timeout`/`read-timeout`, evitando que uma API externa lenta bloqueie a aplicação indefinidamente.
 
 3. **Paralelização do motor de recomendação:**
@@ -229,19 +242,24 @@ Como o frontend React (próxima etapa) roda em processo separado (Vite, `localho
    * `WebConfig` libera apenas as origens configuradas em `application.yml` (por padrão, `http://localhost:5173`, o dev server do Vite) para `/api/v1/**`. Qualquer outra origem recebe `403` no preflight.
 
 3. **Rate limiting (Bucket4j):**
-   * `RateLimitFilter` (registrado via `FilterRegistrationBean` apenas para `/api/v1/*`) aplica um *token bucket* por IP (`app.rate-limit.capacity`/`refill-per-minute`, padrão 60 req/min). Ao exceder, responde `429 Too Many Requests` com corpo JSON, sem tocar nos serviços de domínio.
+   * `RateLimitFilter` (registrado via `FilterRegistrationBean` apenas para `/api/v1/*`) aplica um *token bucket* por IP (`app.rate-limit.capacity`/`refill-per-minute`, padrão 60 req/min). Ao exceder, responde `429 Too Many Requests` com `ApiError`, `Retry-After` e headers de limite.
+   * Os buckets usam Caffeine com tamanho máximo e expiração por inatividade, evitando crescimento ilimitado de memória.
+   * `X-Forwarded-For` só é aceito quando `app.rate-limit.trust-forwarded-headers=true`; por padrão o endereço remoto é usado, impedindo spoofing direto. Requisições `OPTIONS` não consomem tokens.
    * Protege a aplicação de uso abusivo e, indiretamente, preserva a cota das APIs externas gratuitas que ela consome.
 
 4. **Handler de erros sem vazamento + `traceId`:**
-   * `ApiError` ganhou o campo `traceId`. Para exceções de domínio (`ResourceNotFoundException`, `ExternalApiException`) a mensagem já era segura e continua sendo devolvida; para qualquer exceção **não mapeada**, o `GlobalExceptionHandler` não repassa `ex.getMessage()` ao cliente — devolve uma mensagem genérica e loga o stack trace completo no servidor correlacionado pelo `traceId`, permitindo investigar sem expor detalhes internos (stack trace, nomes de classe, etc.) na resposta HTTP.
+   * `RequestTraceFilter` aceita um `X-Request-Id` seguro ou gera UUID, adiciona `X-Trace-Id` à resposta e mantém o mesmo identificador no MDC e no `ApiError`.
+   * Para exceções de domínio a mensagem segura continua sendo devolvida; para qualquer exceção **não mapeada**, o `GlobalExceptionHandler` não repassa `ex.getMessage()` ao cliente — devolve mensagem genérica e loga o stack trace correlacionado.
 
 5. **Observabilidade (Spring Boot Actuator):**
-   * Apenas `/actuator/health` e `/actuator/info` são expostos (`management.endpoints.web.exposure.include`); os demais (`env`, `beans`, `heapdump`, etc.) ficam desligados por padrão para não vazar configuração/segredos. `show-details: never` no health evita detalhar o status de cada dependência (ex.: APIs externas) para clientes não autenticados.
+   * `/actuator/health`, `/actuator/info` e `/actuator/prometheus` são expostos; endpoints sensíveis (`env`, `beans`, `heapdump`, etc.) permanecem desligados.
+   * `show-details: never` evita vazar dependências no health; probes de liveness/readiness ficam habilitados.
+   * Micrometer publica duração, sucesso/erro, candidatos avaliados e resultados devolvidos pelo motor, além das métricas automáticas de JVM, HTTP e Resilience4j.
 
 6. **OpenAPI customizado:**
    * `OpenApiConfig` define título, descrição, versão (`v1`), contato e licença (MIT) exibidos em `/v3/api-docs` e na UI (`/swagger-ui.html`), em vez dos valores genéricos do springdoc.
 
-7. **Testes:** `RateLimitFilterTest` (consumo de tokens, bloqueio ao exceder, isolamento por IP); todos os testes de controller (`@WebMvcTest`) atualizados para os paths `/api/v1/...`.
+7. **Testes:** rate limit, confiança de proxy, limite de buckets, preflight CORS, correlação de trace, headers de segurança, métricas, endpoints operacionais e isolamento das configurações Resilience4j.
 
 #### Entrega 3 — Motor de decisão completo
 
@@ -367,6 +385,37 @@ O frontend não precisa duplicar regras, listas ou limites do backend. A API ofe
    * `OpenApiContractTest` confirma que `/v3/api-docs` publica GET/POST de recomendações, `/api/v1/meta` e o schema estruturado.
 
 5. **Testes:** POST completo e normalização, violações por campo, seleção ambígua de candidatos, envelope de erros, rate limit, catálogo completo, cache de países, serviço/controller de metadados e contrato OpenAPI — **178 testes sem rede** no total.
+
+#### Entrega 6 — Operação e entrega reproduzível
+
+A aplicação pode ser executada e observada de forma previsível fora da máquina de desenvolvimento, com limites explícitos de recurso e validação automatizada a cada alteração.
+
+1. **Segurança HTTP sem autenticação:**
+   * `SecurityHeadersFilter` aplica `nosniff`, bloqueio de framing, política de referrer, Permissions Policy e Content Security Policy compatível com a interface Thymeleaf.
+   * HSTS é enviado somente em conexões HTTPS, evitando comportamento incorreto no desenvolvimento HTTP local.
+
+2. **Métricas do produto:**
+   * `RecommendationMetrics` mede `travel.recommendation.duration`, requisições por resultado, candidatos avaliados e quantidade devolvida.
+   * As tags têm cardinalidade controlada (`success`/`error`), sem país, mensagem de erro ou identificador de usuário.
+   * Histogramas da duração ficam habilitados para cálculo de percentis no Prometheus.
+
+3. **Comportamento de servidor:**
+   * Shutdown gracioso com janela de 20 segundos.
+   * Compressão para JSON, HTML, CSS e JavaScript acima de 1 KiB — relevante para o catálogo de `/api/v1/meta`.
+   * Forwarded headers permanecem desativados no servidor e só são considerados pelo rate limit quando há configuração explícita de proxy confiável.
+
+4. **Imagem de execução:**
+   * `Dockerfile` multi-stage compila com JDK 21 e executa em JRE 21 Alpine.
+   * O processo roda como usuário não-root, expõe a porta 8080 e possui healthcheck em `/actuator/health`.
+   * `.dockerignore` remove repositório Git, artefatos locais, logs, IDE e documentação do contexto de build.
+
+5. **GitLab CI:**
+   * Estágio `test` executa `clean test` e publica relatórios JUnit.
+   * Estágio `package` produz o JAR somente após os testes.
+   * Estágio `container` faz o build integral do Dockerfile com Docker-in-Docker.
+   * Cache Maven e artefatos com expiração de uma semana reduzem tempo sem tornar o pipeline dependente de arquivos locais.
+
+6. **Testes:** headers, HSTS, trace, rate limit, configuração inválida, proxy confiável, cache limitado, métricas, Prometheus, health sem detalhes e anotações de resiliência por provedor — **191 testes sem rede** no total.
 
 #### Padrões GoF na Fase 3
 

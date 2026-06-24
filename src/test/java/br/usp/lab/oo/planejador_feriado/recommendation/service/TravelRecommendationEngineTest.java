@@ -19,6 +19,7 @@ import br.usp.lab.oo.planejador_feriado.recommendation.filter.CandidateFilterCha
 import br.usp.lab.oo.planejador_feriado.recommendation.filter.ExcludedCountriesFilter;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
+import br.usp.lab.oo.planejador_feriado.recommendation.metrics.RecommendationMetrics;
 import br.usp.lab.oo.planejador_feriado.recommendation.strategy.CostOfLivingStrategy;
 import br.usp.lab.oo.planejador_feriado.recommendation.strategy.DestinationFestivitiesStrategy;
 import br.usp.lab.oo.planejador_feriado.recommendation.strategy.DistanceStrategy;
@@ -26,6 +27,7 @@ import br.usp.lab.oo.planejador_feriado.recommendation.strategy.WeatherStrategy;
 import br.usp.lab.oo.planejador_feriado.recommendation.weight.WeightResolver;
 import br.usp.lab.oo.planejador_feriado.weather.model.WeatherSummary;
 import br.usp.lab.oo.planejador_feriado.weather.service.WeatherService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,7 +95,8 @@ class TravelRecommendationEngineTest {
                         new DestinationFestivitiesStrategy()),
                 new TravelWindowEvaluator(detector),
                 weightResolver,
-                new CandidateFilterChain(List.of(new ExcludedCountriesFilter())));
+                new CandidateFilterChain(List.of(new ExcludedCountriesFilter())),
+                new RecommendationMetrics(new SimpleMeterRegistry()));
 
         Country brazil = country("Brazil", "BR", "BRL", -10.0, -55.0);
         when(countryService.getCountryByCode("BR")).thenReturn(brazil);

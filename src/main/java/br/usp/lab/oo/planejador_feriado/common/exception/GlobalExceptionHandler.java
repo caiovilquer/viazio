@@ -1,5 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.common.exception;
 
+import br.usp.lab.oo.planejador_feriado.common.trace.RequestTraceFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +57,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest request) {
-        String traceId = UUID.randomUUID().toString();
+        String traceId = traceId(request);
         log.error("Erro inesperado [traceId={}] em {}", traceId, request.getRequestURI(), ex);
         return build(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -83,7 +84,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 "VALIDATION_ERROR",
                 "A requisição contém campos inválidos",
                 path(request),
-                UUID.randomUUID().toString(),
+                traceId(request),
                 violations);
         return new ResponseEntity<>(body, jsonHeaders(headers), status);
     }
@@ -95,7 +96,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatusCode status,
             WebRequest request) {
-        String traceId = UUID.randomUUID().toString();
+        String traceId = traceId(request);
         String message = frameworkMessage(ex, body, status);
         String code = frameworkCode(ex, status);
         if (status.is5xxServerError()) {
@@ -157,7 +158,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             String message,
             HttpServletRequest request,
             List<ApiViolation> violations) {
-        return build(status, code, message, request.getRequestURI(), UUID.randomUUID().toString(), violations);
+        return build(status, code, message, request.getRequestURI(), traceId(request), violations);
     }
 
     private ResponseEntity<ApiError> build(
@@ -188,5 +189,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 traceId,
                 violations
         );
+    }
+
+    private String traceId(HttpServletRequest request) {
+        Object value = request.getAttribute(RequestTraceFilter.ATTRIBUTE);
+        return value instanceof String traceId && !traceId.isBlank()
+                ? traceId
+                : UUID.randomUUID().toString();
+    }
+
+    private String traceId(WebRequest request) {
+        if (request instanceof ServletWebRequest servletWebRequest) {
+            return traceId(servletWebRequest.getRequest());
+        }
+        return UUID.randomUUID().toString();
     }
 }

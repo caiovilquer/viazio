@@ -1,0 +1,10 @@
+.git
+.gitignore
+.gitlab-ci.yml
+.idea
+.vscode
+.cursor
+target
+*.log
+docs
+README.md

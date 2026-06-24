@@ -22,53 +22,59 @@ import java.util.Map;
 
 @Schema(description = "Busca estruturada de recomendações para consumo por frontend")
 public record RecommendationSearchRequest(
-        @NotNull
+        @NotNull(message = "é obrigatório")
         @Schema(example = "2026-09-04")
         LocalDate from,
 
-        @NotNull
+        @NotNull(message = "é obrigatório")
         @Schema(example = "2026-09-07")
         LocalDate to,
 
-        @Size(max = RecommendationLimits.MAX_EXPLICIT_CANDIDATES)
+        @Size(
+                max = RecommendationLimits.MAX_EXPLICIT_CANDIDATES,
+                message = "aceita no máximo 50 países")
         List<
-                @NotBlank
+                @NotBlank(message = "não pode ser vazio")
                 @Pattern(regexp = "(?i)[A-Z]{2}", message = "deve usar código ISO alpha-2") String> countries,
 
-        @Size(max = 50)
+        @Size(max = 50, message = "deve ter no máximo 50 caracteres")
         @Schema(example = "Americas")
         String region,
 
-        @Min(1)
-        @Max(RecommendationLimits.MAX_RESULTS)
+        @Min(value = 1, message = "deve ser no mínimo 1")
+        @Max(value = RecommendationLimits.MAX_RESULTS, message = "deve ser no máximo 15")
         @Schema(defaultValue = "10")
         Integer limit,
 
-        @Size(max = RecommendationLimits.MAX_EXPLICIT_CANDIDATES)
+        @Size(max = 50, message = "deve ter no máximo 50 caracteres")
         @Schema(example = "economico")
         String profile,
 
-        @Size(max = 4)
+        @Size(max = 4, message = "aceita no máximo 4 critérios")
         Map<
-                @NotBlank
+                @NotBlank(message = "não pode ser vazio")
                 @Pattern(regexp = "(?i)(weather|cost|distance|festivities)",
                         message = "critério desconhecido") String,
-                @NotNull @DecimalMin("0.0") @DecimalMax("1.0") Double> weights,
+                @NotNull(message = "é obrigatório")
+                @DecimalMin(value = "0.0", message = "deve ser maior ou igual a 0")
+                @DecimalMax(value = "1.0", message = "deve ser menor ou igual a 1") Double> weights,
 
-        @Size(max = 50)
+        @Size(
+                max = RecommendationLimits.MAX_EXPLICIT_CANDIDATES,
+                message = "aceita no máximo 50 exclusões")
         List<
-                @NotBlank
+                @NotBlank(message = "não pode ser vazio")
                 @Pattern(regexp = "(?i)[A-Z]{2}", message = "deve usar código ISO alpha-2") String> exclude,
 
         @Valid
         OriginInput origin,
 
-        @Min(1)
-        @Max(RecommendationLimits.MAX_TRAVELERS)
+        @Min(value = 1, message = "deve ser no mínimo 1")
+        @Max(value = RecommendationLimits.MAX_TRAVELERS, message = "deve ser no máximo 10")
         @Schema(defaultValue = "1")
         Integer travelers,
 
-        @Positive
+        @Positive(message = "deve ser um valor positivo")
         @Schema(example = "5000")
         Double maxGroundBudgetBrl
 ) {

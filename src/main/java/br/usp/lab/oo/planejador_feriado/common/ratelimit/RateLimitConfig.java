@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 
 @Configuration
 public class RateLimitConfig {
@@ -18,6 +19,7 @@ public class RateLimitConfig {
                 new FilterRegistrationBean<>(new RateLimitFilter(properties, objectMapper));
         registration.addUrlPatterns(WebConfig.API_PREFIX + "/*");
         registration.setName("rateLimitFilter");
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 20);
         return registration;
     }
 }

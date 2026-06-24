@@ -1,6 +1,8 @@
 spring:
   application:
     name: planejador-feriado
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
   # Por padrão a aplicação roda como servidor web/API (sem prompt). Para o menu
   # interativo via terminal, ative o perfil "shell" (ver application-shell.yml):
   #   ./mvnw spring-boot:run -Dspring-boot.run.profiles=shell
@@ -10,6 +12,14 @@ spring:
     noninteractive:
       enabled: false
 
+server:
+  shutdown: graceful
+  forward-headers-strategy: none
+  compression:
+    enabled: true
+    mime-types: application/json,text/html,text/css,application/javascript
+    min-response-size: 1024
+
 app:
   cors:
     allowed-origins:
@@ -17,6 +27,9 @@ app:
   rate-limit:
     capacity: 60
     refill-per-minute: 60
+    maximum-clients: 10000
+    # Ative apenas atrás de um proxy confiável que sobrescreva X-Forwarded-For.
+    trust-forwarded-headers: false
   external-apis:
     nager-date:
       base-url: https://date.nager.at/api/v3
@@ -74,8 +87,8 @@ app:
 
 resilience4j:
   retry:
-    instances:
-      externalApi:
+    configs:
+      default:
         max-attempts: 3
         wait-duration: 300ms
         enable-exponential-backoff: true
@@ -83,23 +96,85 @@ resilience4j:
         retry-exceptions:
           - org.springframework.web.client.ResourceAccessException
           - org.springframework.web.client.HttpServerErrorException
-  circuitbreaker:
     instances:
-      externalApi:
+      holidayApi:
+        base-config: default
+      exchangeApi:
+        base-config: default
+      weatherApi:
+        base-config: default
+      worldBankApi:
+        base-config: default
+      wikipediaApi:
+        base-config: default
+  circuitbreaker:
+    configs:
+      default:
         sliding-window-size: 10
         minimum-number-of-calls: 5
         failure-rate-threshold: 50
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 3
+    instances:
+      holidayApi:
+        base-config: default
+      exchangeApi:
+        base-config: default
+      weatherApi:
+        base-config: default
+      worldBankApi:
+        base-config: default
+      wikipediaApi:
+        base-config: default
+  bulkhead:
+    instances:
+      holidayApi:
+        max-concurrent-calls: 20
+        max-wait-duration: 100ms
+      exchangeApi:
+        max-concurrent-calls: 10
+        max-wait-duration: 100ms
+      weatherApi:
+        max-concurrent-calls: 20
+        max-wait-duration: 100ms
+      worldBankApi:
+        max-concurrent-calls: 10
+        max-wait-duration: 100ms
+      wikipediaApi:
+        max-concurrent-calls: 10
+        max-wait-duration: 100ms
 
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
   endpoint:
     health:
       show-details: never
+      probes:
+        enabled: true
+    prometheus:
+      access: read-only
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        travel.recommendation.duration: true
+  info:
+    env:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: "@project.version@"
+    description: Motor explicável para planejamento de feriadões e viagens curtas
 
 springdoc:
   api-docs:

@@ -4,6 +4,7 @@ import br.usp.lab.oo.planejador_feriado.common.config.ExternalApisProperties;
 import br.usp.lab.oo.planejador_feriado.common.config.RestClientFactory;
 import br.usp.lab.oo.planejador_feriado.enrichment.dto.WikipediaSummaryDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -28,8 +29,9 @@ public class WikipediaRestClient implements WikipediaClient {
     }
 
     @Override
-    @Retry(name = "externalApi")
-    @CircuitBreaker(name = "externalApi")
+    @Retry(name = "wikipediaApi")
+    @CircuitBreaker(name = "wikipediaApi")
+    @Bulkhead(name = "wikipediaApi")
     public WikipediaSummaryDTO getSummary(String languageCode, String title) {
         String baseUrl = String.format(Locale.ROOT, baseUrlTemplate, languageCode);
         RestClient restClient = restClientFactory.builderFor(baseUrl).build();

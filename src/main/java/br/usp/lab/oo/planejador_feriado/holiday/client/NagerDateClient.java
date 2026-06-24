@@ -4,6 +4,7 @@ import br.usp.lab.oo.planejador_feriado.common.config.ExternalApisProperties;
 import br.usp.lab.oo.planejador_feriado.common.config.RestClientFactory;
 import br.usp.lab.oo.planejador_feriado.holiday.dto.HolidayDTO;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -21,8 +22,9 @@ public class NagerDateClient implements HolidayClient {
     }
 
     @Override
-    @Retry(name = "externalApi")
-    @CircuitBreaker(name = "externalApi")
+    @Retry(name = "holidayApi")
+    @CircuitBreaker(name = "holidayApi")
+    @Bulkhead(name = "holidayApi")
     public List<HolidayDTO> getPublicHolidays(int year, String countryCode) {
         return restClient.get()
                 .uri("/PublicHolidays/{year}/{countryCode}", year, countryCode)

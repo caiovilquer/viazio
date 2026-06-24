@@ -4,6 +4,7 @@ import br.usp.lab.oo.planejador_feriado.common.config.ExternalApisProperties;
 import br.usp.lab.oo.planejador_feriado.common.config.RestClientFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -27,8 +28,9 @@ public class WorldBankClient implements WorldBankIndicatorClient {
     }
 
     @Override
-    @Retry(name = "externalApi")
-    @CircuitBreaker(name = "externalApi")
+    @Retry(name = "worldBankApi")
+    @CircuitBreaker(name = "worldBankApi")
+    @Bulkhead(name = "worldBankApi")
     public List<WorldBankIndicatorPoint> getIndicatorSeries(String isoCode, String indicatorCode) {
         String code = isoCode.toUpperCase(Locale.ROOT);
         JsonNode root = restClient.get()

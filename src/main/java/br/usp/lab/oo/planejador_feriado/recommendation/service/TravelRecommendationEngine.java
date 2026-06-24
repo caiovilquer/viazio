@@ -19,6 +19,7 @@ import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationRespons
 import br.usp.lab.oo.planejador_feriado.recommendation.config.RecommendationLimits;
 import br.usp.lab.oo.planejador_feriado.recommendation.filter.CandidateFilterChain;
 import br.usp.lab.oo.planejador_feriado.recommendation.filter.FilterContext;
+import br.usp.lab.oo.planejador_feriado.recommendation.metrics.RecommendationMetrics;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.Criterion;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.DataQuality;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.OriginReference;
@@ -75,6 +76,7 @@ public class TravelRecommendationEngine {
     private final TravelWindowEvaluator windowEvaluator;
     private final WeightResolver weightResolver;
     private final CandidateFilterChain filterChain;
+    private final RecommendationMetrics metrics;
 
     public TravelRecommendationEngine(
             CountryService countryService,
@@ -88,7 +90,8 @@ public class TravelRecommendationEngine {
             List<ScoringStrategy> scoringStrategies,
             TravelWindowEvaluator windowEvaluator,
             WeightResolver weightResolver,
-            CandidateFilterChain filterChain) {
+            CandidateFilterChain filterChain,
+            RecommendationMetrics metrics) {
         this.countryService = countryService;
         this.holidayService = holidayService;
         this.exchangeService = exchangeService;
@@ -101,9 +104,14 @@ public class TravelRecommendationEngine {
         this.windowEvaluator = windowEvaluator;
         this.weightResolver = weightResolver;
         this.filterChain = filterChain;
+        this.metrics = metrics;
     }
 
     public RecommendationResponse recommend(RecommendationRequest request) {
+        return metrics.measure(() -> doRecommend(request));
+    }
+
+    private RecommendationResponse doRecommend(RecommendationRequest request) {
         ResolvedWeights weights = weightResolver.resolve(request.profile(), request.weightOverrides());
         OriginData origin = loadOrigin(request);
         WindowAssessment window = windowEvaluator.evaluate(origin.holidays(), request.from(), request.to());
@@ -140,7 +148,7 @@ public class TravelRecommendationEngine {
                 .map(this::enrichFinalist)
                 .toList();
 
-        return new RecommendationResponse(
+        RecommendationResponse response = new RecommendationResponse(
                 request.from(),
                 request.to(),
                 Instant.now(),
@@ -150,6 +158,8 @@ public class TravelRecommendationEngine {
                 window,
                 limited,
                 skipped);
+        metrics.recordResults(candidateCodes.size(), limited.size());
+        return response;
     }
 
     private OriginData loadOrigin(RecommendationRequest request) {

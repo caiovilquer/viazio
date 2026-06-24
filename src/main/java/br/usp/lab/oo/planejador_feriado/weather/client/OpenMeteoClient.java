@@ -4,6 +4,7 @@ import br.usp.lab.oo.planejador_feriado.common.config.ExternalApisProperties;
 import br.usp.lab.oo.planejador_feriado.common.config.RestClientFactory;
 import br.usp.lab.oo.planejador_feriado.weather.dto.OpenMeteoArchiveResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -26,6 +27,7 @@ public class OpenMeteoClient implements WeatherClient {
     @Override
     @Retry(name = "weatherApi")
     @CircuitBreaker(name = "weatherApi")
+    @Bulkhead(name = "weatherApi")
     public OpenMeteoArchiveResponse getHistoricalDaily(
             double latitude, double longitude, LocalDate start, LocalDate end) {
         return archiveClient.get()
@@ -37,6 +39,7 @@ public class OpenMeteoClient implements WeatherClient {
     @Override
     @Retry(name = "weatherApi")
     @CircuitBreaker(name = "weatherApi")
+    @Bulkhead(name = "weatherApi")
     public OpenMeteoArchiveResponse getForecastDaily(
             double latitude, double longitude, LocalDate start, LocalDate end) {
         return forecastClient.get()

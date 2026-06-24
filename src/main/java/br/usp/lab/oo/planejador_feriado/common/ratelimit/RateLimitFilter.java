@@ -3,6 +3,9 @@ package br.usp.lab.oo.planejador_feriado.common.ratelimit;
 import br.usp.lab.oo.planejador_feriado.common.config.RateLimitProperties;
 import br.usp.lab.oo.planejador_feriado.common.exception.ApiError;
 import br.usp.lab.oo.planejador_feriado.common.exception.ApiViolation;
+import br.usp.lab.oo.planejador_feriado.common.trace.RequestTraceFilter;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
@@ -11,17 +14,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.MediaType;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Limita o número de requisições por IP nos endpoints {@code /api/v1/**}, protegendo
@@ -32,7 +33,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitProperties properties;
     private final ObjectMapper objectMapper;
-    private final ConcurrentMap<String, Bucket> buckets = new ConcurrentHashMap<>();
+    private final Cache<String, Bucket> buckets;
 
     public RateLimitFilter(RateLimitProperties properties) {
         this(properties, new ObjectMapper().findAndRegisterModules());
@@ -41,22 +42,28 @@ public class RateLimitFilter extends OncePerRequestFilter {
     public RateLimitFilter(RateLimitProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
         this.objectMapper = objectMapper;
+        this.buckets = Caffeine.newBuilder()
+                .maximumSize(properties.maximumClientsOrDefault())
+                .expireAfterAccess(Duration.ofMinutes(15))
+                .build();
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        Bucket bucket = buckets.computeIfAbsent(clientKey(request), key -> newBucket());
+        Bucket bucket = buckets.get(clientKey(request), key -> newBucket());
 
         if (bucket.tryConsume(1)) {
+            addRateLimitHeaders(response, bucket);
             chain.doFilter(request, response);
             return;
         }
 
         response.setStatus(429);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setHeader(HttpHeaders.RETRY_AFTER, "60");
+        addRateLimitHeaders(response, bucket);
+        response.setHeader(HttpHeaders.RETRY_AFTER, String.valueOf(retryAfterSeconds()));
         objectMapper.writeValue(response.getWriter(), new ApiError(
                 Instant.now(),
                 429,
@@ -64,8 +71,22 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 "RATE_LIMIT_EXCEEDED",
                 "Limite de requisições excedido, tente novamente em breve",
                 request.getRequestURI(),
-                UUID.randomUUID().toString(),
+                traceId(request),
                 List.<ApiViolation>of()));
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return "OPTIONS".equalsIgnoreCase(request.getMethod());
+    }
+
+    private void addRateLimitHeaders(HttpServletResponse response, Bucket bucket) {
+        response.setHeader("X-RateLimit-Limit", String.valueOf(properties.capacityOrDefault()));
+        response.setHeader("X-RateLimit-Remaining", String.valueOf(bucket.getAvailableTokens()));
+    }
+
+    private long retryAfterSeconds() {
+        return Math.max(1L, (long) Math.ceil(60.0 / properties.refillPerMinuteOrDefault()));
     }
 
     private Bucket newBucket() {
@@ -76,10 +97,24 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 
     private String clientKey(HttpServletRequest request) {
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        if (forwardedFor != null && !forwardedFor.isBlank()) {
-            return forwardedFor.split(",")[0].trim();
+        if (properties.trustForwardedHeadersOrDefault()) {
+            String forwardedFor = request.getHeader("X-Forwarded-For");
+            if (forwardedFor != null && !forwardedFor.isBlank()) {
+                return forwardedFor.split(",")[0].trim();
+            }
         }
         return request.getRemoteAddr();
+    }
+
+    private String traceId(HttpServletRequest request) {
+        Object value = request.getAttribute(RequestTraceFilter.ATTRIBUTE);
+        return value instanceof String traceId && !traceId.isBlank()
+                ? traceId
+                : UUID.randomUUID().toString();
+    }
+
+    long estimatedClientCount() {
+        buckets.cleanUp();
+        return buckets.estimatedSize();
     }
 }
