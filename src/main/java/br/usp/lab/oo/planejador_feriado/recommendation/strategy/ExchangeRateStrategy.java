@@ -31,8 +31,11 @@ public class ExchangeRateStrategy implements ScoringStrategy {
 
         double rate = exchange.getValueInReais();
         double score = scoreForRate(rate);
+        String formattedRate = rate < 1.0
+                ? String.format(Locale.ROOT, "%.4f", rate)
+                : String.format(Locale.ROOT, "%.2f", rate);
         String justification = String.format(Locale.ROOT,
-                "%s: 1 %s = R$ %.2f", qualitative(score), exchange.getCurrency(), rate);
+                "%s: 1 %s = R$ %s", qualitative(score), exchange.getCurrency(), formattedRate);
         return ScoreEntry.of(criterion(), score, justification);
     }
 

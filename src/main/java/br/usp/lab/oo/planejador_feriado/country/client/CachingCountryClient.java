@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Decorator (GoF) que adiciona cache em memória sobre {@link RestCountriesClient}.
- * Dados de país praticamente não mudam, então uma janela de cache longa reduz
- * drasticamente o número de chamadas externas ao comparar vários destinos.
+ * Decorator (GoF) que adiciona cache em memória sobre {@link StaticCountryClient}.
+ * O dataset de países é local e estável, então o cache apenas evita refiltrar a
+ * lista a cada consulta (ex.: por região) durante uma comparação de destinos.
  */
 @Primary
 @Component
@@ -22,7 +22,7 @@ public class CachingCountryClient implements CountryClient {
     private final CountryClient delegate;
     private final Cache<String, List<CountryDTO>> cache;
 
-    public CachingCountryClient(RestCountriesClient delegate) {
+    public CachingCountryClient(StaticCountryClient delegate) {
         this.delegate = delegate;
         this.cache = Caffeine.newBuilder()
                 .maximumSize(500)

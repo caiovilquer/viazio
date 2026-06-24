@@ -12,8 +12,8 @@ import java.util.Locale;
 
 /**
  * Decorator (GoF) que adiciona cache em memória sobre {@link WorldBankClient}.
- * O indicador é anual, então o TTL é longo — evita repetir a consulta para o mesmo
- * país ao comparar vários destinos.
+ * Os indicadores são anuais, então o TTL é longo — evita repetir a consulta para o
+ * mesmo país/indicador ao comparar vários destinos.
  */
 @Primary
 @Component
@@ -25,13 +25,14 @@ public class CachingCostOfLivingClient implements CostOfLivingClient {
     public CachingCostOfLivingClient(WorldBankClient delegate) {
         this.delegate = delegate;
         this.cache = Caffeine.newBuilder()
-                .maximumSize(500)
+                .maximumSize(1000)
                 .expireAfterWrite(Duration.ofDays(7))
                 .build();
     }
 
     @Override
-    public List<WorldBankIndicatorPoint> getPriceLevelSeries(String isoCode) {
-        return cache.get(isoCode.toUpperCase(Locale.ROOT), code -> delegate.getPriceLevelSeries(isoCode));
+    public List<WorldBankIndicatorPoint> getIndicatorSeries(String isoCode, String indicatorCode) {
+        String key = isoCode.toUpperCase(Locale.ROOT) + "|" + indicatorCode;
+        return cache.get(key, k -> delegate.getIndicatorSeries(isoCode, indicatorCode));
     }
 }

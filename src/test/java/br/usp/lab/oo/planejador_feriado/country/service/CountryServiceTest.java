@@ -2,7 +2,7 @@ package br.usp.lab.oo.planejador_feriado.country.service;
 
 import br.usp.lab.oo.planejador_feriado.common.exception.ExternalApiException;
 import br.usp.lab.oo.planejador_feriado.common.exception.ResourceNotFoundException;
-import br.usp.lab.oo.planejador_feriado.country.client.RestCountriesClient;
+import br.usp.lab.oo.planejador_feriado.country.client.CountryClient;
 import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 class CountryServiceTest {
 
     @Mock
-    private RestCountriesClient client;
+    private CountryClient client;
 
     @InjectMocks
     private CountryService service;

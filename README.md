@@ -235,7 +235,7 @@ O ponto fraco do motor anterior: ~55–65 dos 100 pontos vinham do calendário d
    |----------|----------|-------|
    | 🎉 Feriados e pontes | `HolidayWindowStrategy` | Nager.Date (calendário BR) |
    | ☀️ Clima | `WeatherStrategy` | Open-Meteo Archive (climatologia) |
-   | 💰 Custo de vida | `CostOfLivingStrategy` | World Bank (nível de preços PPP) |
+   | 💰 Custo de vida | `CostOfLivingStrategy` | World Bank (PPP de consumo ÷ câmbio oficial) |
    | 💱 Câmbio | `ExchangeRateStrategy` | AwesomeAPI |
    | ✈️ Distância | `DistanceStrategy` | great-circle (Haversine) a partir do Brasil |
    | 🎊 Festividades no destino | `DestinationFestivitiesStrategy` | Nager.Date (feriados do destino) |
@@ -259,7 +259,7 @@ O ponto fraco do motor anterior: ~55–65 dos 100 pontos vinham do calendário d
 
 7. **Testes:** strategies novas (`WeatherStrategyTest`, `DistanceStrategyTest`, `CostOfLivingStrategyTest`, `DestinationFestivitiesStrategyTest`), `WeightResolverTest`, `CandidateFilterChainTest`, `GeoCalculatorTest`, `BestWindowsServiceTest`, além do `TravelRecommendationEngineTest` e dos controllers atualizados — **129 testes** no total.
 
-> Nota de integração: a API gratuita do **RestCountries v3.1 foi descontinuada** (passou a exigir chave). O motor, o cache, os filtros e as demais integrações (Nager.Date, AwesomeAPI, Open-Meteo, World Bank) seguem funcionando; a fonte de dados de países será migrada (dataset estático embarcado ou API com chave) numa etapa dedicada.
+> Nota de integração: durante o desenvolvimento, a API gratuita do **RestCountries v3.1 foi descontinuada** (passou a exigir chave) e o indicador único de nível de preços do Banco Mundial (`PA.NUS.PPPC.RF`) foi **arquivado**. Resolvido sem depender de chaves: (a) os dados de países passaram a vir de um **dataset estático embarcado** (`StaticCountryClient`, lendo `resources/data/countries.json`, derivado do projeto MIT mledoze/countries) — países quase não mudam, então a app fica independente de rede para essa informação; (b) o custo de vida é **calculado** como PPP de consumo (`PA.NUS.PRVT.PP`) ÷ câmbio oficial (`PA.NUS.FCRF`) no ano mais recente comum. As demais integrações (Nager.Date, AwesomeAPI, Open-Meteo) seguem ao vivo.
 
 #### Padrões GoF na Fase 3
 

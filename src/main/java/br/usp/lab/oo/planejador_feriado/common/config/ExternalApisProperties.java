@@ -6,7 +6,6 @@ import java.time.Duration;
 
 @ConfigurationProperties(prefix = "app.external-apis")
 public record ExternalApisProperties(
-        Api restCountries,
         Api nagerDate,
         Api awesomeApi,
         Api openMeteo,

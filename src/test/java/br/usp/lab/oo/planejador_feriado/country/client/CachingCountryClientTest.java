@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 class CachingCountryClientTest {
 
     @Mock
-    private RestCountriesClient delegate;
+    private StaticCountryClient delegate;
 
     @Test
     void cachesRepeatedCallsByCode() {

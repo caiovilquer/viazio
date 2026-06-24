@@ -18,8 +18,6 @@ app:
     capacity: 60
     refill-per-minute: 60
   external-apis:
-    rest-countries:
-      base-url: https://restcountries.com/v3.1
     nager-date:
       base-url: https://date.nager.at/api/v3
     awesome-api:

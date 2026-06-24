@@ -14,14 +14,12 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Consome o indicador {@code PA.NUS.PPPC.RF} do Banco Mundial. A API responde um array
- * heterogêneo {@code [ {metadados}, [ {pontos} ] ]}, então o parse é feito manualmente
- * sobre o {@link JsonNode} e convertido para uma lista tipada de pontos.
+ * Consome indicadores do Banco Mundial. A API responde um array heterogêneo
+ * {@code [ {metadados}, [ {pontos} ] ]}, então o parse é feito manualmente sobre o
+ * {@link JsonNode} e convertido para uma lista tipada de pontos.
  */
 @Component
 public class WorldBankClient implements CostOfLivingClient {
-
-    private static final String PRICE_LEVEL_INDICATOR = "PA.NUS.PPPC.RF";
 
     private final RestClient restClient;
 
@@ -32,11 +30,10 @@ public class WorldBankClient implements CostOfLivingClient {
     @Override
     @Retry(name = "externalApi")
     @CircuitBreaker(name = "externalApi")
-    public List<WorldBankIndicatorPoint> getPriceLevelSeries(String isoCode) {
+    public List<WorldBankIndicatorPoint> getIndicatorSeries(String isoCode, String indicatorCode) {
         String code = isoCode.toUpperCase(Locale.ROOT);
         JsonNode root = restClient.get()
-                .uri("/country/{code}/indicator/{indicator}?format=json&mrnev=5",
-                        code, PRICE_LEVEL_INDICATOR)
+                .uri("/country/{code}/indicator/{indicator}?format=json&per_page=400", code, indicatorCode)
                 .retrieve()
                 .body(JsonNode.class);
 
