@@ -31,6 +31,11 @@ public class CachingCountryClient implements CountryClient {
     }
 
     @Override
+    public List<CountryDTO> getAllCountries() {
+        return cache.get("all", key -> delegate.getAllCountries());
+    }
+
+    @Override
     public List<CountryDTO> getCountryByCode(String countryCode) {
         return cache.get("code:" + countryCode.toUpperCase(Locale.ROOT), key -> delegate.getCountryByCode(countryCode));
     }

@@ -1,16 +1,24 @@
 package br.usp.lab.oo.planejador_feriado.recommendation.controller;
 
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.BestWindowsResponse;
+import br.usp.lab.oo.planejador_feriado.recommendation.dto.OriginInput;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
+import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationSearchRequest;
+import br.usp.lab.oo.planejador_feriado.recommendation.config.RecommendationLimits;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.BestWindowsRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.Criterion;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.BestWindowsService;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
 import br.usp.lab.oo.planejador_feriado.recommendation.weight.WeightResolver;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,11 +35,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/recommendations")
+@Tag(name = "Recomendações", description = "Ranking explicável de destinos e melhores janelas de viagem")
 public class RecommendationController {
-
-    private static final int MAX_LIMIT = 15;
-    private static final int MAX_WINDOW_DAYS = 92;
-    private static final int MAX_PERIOD_DAYS = 400;
 
     private final TravelRecommendationEngine recommendationEngine;
     private final BestWindowsService bestWindowsService;
@@ -47,6 +52,7 @@ public class RecommendationController {
     }
 
     @GetMapping
+    @Operation(summary = "Gera recomendações por parâmetros de consulta")
     public RecommendationResponse getRecommendations(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -64,12 +70,12 @@ public class RecommendationController {
             @RequestParam(required = false, defaultValue = "1") int travelers,
             @RequestParam(required = false) Double maxGroundBudget) {
 
-        validateWindow(from, to, MAX_WINDOW_DAYS);
+        validateWindow(from, to, RecommendationLimits.MAX_RECOMMENDATION_WINDOW_DAYS);
         validateCandidateInput(countries, region);
-        validateLimit(limit, MAX_LIMIT);
+        validateLimit(limit, RecommendationLimits.MAX_RESULTS);
         validateProfile(profile);
         validateCoordinates(originLatitude, originLongitude);
-        validateRange("travelers", travelers, 1, 10);
+        validateRange("travelers", travelers, 1, RecommendationLimits.MAX_TRAVELERS);
         validatePositiveMoney("maxGroundBudget", maxGroundBudget);
 
         RecommendationRequest request = new RecommendationRequest(
@@ -93,7 +99,39 @@ public class RecommendationController {
         return recommendationEngine.recommend(request);
     }
 
+    @PostMapping
+    @Operation(summary = "Gera recomendações por uma requisição JSON estruturada")
+    public RecommendationResponse searchRecommendations(
+            @Valid @RequestBody RecommendationSearchRequest body) {
+        validateWindow(body.from(), body.to(), RecommendationLimits.MAX_RECOMMENDATION_WINDOW_DAYS);
+        validateCandidateInput(body.countries(), body.region());
+        validateProfile(body.profile());
+
+        OriginInput origin = body.originOrDefault();
+        validateCoordinates(origin.latitude(), origin.longitude());
+
+        RecommendationRequest request = new RecommendationRequest(
+                body.from(),
+                body.to(),
+                normalizeCodes(body.countries()),
+                normalizeRegion(body.region()),
+                body.limitOrDefault(),
+                normalizeProfile(body.profile()),
+                parseWeights(body.weights()),
+                normalizeCodes(body.exclude()),
+                normalizeCountryCode(origin.countryCodeOrDefault(), "origin.countryCode"),
+                normalizeSubdivision(origin.subdivisionCode()),
+                origin.latitude(),
+                origin.longitude(),
+                normalizeText(origin.city()),
+                body.travelersOrDefault(),
+                body.maxGroundBudgetBrl());
+
+        return recommendationEngine.recommend(request);
+    }
+
     @GetMapping("/best-windows")
+    @Operation(summary = "Descobre e ranqueia feriadões em um período amplo")
     public BestWindowsResponse getBestWindows(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
@@ -113,14 +151,14 @@ public class RecommendationController {
             @RequestParam(required = false, defaultValue = "1") int travelers,
             @RequestParam(required = false) Double maxGroundBudget) {
 
-        validateWindow(from, to, MAX_PERIOD_DAYS);
+        validateWindow(from, to, RecommendationLimits.MAX_BEST_WINDOWS_PERIOD_DAYS);
         validateOptionalCandidateInput(countries, region);
         validateRange("minDays", minDays, 3, 30);
         validateRange("topWindows", topWindows, 1, 20);
-        validateRange("destinationsPerWindow", destinationsPerWindow, 1, MAX_LIMIT);
+        validateRange("destinationsPerWindow", destinationsPerWindow, 1, RecommendationLimits.MAX_RESULTS);
         validateProfile(profile);
         validateCoordinates(originLatitude, originLongitude);
-        validateRange("travelers", travelers, 1, 10);
+        validateRange("travelers", travelers, 1, RecommendationLimits.MAX_TRAVELERS);
         validatePositiveMoney("maxGroundBudget", maxGroundBudget);
 
         BestWindowsRequest request = new BestWindowsRequest(
@@ -161,6 +199,14 @@ public class RecommendationController {
 
     private void validateCandidateInput(String countries, String region) {
         boolean hasCountries = countries != null && !countries.isBlank();
+        boolean hasRegion = region != null && !region.isBlank();
+        if (hasCountries == hasRegion) {
+            throw badRequest("Informe exatamente um entre 'countries' (lista ISO) ou 'region'");
+        }
+    }
+
+    private void validateCandidateInput(List<String> countries, String region) {
+        boolean hasCountries = countries != null && !countries.isEmpty();
         boolean hasRegion = region != null && !region.isBlank();
         if (hasCountries == hasRegion) {
             throw badRequest("Informe exatamente um entre 'countries' (lista ISO) ou 'region'");
@@ -215,6 +261,18 @@ public class RecommendationController {
                 .collect(Collectors.toList());
     }
 
+    private List<String> normalizeCodes(List<String> codes) {
+        if (codes == null || codes.isEmpty()) {
+            return List.of();
+        }
+        return codes.stream()
+                .map(String::trim)
+                .filter(code -> !code.isBlank())
+                .map(code -> code.toUpperCase(Locale.ROOT))
+                .distinct()
+                .toList();
+    }
+
     private Map<Criterion, Double> parseWeights(String weights) {
         if (weights == null || weights.isBlank()) {
             return Map.of();
@@ -239,6 +297,19 @@ public class RecommendationController {
             }
             parsed.put(criterion, value);
         }
+        return parsed;
+    }
+
+    private Map<Criterion, Double> parseWeights(Map<String, Double> weights) {
+        if (weights == null || weights.isEmpty()) {
+            return Map.of();
+        }
+        Map<Criterion, Double> parsed = new EnumMap<>(Criterion.class);
+        weights.forEach((key, value) -> {
+            Criterion criterion = Criterion.fromKey(key)
+                    .orElseThrow(() -> badRequest("Critério desconhecido em 'weights': " + key));
+            parsed.put(criterion, value);
+        });
         return parsed;
     }
 

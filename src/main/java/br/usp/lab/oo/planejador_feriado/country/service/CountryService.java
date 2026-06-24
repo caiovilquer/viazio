@@ -69,6 +69,13 @@ public class CountryService {
         return trimmed.length() == 2 && trimmed.matches("[A-Za-z]{2}");
     }
 
+    public List<Country> getAllTravelEligibleCountries() {
+        return client.getAllCountries().stream()
+                .map(this::toModel)
+                .filter(Country::isTravelEligible)
+                .toList();
+    }
+
     public List<Country> getCountriesByRegion(String region, int limit) {
         return getCountriesByRegion(region).stream().limit(limit).toList();
     }

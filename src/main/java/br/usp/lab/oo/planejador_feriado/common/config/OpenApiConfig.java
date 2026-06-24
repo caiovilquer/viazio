@@ -15,7 +15,13 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Planejador de Feriadões API")
-                        .description("API para consultar países, feriados e câmbio, e gerar recomendações de destinos para viagens curtas a partir de feriados/feriadões.")
+                        .description("""
+                                API de apoio à decisão para viagens curtas: combina calendário da origem,
+                                clima, custo relativo, distância, festividades, qualidade dos dados e
+                                estimativas transparentes de viabilidade. Use GET /api/v1/meta para montar
+                                formulários sem valores hardcoded e POST /api/v1/recommendations para buscas
+                                estruturadas.
+                                """)
                         .version("v1")
                         .contact(new Contact().name("Grupo Laboo").url("https://gitlab.com/grupo-laboo/laboo_projeto"))
                         .license(new License().name("MIT").url("https://opensource.org/licenses/MIT")));

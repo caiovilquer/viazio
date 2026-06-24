@@ -9,6 +9,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -48,6 +49,9 @@ class RateLimitFilterTest {
 
         assertEquals(200, firstResponse.getStatus());
         assertEquals(429, secondResponse.getStatus());
+        assertEquals("60", secondResponse.getHeader("Retry-After"));
+        assertTrue(secondResponse.getContentAsString().contains("\"code\":\"RATE_LIMIT_EXCEEDED\""));
+        assertTrue(secondResponse.getContentAsString().contains("\"traceId\""));
         verify(chain, times(1)).doFilter(any(ServletRequest.class), any(ServletResponse.class));
     }
 

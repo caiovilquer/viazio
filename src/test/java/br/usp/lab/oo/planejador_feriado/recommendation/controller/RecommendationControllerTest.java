@@ -7,6 +7,7 @@ import br.usp.lab.oo.planejador_feriado.destination.model.DestinationCity;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.DataQuality;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.GroundCostEstimate;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.OriginReference;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoredCriterion;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelEffort;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
@@ -16,6 +17,7 @@ import br.usp.lab.oo.planejador_feriado.recommendation.service.BestWindowsServic
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
 import br.usp.lab.oo.planejador_feriado.recommendation.weight.WeightResolver;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -28,8 +30,12 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -107,7 +113,12 @@ class RecommendationControllerTest {
                         .param("from", "2026-06-30")
                         .param("to", "2026-06-01")
                         .param("countries", "JP"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"))
+                .andExpect(jsonPath("$.message").value("'from' deve ser anterior ou igual a 'to'"))
+                .andExpect(jsonPath("$.traceId").isNotEmpty());
     }
 
     @Test
@@ -159,6 +170,81 @@ class RecommendationControllerTest {
     }
 
     @Test
+    void shouldAcceptStructuredPostRequestAndNormalizeIt() throws Exception {
+        when(recommendationEngine.recommend(any())).thenReturn(emptyResponse());
+
+        mockMvc.perform(post("/api/v1/recommendations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "from": "2026-09-04",
+                                  "to": "2026-09-07",
+                                  "countries": ["jp", "FR", "jp"],
+                                  "limit": 5,
+                                  "weights": {"weather": 0.4, "cost": 0.3},
+                                  "exclude": ["us"],
+                                  "origin": {
+                                    "countryCode": "br",
+                                    "subdivisionCode": "br-sp",
+                                    "city": "São Paulo",
+                                    "latitude": -23.5505,
+                                    "longitude": -46.6333
+                                  },
+                                  "travelers": 2,
+                                  "maxGroundBudgetBrl": 5000
+                                }
+                                """))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<RecommendationRequest> captor = ArgumentCaptor.forClass(RecommendationRequest.class);
+        verify(recommendationEngine).recommend(captor.capture());
+        RecommendationRequest request = captor.getValue();
+        assertEquals(List.of("JP", "FR"), request.countryCodes());
+        assertEquals("BR", request.originCountryCode());
+        assertEquals("BR-SP", request.originSubdivisionCode());
+        assertEquals("São Paulo", request.originCityName());
+        assertEquals(2, request.travelers());
+        assertEquals(5_000.0, request.maxGroundBudgetBrl());
+        assertTrue(request.weightOverrides().containsKey(
+                br.usp.lab.oo.planejador_feriado.recommendation.model.Criterion.WEATHER));
+    }
+
+    @Test
+    void shouldReturnFieldViolationsForInvalidPostBody() throws Exception {
+        mockMvc.perform(post("/api/v1/recommendations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "from": "2026-09-04",
+                                  "to": "2026-09-07",
+                                  "countries": ["JAPAN"],
+                                  "travelers": 0
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.violations").isArray())
+                .andExpect(jsonPath("$.violations[?(@.field == 'countries[0]')]").exists())
+                .andExpect(jsonPath("$.violations[?(@.field == 'travelers')]").exists());
+    }
+
+    @Test
+    void shouldRejectAmbiguousCandidateSelectionInPostBody() throws Exception {
+        mockMvc.perform(post("/api/v1/recommendations")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "from": "2026-09-04",
+                                  "to": "2026-09-07",
+                                  "countries": ["JP"],
+                                  "region": "Asia"
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
+    }
+
+    @Test
     void shouldReturnBestWindows() throws Exception {
         BestWindowsResponse response = new BestWindowsResponse(
                 LocalDate.of(2026, 1, 1),
@@ -185,5 +271,18 @@ class RecommendationControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.windows[0].totalDays").value(5))
                 .andExpect(jsonPath("$.windows[0].label").value("Feriadão de 5 dias (Carnaval + ponte)"));
+    }
+
+    private RecommendationResponse emptyResponse() {
+        return new RecommendationResponse(
+                LocalDate.of(2026, 9, 4),
+                LocalDate.of(2026, 9, 7),
+                Instant.parse("2026-06-23T00:00:00Z"),
+                new OriginReference("BR", null, -15.79, -47.88, "Brasília"),
+                "padrão",
+                Map.of(),
+                new WindowAssessment(50.0, 4, 2, 2, List.of(), "janela comum"),
+                List.of(),
+                List.of());
     }
 }

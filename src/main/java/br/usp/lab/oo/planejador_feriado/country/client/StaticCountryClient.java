@@ -31,7 +31,7 @@ public class StaticCountryClient implements CountryClient {
     private final Map<String, CountryDTO> byCode;
 
     public StaticCountryClient(ObjectMapper objectMapper) {
-        this.countries = load(objectMapper);
+        this.countries = List.copyOf(load(objectMapper));
         this.byCode = countries.stream()
                 .filter(country -> country.isoCode() != null)
                 .collect(Collectors.toMap(
@@ -46,6 +46,11 @@ public class StaticCountryClient implements CountryClient {
         } catch (IOException e) {
             throw new UncheckedIOException("Falha ao carregar o dataset de países", e);
         }
+    }
+
+    @Override
+    public List<CountryDTO> getAllCountries() {
+        return countries;
     }
 
     @Override

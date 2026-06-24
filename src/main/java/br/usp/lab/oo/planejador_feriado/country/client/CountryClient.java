@@ -10,6 +10,8 @@ import java.util.List;
  */
 public interface CountryClient {
 
+    List<CountryDTO> getAllCountries();
+
     List<CountryDTO> getCountryByCode(String countryCode);
 
     List<CountryDTO> getCountryByName(String countryName);

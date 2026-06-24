@@ -1,6 +1,9 @@
 package br.usp.lab.oo.planejador_feriado.common.ratelimit;
 
 import br.usp.lab.oo.planejador_feriado.common.config.RateLimitProperties;
+import br.usp.lab.oo.planejador_feriado.common.exception.ApiError;
+import br.usp.lab.oo.planejador_feriado.common.exception.ApiViolation;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
@@ -9,10 +12,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -24,10 +31,16 @@ import java.util.concurrent.ConcurrentMap;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitProperties properties;
+    private final ObjectMapper objectMapper;
     private final ConcurrentMap<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     public RateLimitFilter(RateLimitProperties properties) {
+        this(properties, new ObjectMapper().findAndRegisterModules());
+    }
+
+    public RateLimitFilter(RateLimitProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -43,8 +56,16 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
         response.setStatus(429);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.getWriter().write(
-                "{\"status\":429,\"error\":\"Too Many Requests\",\"message\":\"Limite de requisições excedido, tente novamente em breve\"}");
+        response.setHeader(HttpHeaders.RETRY_AFTER, "60");
+        objectMapper.writeValue(response.getWriter(), new ApiError(
+                Instant.now(),
+                429,
+                "Too Many Requests",
+                "RATE_LIMIT_EXCEEDED",
+                "Limite de requisições excedido, tente novamente em breve",
+                request.getRequestURI(),
+                UUID.randomUUID().toString(),
+                List.<ApiViolation>of()));
     }
 
     private Bucket newBucket() {

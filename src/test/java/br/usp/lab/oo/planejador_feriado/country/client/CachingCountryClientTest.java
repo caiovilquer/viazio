@@ -50,4 +50,16 @@ class CachingCountryClientTest {
         verify(delegate, times(1)).getCountryByName("Brazil");
         verify(delegate, times(1)).getCountriesByRegion("Americas");
     }
+
+    @Test
+    void cachesCompleteCatalog() {
+        List<CountryDTO> countries = List.of();
+        when(delegate.getAllCountries()).thenReturn(countries);
+
+        CachingCountryClient client = new CachingCountryClient(delegate);
+
+        assertSame(countries, client.getAllCountries());
+        assertSame(countries, client.getAllCountries());
+        verify(delegate, times(1)).getAllCountries();
+    }
 }

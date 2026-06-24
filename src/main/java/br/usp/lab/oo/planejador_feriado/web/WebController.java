@@ -2,6 +2,7 @@ package br.usp.lab.oo.planejador_feriado.web;
 
 import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
+import br.usp.lab.oo.planejador_feriado.recommendation.config.RecommendationLimits;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
 import br.usp.lab.oo.planejador_feriado.travel.model.TravelOverview;
@@ -21,9 +22,6 @@ import java.util.stream.Collectors;
 
 @Controller
 public class WebController {
-
-    private static final int MAX_LIMIT = 15;
-    private static final int MAX_WINDOW_DAYS = 92;
 
     private final TravelService travelService;
     private final TravelRecommendationEngine recommendationEngine;
@@ -165,8 +163,9 @@ public class WebController {
         }
 
         long days = ChronoUnit.DAYS.between(from, to) + 1;
-        if (days > MAX_WINDOW_DAYS) {
-            return "A janela máxima permitida é de " + MAX_WINDOW_DAYS + " dias.";
+        if (days > RecommendationLimits.MAX_RECOMMENDATION_WINDOW_DAYS) {
+            return "A janela máxima permitida é de "
+                    + RecommendationLimits.MAX_RECOMMENDATION_WINDOW_DAYS + " dias.";
         }
 
         boolean hasCountries = countries != null && !countries.isBlank();
@@ -175,11 +174,12 @@ public class WebController {
             return "Informe exatamente um modo: lista de países (códigos ISO) ou região.";
         }
 
-        if (limit < 1 || limit > MAX_LIMIT) {
-            return "O limite de resultados deve estar entre 1 e " + MAX_LIMIT + ".";
+        if (limit < 1 || limit > RecommendationLimits.MAX_RESULTS) {
+            return "O limite de resultados deve estar entre 1 e "
+                    + RecommendationLimits.MAX_RESULTS + ".";
         }
 
-        if (travelers < 1 || travelers > 10) {
+        if (travelers < 1 || travelers > RecommendationLimits.MAX_TRAVELERS) {
             return "A quantidade de viajantes deve estar entre 1 e 10.";
         }
 

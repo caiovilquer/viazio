@@ -33,7 +33,7 @@ Nessa primeira fase foi estabelecido uma sólida arquitetura utilizando **Java 2
 3. **Serviços e API REST:**
    * `CountryService`, `HolidayService`, `ExchangeService` e `TravelService` (visão agregada: país, feriados futuros e câmbio para BRL quando fizer sentido).
    * Controladores REST sob `/api/v1/...` (por exemplo `/api/v1/countries/...`, `/api/v1/holidays/...`, `/api/v1/exchange/...`, `/api/v1/travel/...`). O prefixo de versão é aplicado automaticamente pelo `WebConfig` (Fase 3) a todo `@RestController`, sem precisar repeti-lo em cada `@RequestMapping`.
-   * **Tratamento de erros centralizado (`@RestControllerAdvice`):** os serviços lançam exceções de domínio tipadas (`ResourceNotFoundException`, `ExternalApiException`) e o `GlobalExceptionHandler` as traduz em respostas HTTP consistentes — **404** (recurso inexistente: país/região/câmbio), **502** (falha de API externa) e **400** (entrada inválida, via `ResponseStatusException`/validação do Spring) —, sempre com um corpo JSON padronizado (`ApiError`: timestamp, status, error, message, path).
+   * **Tratamento de erros centralizado (`@RestControllerAdvice`):** os serviços lançam exceções de domínio tipadas (`ResourceNotFoundException`, `ExternalApiException`) e o `GlobalExceptionHandler` as traduz em respostas HTTP consistentes — **404** (recurso inexistente), **502** (falha externa), **400** (entrada inválida) e **429** (rate limit) —, sempre com `ApiError` (`timestamp`, `status`, `error`, `code`, `message`, `path`, `traceId` e violações de campo quando aplicável).
 4. **Integração via terminal (Spring Shell):**
    * Comandos registrados em `PlanejadorShellCommands`.
    * O comportamento do shell é configurado em `src/main/resources/application.yml` (desligado por padrão) e, para o modo interativo explícito, em `application-shell.yml` (perfil `shell`).
@@ -136,6 +136,28 @@ curl "http://localhost:8080/api/v1/recommendations?from=2026-09-04&to=2026-09-07
 
 # Melhores janelas de viagem (feriadões) num período, com destinos por janela
 curl "http://localhost:8080/api/v1/recommendations/best-windows?from=2026-01-01&to=2026-12-31&minDays=4&countries=AR,CL,PT"
+
+# Catálogos e limites para montar um frontend
+curl "http://localhost:8080/api/v1/meta"
+
+# Busca estruturada recomendada para aplicações web/mobile
+curl -X POST "http://localhost:8080/api/v1/recommendations" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "from": "2026-09-04",
+    "to": "2026-09-07",
+    "countries": ["AR", "CL", "PE"],
+    "profile": "economico",
+    "origin": {
+      "countryCode": "BR",
+      "subdivisionCode": "BR-SP",
+      "city": "São Paulo",
+      "latitude": -23.5505,
+      "longitude": -46.6333
+    },
+    "travelers": 2,
+    "maxGroundBudgetBrl": 5000
+  }'
 ```
 
 #### Como usar a interface web
@@ -316,6 +338,35 @@ Cada recomendação combina contexto editorial com informações práticas de de
    * A consulta individual mantém bandeira, população, imagem, resumo e link para a Wikipédia.
 
 7. **Testes:** cobertura de catálogo real, cidades com múltiplas capitais, normalização de acentos, estimativa PPP, ausência de estimativa sem dados, validações de viajantes/orçamento, filtro de teto terrestre, serialização JSON, propagação pelo controller web e preservação da viabilidade após o enriquecimento — **169 testes sem rede** no total.
+
+#### Entrega 5 — Contrato de API orientado à UX
+
+O frontend não precisa duplicar regras, listas ou limites do backend. A API oferece um contrato estruturado para buscas complexas e um catálogo autocontido para montar formulários, validar entradas e explicar as fontes ao usuário.
+
+1. **Busca estruturada (`POST /api/v1/recommendations`):**
+   * `RecommendationSearchRequest` substitui query strings extensas por JSON tipado, mantendo o `GET` existente para compatibilidade e testes manuais.
+   * Aceita datas, países ou região, limite, perfil, pesos, exclusões, origem aninhada, viajantes e orçamento terrestre.
+   * Bean Validation cobre obrigatoriedade, ISO alpha-2/ISO 3166-2, coordenadas, limites numéricos, chaves de critério e valores monetários.
+   * O controller normaliza códigos, remove países duplicados e converte as chaves públicas de pesos para `Criterion`.
+
+2. **Metadados para clientes (`GET /api/v1/meta`):**
+   * Retorna versão da API e do catálogo, limites operacionais, regiões localizadas, critérios com rótulo/ícone/peso padrão, perfis com pesos efetivos e capacidades disponíveis.
+   * Lista todos os países independentes elegíveis, nome em português, bandeira, região, sub-região, cidade padrão e capitais conhecidas.
+   * Expõe as fontes e seu modo (`STATIC`, `LIVE`, `LIVE_CACHED`, `LIVE_AND_HISTORICAL`), incluindo a ausência explícita de preços comerciais ao vivo.
+   * A resposta é imutável em memória e enviada com `Cache-Control: public, max-age=86400`.
+
+3. **Erros consistentes e acionáveis:**
+   * `GlobalExceptionHandler` converte também os erros produzidos pelo próprio Spring MVC; a API deixa de alternar entre `ApiError` e `ProblemDetail`.
+   * `code` fornece identificadores estáveis como `VALIDATION_ERROR`, `INVALID_REQUEST`, `RESOURCE_NOT_FOUND`, `EXTERNAL_API_ERROR`, `RATE_LIMIT_EXCEEDED` e `INTERNAL_ERROR`.
+   * Erros de corpo JSON incluem `violations` com campo e mensagem. Todo erro recebe `traceId`; erros internos continuam sem expor detalhes técnicos.
+   * O rate limit usa o mesmo envelope e informa `Retry-After: 60`.
+
+4. **OpenAPI como contrato verificável:**
+   * `RecommendationSearchRequest` e `OriginInput` possuem schema, exemplos e restrições.
+   * Controllers de recomendação e metadados têm tags e descrições orientadas ao caso de uso.
+   * `OpenApiContractTest` confirma que `/v3/api-docs` publica GET/POST de recomendações, `/api/v1/meta` e o schema estruturado.
+
+5. **Testes:** POST completo e normalização, violações por campo, seleção ambígua de candidatos, envelope de erros, rate limit, catálogo completo, cache de países, serviço/controller de metadados e contrato OpenAPI — **178 testes sem rede** no total.
 
 #### Padrões GoF na Fase 3
 

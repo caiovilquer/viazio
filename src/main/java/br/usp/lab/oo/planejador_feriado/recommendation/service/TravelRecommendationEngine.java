@@ -16,6 +16,7 @@ import br.usp.lab.oo.planejador_feriado.holiday.HolidayDeduplicator;
 import br.usp.lab.oo.planejador_feriado.holiday.model.Holiday;
 import br.usp.lab.oo.planejador_feriado.holiday.service.HolidayService;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
+import br.usp.lab.oo.planejador_feriado.recommendation.config.RecommendationLimits;
 import br.usp.lab.oo.planejador_feriado.recommendation.filter.CandidateFilterChain;
 import br.usp.lab.oo.planejador_feriado.recommendation.filter.FilterContext;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.Criterion;
@@ -58,8 +59,6 @@ import java.util.concurrent.Future;
 @Service
 public class TravelRecommendationEngine {
 
-    private static final int MAX_EXPLICIT_CANDIDATES = 50;
-    private static final int MAX_REGION_CANDIDATES = 60;
     private static final double DESTINATION_SHARE = 0.80;
     private static final double WINDOW_SHARE = 0.20;
     private static final double MIN_CONFIDENCE_MULTIPLIER = 0.75;
@@ -436,9 +435,10 @@ public class TravelRecommendationEngine {
     private List<String> resolveCandidateCodes(RecommendationRequest request) {
         Set<String> codes = new LinkedHashSet<>();
         if (!request.countryCodes().isEmpty()) {
-            if (request.countryCodes().size() > MAX_EXPLICIT_CANDIDATES) {
+            if (request.countryCodes().size() > RecommendationLimits.MAX_EXPLICIT_CANDIDATES) {
                 throw new IllegalArgumentException(
-                        "No máximo " + MAX_EXPLICIT_CANDIDATES + " países podem ser comparados por requisição");
+                        "No máximo " + RecommendationLimits.MAX_EXPLICIT_CANDIDATES
+                                + " países podem ser comparados por requisição");
             }
             request.countryCodes().stream()
                     .filter(code -> code != null && !code.isBlank())
@@ -448,8 +448,10 @@ public class TravelRecommendationEngine {
         }
 
         List<Country> countries = countryService.getCountriesByRegion(request.region());
-        if (countries.size() > MAX_REGION_CANDIDATES) {
-            throw new IllegalArgumentException("Região excede o limite operacional de candidatos");
+        if (countries.size() > RecommendationLimits.MAX_REGION_CANDIDATES) {
+            throw new IllegalArgumentException(
+                    "Região excede o limite operacional de "
+                            + RecommendationLimits.MAX_REGION_CANDIDATES + " candidatos");
         }
         countries.stream()
                 .map(Country::getIsoCode)

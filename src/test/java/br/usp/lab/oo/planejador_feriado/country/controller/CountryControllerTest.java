@@ -49,8 +49,10 @@ class CountryControllerTest {
         mockMvc.perform(get("/api/v1/countries/ZZ"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("Country not found: ZZ"))
-                .andExpect(jsonPath("$.path").value("/api/v1/countries/ZZ"));
+                .andExpect(jsonPath("$.path").value("/api/v1/countries/ZZ"))
+                .andExpect(jsonPath("$.traceId").isNotEmpty());
     }
 
     @Test
@@ -60,7 +62,8 @@ class CountryControllerTest {
 
         mockMvc.perform(get("/api/v1/countries/JP"))
                 .andExpect(status().isBadGateway())
-                .andExpect(jsonPath("$.status").value(502));
+                .andExpect(jsonPath("$.status").value(502))
+                .andExpect(jsonPath("$.code").value("EXTERNAL_API_ERROR"));
     }
 
     @Test

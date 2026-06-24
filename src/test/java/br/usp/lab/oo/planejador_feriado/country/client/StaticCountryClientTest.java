@@ -26,6 +26,15 @@ class StaticCountryClientTest {
     }
 
     @Test
+    void exposesCompleteBundledCatalog() {
+        List<CountryDTO> countries = client.getAllCountries();
+
+        assertTrue(countries.size() >= 240);
+        assertTrue(countries.stream().anyMatch(country -> "BR".equals(country.isoCode())));
+        assertTrue(countries.stream().anyMatch(country -> "JP".equals(country.isoCode())));
+    }
+
+    @Test
     void bundledDataHasCoordinatesAndCurrency() {
         CountryDTO brazil = client.getCountryByCode("BR").get(0);
 
