@@ -3,10 +3,14 @@ package br.usp.lab.oo.planejador_feriado.recommendation.controller;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.BestWindowsResponse;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.WindowSuggestion;
+import br.usp.lab.oo.planejador_feriado.destination.model.DestinationCity;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.DataQuality;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.GroundCostEstimate;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.OriginReference;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoredCriterion;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelEffort;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.TripFeasibility;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.WindowAssessment;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.BestWindowsService;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
@@ -66,7 +70,14 @@ class RecommendationControllerTest {
                         List.of("Custo: dado indisponível"),
                         "Japan — nota de viagem 65: clima agradável",
                         null,
-                        null
+                        null,
+                        new TripFeasibility(
+                                new DestinationCity("JP", "Tokyo", 35.68, 139.76, List.of(9.0), true),
+                                new TravelEffort(17_600.0, 20.6, 28.1, -3.0, 9.0, 12.0, "LONG", true),
+                                new GroundCostEstimate(
+                                        "BRL", 500.0, 5_000.0, 1, 10, 1.4,
+                                        "2024", "2024", "LOW", "PPP"),
+                                List.of("passagens aéreas"))
                 )),
                 List.of()
         );
@@ -84,7 +95,10 @@ class RecommendationControllerTest {
                 .andExpect(jsonPath("$.recommendations[0].tripScore").value(65.0))
                 .andExpect(jsonPath("$.recommendations[0].dataQuality.confidenceScore").value(75.0))
                 .andExpect(jsonPath("$.recommendations[0].highlights[0]").value("clima agradável"))
-                .andExpect(jsonPath("$.recommendations[0].breakdown[0].label").value("Clima"));
+                .andExpect(jsonPath("$.recommendations[0].breakdown[0].label").value("Clima"))
+                .andExpect(jsonPath("$.recommendations[0].feasibility.destination.name").value("Tokyo"))
+                .andExpect(jsonPath("$.recommendations[0].feasibility.groundCost.estimatedTotal").value(5000.0))
+                .andExpect(jsonPath("$.recommendations[0].feasibility.notIncluded[0]").value("passagens aéreas"));
     }
 
     @Test
@@ -124,6 +138,23 @@ class RecommendationControllerTest {
                         .param("to", "2026-06-30")
                         .param("countries", "JP")
                         .param("profile", "inexistente"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldRejectInvalidTravelersAndGroundBudget() throws Exception {
+        mockMvc.perform(get("/api/v1/recommendations")
+                        .param("from", "2026-06-01")
+                        .param("to", "2026-06-30")
+                        .param("countries", "JP")
+                        .param("travelers", "0"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/api/v1/recommendations")
+                        .param("from", "2026-06-01")
+                        .param("to", "2026-06-30")
+                        .param("countries", "JP")
+                        .param("maxGroundBudget", "-1"))
                 .andExpect(status().isBadRequest());
     }
 

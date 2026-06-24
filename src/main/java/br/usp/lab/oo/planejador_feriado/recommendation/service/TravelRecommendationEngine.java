@@ -6,6 +6,8 @@ import br.usp.lab.oo.planejador_feriado.cost.model.CostOfLiving;
 import br.usp.lab.oo.planejador_feriado.cost.service.CostOfLivingService;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
+import br.usp.lab.oo.planejador_feriado.destination.model.DestinationCity;
+import br.usp.lab.oo.planejador_feriado.destination.service.DestinationCatalogService;
 import br.usp.lab.oo.planejador_feriado.enrichment.model.DestinationProfile;
 import br.usp.lab.oo.planejador_feriado.enrichment.service.DestinationProfileService;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
@@ -25,6 +27,7 @@ import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoreEntry;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoredCriterion;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.SkippedCandidate;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.TripFeasibility;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.WindowAssessment;
 import br.usp.lab.oo.planejador_feriado.recommendation.strategy.ScoringStrategy;
 import br.usp.lab.oo.planejador_feriado.recommendation.weight.ResolvedWeights;
@@ -34,6 +37,7 @@ import br.usp.lab.oo.planejador_feriado.weather.service.WeatherService;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -66,6 +70,8 @@ public class TravelRecommendationEngine {
     private final WeatherService weatherService;
     private final CostOfLivingService costService;
     private final DestinationProfileService profileService;
+    private final DestinationCatalogService destinationCatalogService;
+    private final TravelFeasibilityService feasibilityService;
     private final List<ScoringStrategy> scoringStrategies;
     private final TravelWindowEvaluator windowEvaluator;
     private final WeightResolver weightResolver;
@@ -78,6 +84,8 @@ public class TravelRecommendationEngine {
             WeatherService weatherService,
             CostOfLivingService costService,
             DestinationProfileService profileService,
+            DestinationCatalogService destinationCatalogService,
+            TravelFeasibilityService feasibilityService,
             List<ScoringStrategy> scoringStrategies,
             TravelWindowEvaluator windowEvaluator,
             WeightResolver weightResolver,
@@ -88,6 +96,8 @@ public class TravelRecommendationEngine {
         this.weatherService = weatherService;
         this.costService = costService;
         this.profileService = profileService;
+        this.destinationCatalogService = destinationCatalogService;
+        this.feasibilityService = feasibilityService;
         this.scoringStrategies = scoringStrategies;
         this.windowEvaluator = windowEvaluator;
         this.weightResolver = weightResolver;
@@ -145,15 +155,32 @@ public class TravelRecommendationEngine {
 
     private OriginData loadOrigin(RecommendationRequest request) {
         Country country = countryService.getCountryByCode(request.originCountryCode());
+        Optional<DestinationCity> requestedCity = destinationCatalogService
+                .findCity(country.getIsoCode(), request.originCityName());
+        if (request.originCityName() != null
+                && requestedCity.isEmpty()
+                && request.originLatitude() == null) {
+            throw new IllegalArgumentException(
+                    "Cidade de origem não encontrada no catálogo. Informe também latitude e longitude");
+        }
+        DestinationCity catalogCity = requestedCity
+                .orElseGet(() -> destinationCatalogService.primaryCityOrCountryFallback(country));
         double latitude = request.originLatitude() != null
                 ? request.originLatitude()
-                : requireCoordinate(country.getLatitude(), "latitude");
+                : catalogCity.latitude();
         double longitude = request.originLongitude() != null
                 ? request.originLongitude()
-                : requireCoordinate(country.getLongitude(), "longitude");
+                : catalogCity.longitude();
         if ((request.originLatitude() == null) != (request.originLongitude() == null)) {
             throw new IllegalArgumentException("Latitude e longitude da origem devem ser informadas juntas");
         }
+        DestinationCity originCity = new DestinationCity(
+                country.getIsoCode(),
+                request.originCityName() != null ? request.originCityName() : catalogCity.name(),
+                latitude,
+                longitude,
+                catalogCity.utcOffsets(),
+                true);
 
         List<Holiday> holidays = HolidayDeduplicator.deduplicate(
                 holidayService.getHolidaysInWindow(
@@ -167,16 +194,11 @@ public class TravelRecommendationEngine {
                         country.getIsoCode(),
                         request.originSubdivisionCode(),
                         latitude,
-                        longitude),
+                        longitude,
+                        originCity.name()),
+                originCity,
                 cost,
                 holidays);
-    }
-
-    private double requireCoordinate(Double value, String coordinate) {
-        if (value == null) {
-            throw new IllegalArgumentException("Coordenada de " + coordinate + " indisponível para a origem");
-        }
-        return value;
     }
 
     private CandidateResult evaluateCandidate(
@@ -191,17 +213,33 @@ public class TravelRecommendationEngine {
                 return CandidateResult.skipped(new SkippedCandidate(code, "País de origem ignorado na comparação"));
             }
 
-            Optional<String> rejection = filterChain.reject(new FilterContext(code, country, request));
-            if (rejection.isPresent()) {
-                return CandidateResult.skipped(new SkippedCandidate(code, rejection.get()));
+            Optional<String> earlyRejection = filterChain.reject(
+                    new FilterContext(code, country, null, request));
+            if (earlyRejection.isPresent()) {
+                return CandidateResult.skipped(new SkippedCandidate(code, earlyRejection.get()));
             }
 
             List<Holiday> destinationHolidays = HolidayDeduplicator.deduplicate(
                     holidayService.getHolidaysInWindow(country.getIsoCode(), request.from(), request.to()));
             Exchange exchange = resolveExchangeToBrl(country);
-            WeatherSummary weather = resolveWeather(country, request);
+            DestinationCity destination = destinationCatalogService.primaryCityOrCountryFallback(country);
+            WeatherSummary weather = resolveWeather(destination, request);
             CostOfLiving destinationCost = resolveCost(country.getIsoCode());
-            Double distanceKm = resolveDistance(origin.reference(), country);
+            double distanceKm = resolveDistance(origin.city(), destination);
+            TripFeasibility feasibility = feasibilityService.build(
+                    origin.city(),
+                    destination,
+                    distanceKm,
+                    origin.cost(),
+                    destinationCost,
+                    (int) ChronoUnit.DAYS.between(request.from(), request.to()) + 1,
+                    request.travelers());
+
+            Optional<String> rejection = filterChain.reject(
+                    new FilterContext(code, country, feasibility.groundCost(), request));
+            if (rejection.isPresent()) {
+                return CandidateResult.skipped(new SkippedCandidate(code, rejection.get()));
+            }
 
             RecommendationContext context = new RecommendationContext(
                     country,
@@ -213,7 +251,7 @@ public class TravelRecommendationEngine {
                     distanceKm,
                     null,
                     request);
-            return CandidateResult.recommendation(buildRecommendation(context, window, weights));
+            return CandidateResult.recommendation(buildRecommendation(context, window, weights, feasibility));
         } catch (ResourceNotFoundException e) {
             return CandidateResult.skipped(new SkippedCandidate(code, e.getMessage()));
         } catch (RuntimeException e) {
@@ -224,7 +262,8 @@ public class TravelRecommendationEngine {
     private TravelRecommendation buildRecommendation(
             RecommendationContext context,
             WindowAssessment window,
-            ResolvedWeights weights) {
+            ResolvedWeights weights,
+            TripFeasibility feasibility) {
         List<ScoreEntry> entries = scoringStrategies.stream()
                 .map(strategy -> strategy.evaluate(context))
                 .toList();
@@ -285,7 +324,8 @@ public class TravelRecommendationEngine {
                 tradeoffs,
                 summary,
                 context.exchangeToBrl(),
-                null);
+                null,
+                feasibility);
     }
 
     private List<String> buildHighlights(List<ScoredCriterion> breakdown) {
@@ -346,20 +386,18 @@ public class TravelRecommendationEngine {
                     recommendation.tradeoffs(),
                     recommendation.summary(),
                     recommendation.exchangeToBrl(),
-                    profile);
+                    profile,
+                    recommendation.feasibility());
         } catch (RuntimeException ignored) {
             return recommendation;
         }
     }
 
-    private WeatherSummary resolveWeather(Country country, RecommendationRequest request) {
-        if (!country.hasCoordinates()) {
-            return null;
-        }
+    private WeatherSummary resolveWeather(DestinationCity destination, RecommendationRequest request) {
         try {
             return weatherService.getClimateForWindow(
-                    country.getLatitude(),
-                    country.getLongitude(),
+                    destination.latitude(),
+                    destination.longitude(),
                     request.from(),
                     request.to()).orElse(null);
         } catch (RuntimeException ignored) {
@@ -375,15 +413,12 @@ public class TravelRecommendationEngine {
         }
     }
 
-    private Double resolveDistance(OriginReference origin, Country country) {
-        if (!country.hasCoordinates()) {
-            return null;
-        }
+    private double resolveDistance(DestinationCity origin, DestinationCity destination) {
         return GeoCalculator.haversineKm(
                 origin.latitude(),
                 origin.longitude(),
-                country.getLatitude(),
-                country.getLongitude());
+                destination.latitude(),
+                destination.longitude());
     }
 
     private Exchange resolveExchangeToBrl(Country country) {
@@ -427,7 +462,11 @@ public class TravelRecommendationEngine {
         return Math.round(value * 10.0) / 10.0;
     }
 
-    private record OriginData(OriginReference reference, CostOfLiving cost, List<Holiday> holidays) {
+    private record OriginData(
+            OriginReference reference,
+            DestinationCity city,
+            CostOfLiving cost,
+            List<Holiday> holidays) {
     }
 
     private record CandidateResult(TravelRecommendation recommendation, SkippedCandidate skipped) {

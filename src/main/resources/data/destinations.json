@@ -1,0 +1,2510 @@
+{
+  "source": "Wikidata Query Service (CC0)",
+  "retrievedAt": "2026-06-23",
+  "cities": [
+    {
+      "countryCode": "AD",
+      "name": "Andorra la Vella",
+      "latitude": 42.507222222,
+      "longitude": 1.522222222,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AE",
+      "name": "Abu Dhabi",
+      "latitude": 24.451111111,
+      "longitude": 54.396944444,
+      "utcOffsets": [
+        4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AF",
+      "name": "Kabul",
+      "latitude": 34.532777777,
+      "longitude": 69.165833333,
+      "utcOffsets": [
+        4.5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AG",
+      "name": "St. John's",
+      "latitude": 17.121111111,
+      "longitude": -61.844722222,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "AI",
+      "name": "The Valley",
+      "latitude": 18.220833333,
+      "longitude": -63.051666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "AL",
+      "name": "Tirana",
+      "latitude": 41.328333333,
+      "longitude": 19.818055555,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AM",
+      "name": "Yerevan",
+      "latitude": 40.181388888,
+      "longitude": 44.514444444,
+      "utcOffsets": [
+        4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AO",
+      "name": "Luanda",
+      "latitude": -8.838333333,
+      "longitude": 13.234444444,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AR",
+      "name": "Buenos Aires",
+      "latitude": -34.599722222,
+      "longitude": -58.381944444,
+      "utcOffsets": [
+        -3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AS",
+      "name": "Pago Pago",
+      "latitude": -14.279444444,
+      "longitude": -170.700555555,
+      "utcOffsets": [
+        -11
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AT",
+      "name": "Vienna",
+      "latitude": 48.208333333,
+      "longitude": 16.3725,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AU",
+      "name": "Canberra",
+      "latitude": -35.293055555,
+      "longitude": 149.126944444,
+      "utcOffsets": [
+        10
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AW",
+      "name": "Oranjestad",
+      "latitude": 12.518611111,
+      "longitude": -70.035833333,
+      "utcOffsets": [
+        -4,
+        -3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AX",
+      "name": "Mariehamn",
+      "latitude": 60.09861111,
+      "longitude": 19.94444444,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "AZ",
+      "name": "Baku",
+      "latitude": 40.366655555,
+      "longitude": 49.835183333,
+      "utcOffsets": [
+        4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BA",
+      "name": "Sarajevo",
+      "latitude": 43.856388888,
+      "longitude": 18.413055555,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BB",
+      "name": "Bridgetown",
+      "latitude": 13.0975,
+      "longitude": -59.616666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "BD",
+      "name": "Dhaka",
+      "latitude": 23.728888888,
+      "longitude": 90.394444444,
+      "utcOffsets": [
+        6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BE",
+      "name": "Brussels",
+      "latitude": 50.846666666,
+      "longitude": 4.351666666,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BF",
+      "name": "Ouagadougou",
+      "latitude": 12.368611111,
+      "longitude": -1.5275,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BG",
+      "name": "Sofia",
+      "latitude": 42.697886,
+      "longitude": 23.321726,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BH",
+      "name": "Manama",
+      "latitude": 26.216666666,
+      "longitude": 50.583333333,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "BI",
+      "name": "Gitega",
+      "latitude": -3.428333333,
+      "longitude": 29.925,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "BJ",
+      "name": "Porto-Novo",
+      "latitude": 6.483333333,
+      "longitude": 2.616666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "BL",
+      "name": "Gustavia",
+      "latitude": 17.898611111,
+      "longitude": -62.849166666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "BM",
+      "name": "Hamilton",
+      "latitude": 32.295,
+      "longitude": -64.783055555,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BN",
+      "name": "Bandar Seri Begawan",
+      "latitude": 4.916666666,
+      "longitude": 114.916666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "BO",
+      "name": "La Paz",
+      "latitude": -16.495833333,
+      "longitude": -68.133333333,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "BO",
+      "name": "Sucre",
+      "latitude": -19.0475,
+      "longitude": -65.26,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BR",
+      "name": "Brasília",
+      "latitude": -15.793888888,
+      "longitude": -47.882777777,
+      "utcOffsets": [
+        -3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BS",
+      "name": "Nassau",
+      "latitude": 25.078055555,
+      "longitude": -77.338611111,
+      "utcOffsets": [
+        -5,
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BT",
+      "name": "Thimphu",
+      "latitude": 27.47135,
+      "longitude": 89.63367,
+      "utcOffsets": [
+        6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BW",
+      "name": "Gaborone",
+      "latitude": -24.656944444,
+      "longitude": 25.908611111,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BY",
+      "name": "Minsk",
+      "latitude": 53.902246,
+      "longitude": 27.561837,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "BZ",
+      "name": "Belmopan",
+      "latitude": 17.25,
+      "longitude": -88.7675,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "CA",
+      "name": "Ottawa",
+      "latitude": 45.424722222,
+      "longitude": -75.695,
+      "utcOffsets": [
+        -5,
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CC",
+      "name": "West Island",
+      "latitude": -12.186944444,
+      "longitude": 96.828333333,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "CD",
+      "name": "Kinshasa",
+      "latitude": -4.321944444,
+      "longitude": 15.311944444,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CF",
+      "name": "Bangui",
+      "latitude": 4.37325,
+      "longitude": 18.562833333,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CG",
+      "name": "Brazzaville",
+      "latitude": -4.269444444,
+      "longitude": 15.271111111,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CH",
+      "name": "Bern",
+      "latitude": 46.94798,
+      "longitude": 7.44743,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CI",
+      "name": "Yamoussoukro",
+      "latitude": 6.816111111,
+      "longitude": -5.274166666,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CK",
+      "name": "Avarua",
+      "latitude": -21.207,
+      "longitude": -159.771,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "CL",
+      "name": "Santiago",
+      "latitude": -33.4375,
+      "longitude": -70.65,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CM",
+      "name": "Yaoundé",
+      "latitude": 3.857777777,
+      "longitude": 11.518055555,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CN",
+      "name": "Beijing",
+      "latitude": 39.90403,
+      "longitude": 116.407526,
+      "utcOffsets": [
+        8
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CO",
+      "name": "Bogotá",
+      "latitude": 4.60971,
+      "longitude": -74.08175,
+      "utcOffsets": [
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CR",
+      "name": "San José",
+      "latitude": 9.932738888,
+      "longitude": -84.079613888,
+      "utcOffsets": [
+        -6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CU",
+      "name": "Havana",
+      "latitude": 23.136666666,
+      "longitude": -82.358888888,
+      "utcOffsets": [
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CV",
+      "name": "Praia",
+      "latitude": 14.917719444,
+      "longitude": -23.509155555,
+      "utcOffsets": [
+        -1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CW",
+      "name": "Willemstad",
+      "latitude": 12.108,
+      "longitude": -68.935,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CX",
+      "name": "Flying Fish Cove",
+      "latitude": -10.421666666,
+      "longitude": 105.678055555,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "CY",
+      "name": "Nicosia",
+      "latitude": 35.1725,
+      "longitude": 33.365,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "CZ",
+      "name": "Prague",
+      "latitude": 50.0875,
+      "longitude": 14.421388888,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "DE",
+      "name": "Berlin",
+      "latitude": 52.516666666,
+      "longitude": 13.383333333,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "DJ",
+      "name": "Djibouti",
+      "latitude": 11.595,
+      "longitude": 43.148055555,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "DK",
+      "name": "Copenhagen",
+      "latitude": 55.676111111,
+      "longitude": 12.568888888,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "DM",
+      "name": "Roseau",
+      "latitude": 15.3,
+      "longitude": -61.383333333,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "DO",
+      "name": "Santo Domingo",
+      "latitude": 18.4625,
+      "longitude": -69.936111111,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "DZ",
+      "name": "Algiers",
+      "latitude": 36.776388888,
+      "longitude": 3.058611111,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "EC",
+      "name": "Quito",
+      "latitude": -0.22,
+      "longitude": -78.5125,
+      "utcOffsets": [
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "EE",
+      "name": "Tallinn",
+      "latitude": 59.437222222,
+      "longitude": 24.745,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "EG",
+      "name": "Cairo",
+      "latitude": 30.044444444,
+      "longitude": 31.235833333,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "ER",
+      "name": "Asmara",
+      "latitude": 15.333333333,
+      "longitude": 38.916666666,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "ES",
+      "name": "Madrid",
+      "latitude": 40.416944444,
+      "longitude": -3.703333333,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "ET",
+      "name": "Addis Ababa",
+      "latitude": 9.035833333,
+      "longitude": 38.7525,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "FI",
+      "name": "Helsinki",
+      "latitude": 60.170833333,
+      "longitude": 24.9375,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "FJ",
+      "name": "Suva",
+      "latitude": -18.133333333,
+      "longitude": 178.433333333,
+      "utcOffsets": [
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "FK",
+      "name": "Stanley",
+      "latitude": -51.693861,
+      "longitude": -57.849556,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "FM",
+      "name": "Palikir",
+      "latitude": 6.917777777,
+      "longitude": 158.185,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "FO",
+      "name": "Tórshavn",
+      "latitude": 62.00981,
+      "longitude": -6.77135,
+      "utcOffsets": [
+        0,
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "FR",
+      "name": "Paris",
+      "latitude": 48.856666666,
+      "longitude": 2.352222222,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GA",
+      "name": "Libreville",
+      "latitude": 0.407777777,
+      "longitude": 9.440277777,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GB",
+      "name": "London",
+      "latitude": 51.507222222,
+      "longitude": -0.1275,
+      "utcOffsets": [
+        0,
+        1,
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GD",
+      "name": "St. George's",
+      "latitude": 12.0525,
+      "longitude": -61.753055555,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GE",
+      "name": "Tbilisi",
+      "latitude": 41.7225,
+      "longitude": 44.7925,
+      "utcOffsets": [
+        4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GF",
+      "name": "Cayenne",
+      "latitude": 4.938611111,
+      "longitude": -52.335,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "GG",
+      "name": "Saint Peter Port",
+      "latitude": 49.46,
+      "longitude": -2.55194,
+      "utcOffsets": [
+        12
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "GH",
+      "name": "Accra",
+      "latitude": 5.55602,
+      "longitude": -0.1969,
+      "utcOffsets": [
+        0,
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GI",
+      "name": "Gibraltar",
+      "latitude": 36.14,
+      "longitude": -5.35,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GL",
+      "name": "Nuuk",
+      "latitude": 64.175,
+      "longitude": -51.733333333,
+      "utcOffsets": [
+        -3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GM",
+      "name": "Banjul",
+      "latitude": 13.453055555,
+      "longitude": -16.5775,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GN",
+      "name": "Conakry",
+      "latitude": 9.509166666,
+      "longitude": -13.712222222,
+      "utcOffsets": [
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GP",
+      "name": "Basse-Terre",
+      "latitude": 15.996944444,
+      "longitude": -61.732777777,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "GQ",
+      "name": "Ciudad de la Paz",
+      "latitude": 1.591666666,
+      "longitude": 10.822222222,
+      "utcOffsets": [
+        1
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "GR",
+      "name": "Athens",
+      "latitude": 37.984166666,
+      "longitude": 23.728055555,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GS",
+      "name": "King Edward Point",
+      "latitude": -54.283291411,
+      "longitude": -36.494181949,
+      "utcOffsets": [
+        -2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GS",
+      "name": "King Edward Point",
+      "latitude": -54.282264,
+      "longitude": -36.48714,
+      "utcOffsets": [
+        -2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GT",
+      "name": "Guatemala City",
+      "latitude": 14.641666666,
+      "longitude": -90.513333333,
+      "utcOffsets": [
+        -6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GU",
+      "name": "Hagåtña",
+      "latitude": 13.483333333,
+      "longitude": 144.75,
+      "utcOffsets": [
+        10
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GW",
+      "name": "Bissau",
+      "latitude": 11.86,
+      "longitude": -15.583333333,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "GY",
+      "name": "Georgetown",
+      "latitude": 6.805833333,
+      "longitude": -58.150833333,
+      "utcOffsets": [
+        -4,
+        -3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "HN",
+      "name": "Tegucigalpa",
+      "latitude": 14.105783333,
+      "longitude": -87.204705555,
+      "utcOffsets": [
+        -6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "HR",
+      "name": "Zagreb",
+      "latitude": 45.813055555,
+      "longitude": 15.977222222,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "HT",
+      "name": "Port-au-Prince",
+      "latitude": 18.546944444,
+      "longitude": -72.340277777,
+      "utcOffsets": [
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "HU",
+      "name": "Budapest",
+      "latitude": 47.498333333,
+      "longitude": 19.040833333,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "ID",
+      "name": "Jakarta",
+      "latitude": -6.175277777,
+      "longitude": 106.826944444,
+      "utcOffsets": [
+        7
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "IE",
+      "name": "Dublin",
+      "latitude": 53.349722222,
+      "longitude": -6.260277777,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "IL",
+      "name": "Jerusalem",
+      "latitude": 31.776679,
+      "longitude": 35.234156,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "IM",
+      "name": "Douglas",
+      "latitude": 54.15,
+      "longitude": -4.4775,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "IN",
+      "name": "New Delhi",
+      "latitude": 28.613888888,
+      "longitude": 77.208888888,
+      "utcOffsets": [
+        5.5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "IO",
+      "name": "Diego Garcia",
+      "latitude": -7.313333333,
+      "longitude": 72.411111111,
+      "utcOffsets": [
+        6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "IQ",
+      "name": "Baghdad",
+      "latitude": 33.315277777,
+      "longitude": 44.366111111,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "IR",
+      "name": "Tehran",
+      "latitude": 35.688888888,
+      "longitude": 51.389722222,
+      "utcOffsets": [
+        3.5,
+        4.5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "IS",
+      "name": "Reykjavík",
+      "latitude": 64.1475,
+      "longitude": -21.935,
+      "utcOffsets": [
+        0
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "IT",
+      "name": "Rome",
+      "latitude": 41.893055555,
+      "longitude": 12.482777777,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "JE",
+      "name": "Saint Helier",
+      "latitude": 49.185833333,
+      "longitude": -2.11,
+      "utcOffsets": [
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "JM",
+      "name": "Kingston",
+      "latitude": 17.971388888,
+      "longitude": -76.793055555,
+      "utcOffsets": [
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "JO",
+      "name": "Amman",
+      "latitude": 31.930983,
+      "longitude": 35.926084,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "JO",
+      "name": "Amman",
+      "latitude": 31.95,
+      "longitude": 35.933333333,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "JP",
+      "name": "Tokyo",
+      "latitude": 35.689444444,
+      "longitude": 139.691666666,
+      "utcOffsets": [
+        9
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KE",
+      "name": "Nairobi",
+      "latitude": -1.286388888,
+      "longitude": 36.817222222,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KG",
+      "name": "Bishkek",
+      "latitude": 42.866666666,
+      "longitude": 74.566666666,
+      "utcOffsets": [
+        6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KH",
+      "name": "Phnom Penh",
+      "latitude": 11.569583333,
+      "longitude": 104.921027777,
+      "utcOffsets": [
+        7
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KI",
+      "name": "South Tarawa",
+      "latitude": 1.333333333,
+      "longitude": 172.966666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "KM",
+      "name": "Moroni",
+      "latitude": -11.703611111,
+      "longitude": 43.253611111,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KN",
+      "name": "Basseterre",
+      "latitude": 17.298333333,
+      "longitude": -62.734166666,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KP",
+      "name": "Pyongyang",
+      "latitude": 39.016666666,
+      "longitude": 125.7475,
+      "utcOffsets": [
+        8.5,
+        9
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KR",
+      "name": "Seoul",
+      "latitude": 37.56,
+      "longitude": 126.99,
+      "utcOffsets": [
+        9
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KW",
+      "name": "Kuwait City",
+      "latitude": 29.375,
+      "longitude": 47.98,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KY",
+      "name": "George Town",
+      "latitude": 19.296388888,
+      "longitude": -81.381666666,
+      "utcOffsets": [
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "KZ",
+      "name": "Astana",
+      "latitude": 51.133333333,
+      "longitude": 71.433333333,
+      "utcOffsets": [
+        5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LA",
+      "name": "Vientiane",
+      "latitude": 17.98,
+      "longitude": 102.63,
+      "utcOffsets": [
+        7
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LB",
+      "name": "Beirut",
+      "latitude": 33.886944444,
+      "longitude": 35.513055555,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LC",
+      "name": "Castries",
+      "latitude": 14.010833333,
+      "longitude": -60.989444444,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LI",
+      "name": "Vaduz",
+      "latitude": 47.140555555,
+      "longitude": 9.522222222,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LK",
+      "name": "Colombo",
+      "latitude": 6.926666666,
+      "longitude": 79.860555555,
+      "utcOffsets": [
+        5.5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LK",
+      "name": "Sri Jayawardenepura Kotte",
+      "latitude": 6.9,
+      "longitude": 79.916388888,
+      "utcOffsets": [
+        5.5
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "LR",
+      "name": "Monrovia",
+      "latitude": 6.310555555,
+      "longitude": -10.804722222,
+      "utcOffsets": [
+        0,
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LS",
+      "name": "Maseru",
+      "latitude": -29.31,
+      "longitude": 27.48,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LT",
+      "name": "Vilnius",
+      "latitude": 54.687222222,
+      "longitude": 25.28,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LU",
+      "name": "Luxembourg",
+      "latitude": 49.610555555,
+      "longitude": 6.132777777,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LV",
+      "name": "Riga",
+      "latitude": 56.9475,
+      "longitude": 24.106944444,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "LY",
+      "name": "Tripoli",
+      "latitude": 32.8875,
+      "longitude": 13.1875,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MA",
+      "name": "Rabat",
+      "latitude": 34.021111111,
+      "longitude": -6.841388888,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MC",
+      "name": "Monaco City",
+      "latitude": 43.73097,
+      "longitude": 7.424815,
+      "utcOffsets": [],
+      "primary": false
+    },
+    {
+      "countryCode": "MD",
+      "name": "Chișinău",
+      "latitude": 47.022777777,
+      "longitude": 28.835277777,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "ME",
+      "name": "Podgorica",
+      "latitude": 42.441388888,
+      "longitude": 19.262777777,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MF",
+      "name": "Marigot",
+      "latitude": 18.066666666,
+      "longitude": -63.084722222,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "MG",
+      "name": "Antananarivo",
+      "latitude": -18.91,
+      "longitude": 47.525,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MH",
+      "name": "Majuro",
+      "latitude": 7.0918,
+      "longitude": 171.3802,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "MK",
+      "name": "Skopje",
+      "latitude": 41.996111111,
+      "longitude": 21.431666666,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "ML",
+      "name": "Bamako",
+      "latitude": 12.645833333,
+      "longitude": -7.992222222,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MM",
+      "name": "Naypyidaw",
+      "latitude": 19.7475,
+      "longitude": 96.115,
+      "utcOffsets": [
+        6.5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MN",
+      "name": "Ulaanbaatar",
+      "latitude": 47.921357,
+      "longitude": 106.905515,
+      "utcOffsets": [
+        8
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "MP",
+      "name": "Saipan",
+      "latitude": 15.21233,
+      "longitude": 145.7545,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "MQ",
+      "name": "Fort-de-France",
+      "latitude": 14.6,
+      "longitude": -61.066666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "MR",
+      "name": "Nouakchott",
+      "latitude": 18.08581,
+      "longitude": -15.9785,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MS",
+      "name": "Brades",
+      "latitude": 16.792777777,
+      "longitude": -62.210555555,
+      "utcOffsets": [
+        -4,
+        -3
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "MS",
+      "name": "Plymouth",
+      "latitude": 16.706416666,
+      "longitude": -62.215838888,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MT",
+      "name": "Valletta",
+      "latitude": 35.897777777,
+      "longitude": 14.5125,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MU",
+      "name": "Port Louis",
+      "latitude": -20.161944444,
+      "longitude": 57.498888888,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "MV",
+      "name": "Malé",
+      "latitude": 4.175,
+      "longitude": 73.508333333,
+      "utcOffsets": [
+        5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MW",
+      "name": "Lilongwe",
+      "latitude": -13.986388888,
+      "longitude": 33.768055555,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MX",
+      "name": "Mexico City",
+      "latitude": 19.353773,
+      "longitude": -99.13589,
+      "utcOffsets": [
+        -6,
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MY",
+      "name": "Kuala Lumpur",
+      "latitude": 3.147777777,
+      "longitude": 101.695277777,
+      "utcOffsets": [
+        8
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "MZ",
+      "name": "Maputo",
+      "latitude": -25.968888888,
+      "longitude": 32.573333333,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NA",
+      "name": "Windhoek",
+      "latitude": -22.57,
+      "longitude": 17.083611111,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NC",
+      "name": "Nouméa",
+      "latitude": -22.266666666,
+      "longitude": 166.45,
+      "utcOffsets": [
+        11
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NE",
+      "name": "Niamey",
+      "latitude": 13.515,
+      "longitude": 2.1175,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NF",
+      "name": "Kingston",
+      "latitude": -29.05,
+      "longitude": 167.966666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "NG",
+      "name": "Abuja",
+      "latitude": 9.055555555,
+      "longitude": 7.491388888,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NI",
+      "name": "Managua",
+      "latitude": 12.154680555,
+      "longitude": -86.273725,
+      "utcOffsets": [
+        -6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NL",
+      "name": "Amsterdam",
+      "latitude": 52.366666666,
+      "longitude": 4.883333333,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NO",
+      "name": "Oslo",
+      "latitude": 59.913333333,
+      "longitude": 10.738888888,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NP",
+      "name": "Kathmandu",
+      "latitude": 27.71,
+      "longitude": 85.32,
+      "utcOffsets": [
+        5.75
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NR",
+      "name": "Yaren District",
+      "latitude": -0.5477,
+      "longitude": 166.920867,
+      "utcOffsets": [
+        12
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "NU",
+      "name": "Alofi",
+      "latitude": -19.056,
+      "longitude": -169.921,
+      "utcOffsets": [
+        -11
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "NZ",
+      "name": "Wellington",
+      "latitude": -41.288888888,
+      "longitude": 174.777222222,
+      "utcOffsets": [
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "OM",
+      "name": "Muscat",
+      "latitude": 23.613888888,
+      "longitude": 58.592222222,
+      "utcOffsets": [
+        4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PA",
+      "name": "Panama City",
+      "latitude": 8.971111111,
+      "longitude": -79.534722222,
+      "utcOffsets": [
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PE",
+      "name": "Lima",
+      "latitude": -12.06,
+      "longitude": -77.0375,
+      "utcOffsets": [
+        -5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PF",
+      "name": "Papeete",
+      "latitude": -17.539722222,
+      "longitude": -149.568888888,
+      "utcOffsets": [
+        -10
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "PG",
+      "name": "Port Moresby",
+      "latitude": -9.478888888,
+      "longitude": 147.149444444,
+      "utcOffsets": [
+        10
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PH",
+      "name": "Manila",
+      "latitude": 14.595833333,
+      "longitude": 120.977222222,
+      "utcOffsets": [
+        8
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PK",
+      "name": "Islamabad",
+      "latitude": 33.698888888,
+      "longitude": 73.036944444,
+      "utcOffsets": [
+        5,
+        6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PL",
+      "name": "Warsaw",
+      "latitude": 52.23,
+      "longitude": 21.011111111,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "PM",
+      "name": "Saint-Pierre",
+      "latitude": 46.777777777,
+      "longitude": -56.177777777,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "PN",
+      "name": "Adamstown",
+      "latitude": -25.066666666,
+      "longitude": -130.1,
+      "utcOffsets": [
+        -8
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PR",
+      "name": "San Juan",
+      "latitude": 18.465277777,
+      "longitude": -66.116666666,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PS",
+      "name": "East Jerusalem",
+      "latitude": 31.78336,
+      "longitude": 35.23388,
+      "utcOffsets": [],
+      "primary": false
+    },
+    {
+      "countryCode": "PS",
+      "name": "Ramallah",
+      "latitude": 31.896944444,
+      "longitude": 35.201666666,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PT",
+      "name": "Lisbon",
+      "latitude": 38.708042,
+      "longitude": -9.139016,
+      "utcOffsets": [
+        0,
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PW",
+      "name": "Ngerulmud",
+      "latitude": 7.500556,
+      "longitude": 134.624167,
+      "utcOffsets": [
+        9,
+        10
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "PY",
+      "name": "Asunción",
+      "latitude": -25.28,
+      "longitude": -57.634444444,
+      "utcOffsets": [
+        -3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "QA",
+      "name": "Doha",
+      "latitude": 25.286111111,
+      "longitude": 51.529444444,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "RE",
+      "name": "Saint-Denis",
+      "latitude": -20.878888888,
+      "longitude": 55.448055555,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "RO",
+      "name": "Bucharest",
+      "latitude": 44.413361111,
+      "longitude": 26.097777777,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "RS",
+      "name": "Belgrade",
+      "latitude": 44.817777777,
+      "longitude": 20.456944444,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "RU",
+      "name": "Moscow",
+      "latitude": 55.750555555,
+      "longitude": 37.6175,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "RW",
+      "name": "Kigali",
+      "latitude": -1.9525,
+      "longitude": 30.115,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SA",
+      "name": "Riyadh",
+      "latitude": 24.65,
+      "longitude": 46.71,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SB",
+      "name": "Honiara",
+      "latitude": -9.433333,
+      "longitude": 159.95,
+      "utcOffsets": [
+        11
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SC",
+      "name": "Victoria",
+      "latitude": -4.623611111,
+      "longitude": 55.454444444,
+      "utcOffsets": [
+        4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SD",
+      "name": "Khartoum",
+      "latitude": 15.60308,
+      "longitude": 32.52654,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SE",
+      "name": "Stockholm",
+      "latitude": 59.329444444,
+      "longitude": 18.068611111,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SG",
+      "name": "Singapore",
+      "latitude": 1.3,
+      "longitude": 103.8,
+      "utcOffsets": [
+        8
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SH",
+      "name": "Jamestown",
+      "latitude": -15.925138888,
+      "longitude": -5.717916666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "SI",
+      "name": "Ljubljana",
+      "latitude": 46.051388888,
+      "longitude": 14.506111111,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SK",
+      "name": "Bratislava",
+      "latitude": 48.144722222,
+      "longitude": 17.112777777,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SL",
+      "name": "Freetown",
+      "latitude": 8.487222222,
+      "longitude": -13.235555555,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SM",
+      "name": "San Marino",
+      "latitude": 43.932011111,
+      "longitude": 12.44845,
+      "utcOffsets": [
+        1
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "SN",
+      "name": "Dakar",
+      "latitude": 14.672555555,
+      "longitude": -17.432,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SO",
+      "name": "Mogadishu",
+      "latitude": 2.039166666,
+      "longitude": 45.341944444,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SR",
+      "name": "Paramaribo",
+      "latitude": 5.866666666,
+      "longitude": -55.166666666,
+      "utcOffsets": [
+        -3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SS",
+      "name": "Juba",
+      "latitude": 4.853888888,
+      "longitude": 31.5825,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "ST",
+      "name": "São Tomé",
+      "latitude": 0.3375,
+      "longitude": 6.728333333,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SV",
+      "name": "San Salvador",
+      "latitude": 13.697597222,
+      "longitude": -89.191155555,
+      "utcOffsets": [
+        -6
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SX",
+      "name": "Philipsburg",
+      "latitude": 18.024166666,
+      "longitude": -63.043333333,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "SY",
+      "name": "Damascus",
+      "latitude": 33.513,
+      "longitude": 36.292,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SY",
+      "name": "Damascus",
+      "latitude": 33.513055555,
+      "longitude": 36.291944444,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SZ",
+      "name": "Lobamba",
+      "latitude": -26.44648,
+      "longitude": 31.206411,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "SZ",
+      "name": "Mbabane",
+      "latitude": -26.316666666,
+      "longitude": 31.133333333,
+      "utcOffsets": [
+        2
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "TC",
+      "name": "Cockburn Town",
+      "latitude": 21.460277777,
+      "longitude": -71.141388888,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "TD",
+      "name": "N'Djamena",
+      "latitude": 12.11,
+      "longitude": 15.05,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TF",
+      "name": "Port-aux-Français",
+      "latitude": -49.35,
+      "longitude": 70.216666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "TG",
+      "name": "Lomé",
+      "latitude": 6.13,
+      "longitude": 1.215833333,
+      "utcOffsets": [
+        0
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TH",
+      "name": "Bangkok",
+      "latitude": 13.75,
+      "longitude": 100.516666666,
+      "utcOffsets": [
+        7
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TJ",
+      "name": "Dushanbe",
+      "latitude": 38.573055555,
+      "longitude": 68.786388888,
+      "utcOffsets": [
+        5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TK",
+      "name": "Fakaofo",
+      "latitude": -9.38,
+      "longitude": -171.219,
+      "utcOffsets": [
+        13
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TL",
+      "name": "Dili",
+      "latitude": -8.553611111,
+      "longitude": 125.578333333,
+      "utcOffsets": [
+        9
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TM",
+      "name": "Ashgabat",
+      "latitude": 37.95,
+      "longitude": 58.383333333,
+      "utcOffsets": [
+        5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TN",
+      "name": "Tunis",
+      "latitude": 36.800833333,
+      "longitude": 10.18,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TO",
+      "name": "Nukuʻalofa",
+      "latitude": -21.1343401,
+      "longitude": -175.201808,
+      "utcOffsets": [
+        13
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "TR",
+      "name": "Ankara",
+      "latitude": 39.93576,
+      "longitude": 32.83869,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TT",
+      "name": "Port of Spain",
+      "latitude": 10.666666666,
+      "longitude": -61.516666666,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TV",
+      "name": "Funafuti",
+      "latitude": -8.504777777,
+      "longitude": 179.117361111,
+      "utcOffsets": [
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TW",
+      "name": "Taipei",
+      "latitude": 25.0375,
+      "longitude": 121.5625,
+      "utcOffsets": [
+        8
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "TZ",
+      "name": "Dodoma",
+      "latitude": -6.1835,
+      "longitude": 35.746,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "UA",
+      "name": "Kyiv",
+      "latitude": 50.45,
+      "longitude": 30.523611111,
+      "utcOffsets": [
+        2,
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "UG",
+      "name": "Kampala",
+      "latitude": 0.313611111,
+      "longitude": 32.581111111,
+      "utcOffsets": [
+        3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "US",
+      "name": "Washington, D.C.",
+      "latitude": 38.895,
+      "longitude": -77.036666666,
+      "utcOffsets": [
+        -5,
+        -4
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "UY",
+      "name": "Montevideo",
+      "latitude": -34.905916666,
+      "longitude": -56.191311111,
+      "utcOffsets": [
+        -3
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "UZ",
+      "name": "Tashkent",
+      "latitude": 41.311111111,
+      "longitude": 69.279722222,
+      "utcOffsets": [
+        5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "VA",
+      "name": "Vatican City",
+      "latitude": 41.904,
+      "longitude": 12.453,
+      "utcOffsets": [
+        1,
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "VC",
+      "name": "Kingstown",
+      "latitude": 13.15527,
+      "longitude": -61.22742,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "VE",
+      "name": "Caracas",
+      "latitude": 10.506111111,
+      "longitude": -66.914444444,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "VG",
+      "name": "Road Town",
+      "latitude": 18.433333333,
+      "longitude": -64.616666666,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "VI",
+      "name": "Charlotte Amalie",
+      "latitude": 18.35,
+      "longitude": -64.95,
+      "utcOffsets": [
+        -4
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "VN",
+      "name": "Hanoi",
+      "latitude": 21.0245,
+      "longitude": 105.84117,
+      "utcOffsets": [
+        7
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "VU",
+      "name": "Port Vila",
+      "latitude": -17.73333,
+      "longitude": 168.316667,
+      "utcOffsets": [
+        11
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "WF",
+      "name": "Mata-Utu",
+      "latitude": -13.2827,
+      "longitude": -176.1737,
+      "utcOffsets": [
+        12
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "WS",
+      "name": "Apia",
+      "latitude": -13.833333333,
+      "longitude": -171.833333333,
+      "utcOffsets": [
+        13
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "XK",
+      "name": "Pristina",
+      "latitude": 42.666666666,
+      "longitude": 21.166666666,
+      "utcOffsets": [
+        1
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "YE",
+      "name": "Aden",
+      "latitude": 12.8,
+      "longitude": 45.033333333,
+      "utcOffsets": [
+        3
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "YE",
+      "name": "Sanaa",
+      "latitude": 15.35,
+      "longitude": 44.2,
+      "utcOffsets": [
+        3
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "YT",
+      "name": "Dzaoudzi",
+      "latitude": -12.788333333,
+      "longitude": 45.2725,
+      "utcOffsets": [],
+      "primary": false
+    },
+    {
+      "countryCode": "YT",
+      "name": "Mamoudzou",
+      "latitude": -12.781388888,
+      "longitude": 45.231666666,
+      "utcOffsets": [],
+      "primary": true
+    },
+    {
+      "countryCode": "ZA",
+      "name": "Bloemfontein",
+      "latitude": -29.1,
+      "longitude": 26.216666666,
+      "utcOffsets": [
+        2
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "ZA",
+      "name": "Cape Town",
+      "latitude": -33.925277777,
+      "longitude": 18.423888888,
+      "utcOffsets": [
+        2
+      ],
+      "primary": false
+    },
+    {
+      "countryCode": "ZA",
+      "name": "Pretoria",
+      "latitude": -25.746388888,
+      "longitude": 28.188055555,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "ZM",
+      "name": "Lusaka",
+      "latitude": -15.416666666,
+      "longitude": 28.283333333,
+      "utcOffsets": [
+        2.5
+      ],
+      "primary": true
+    },
+    {
+      "countryCode": "ZW",
+      "name": "Harare",
+      "latitude": -17.829166666,
+      "longitude": 31.052222222,
+      "utcOffsets": [
+        2
+      ],
+      "primary": true
+    }
+  ]
+}

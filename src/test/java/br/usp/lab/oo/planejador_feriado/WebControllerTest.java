@@ -1,17 +1,23 @@
 package br.usp.lab.oo.planejador_feriado;
 
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
+import br.usp.lab.oo.planejador_feriado.destination.model.DestinationCity;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.DataQuality;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.GroundCostEstimate;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.OriginReference;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoredCriterion;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelEffort;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.TripFeasibility;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.WindowAssessment;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
 import br.usp.lab.oo.planejador_feriado.travel.model.TravelOverview;
 import br.usp.lab.oo.planejador_feriado.travel.service.TravelService;
 import br.usp.lab.oo.planejador_feriado.web.WebController;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -21,7 +27,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -160,6 +168,27 @@ class WebControllerTest {
     }
 
     @Test
+    void recomendacoesDevePropagarViajantesOrigemEOrcamento() throws Exception {
+        when(recommendationEngine.recommend(any())).thenReturn(mockRecommendationResponse());
+
+        mockMvc.perform(get("/recomendacoes")
+                        .param("from", "2026-06-01")
+                        .param("to", "2026-06-30")
+                        .param("countries", "JP")
+                        .param("originCity", "Brasília")
+                        .param("travelers", "3")
+                        .param("maxGroundBudget", "7500"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("recomendacoes-resultado"));
+
+        ArgumentCaptor<RecommendationRequest> request = ArgumentCaptor.forClass(RecommendationRequest.class);
+        verify(recommendationEngine).recommend(request.capture());
+        assertEquals("Brasília", request.getValue().originCityName());
+        assertEquals(3, request.getValue().travelers());
+        assertEquals(7500.0, request.getValue().maxGroundBudgetBrl());
+    }
+
+    @Test
     void recomendacoesComFromMaiorQueToDeveRetornarErroAmigavel() throws Exception {
         mockMvc.perform(get("/recomendacoes")
                         .param("from", "2026-06-30")
@@ -221,6 +250,25 @@ class WebControllerTest {
     }
 
     @Test
+    void recomendacoesComViajantesOuOrcamentoInvalidosDeveRetornarErroAmigavel() throws Exception {
+        mockMvc.perform(get("/recomendacoes")
+                        .param("from", "2026-06-01")
+                        .param("to", "2026-06-30")
+                        .param("countries", "JP")
+                        .param("travelers", "11"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("erro"));
+
+        mockMvc.perform(get("/recomendacoes")
+                        .param("from", "2026-06-01")
+                        .param("to", "2026-06-30")
+                        .param("countries", "JP")
+                        .param("maxGroundBudget", "0"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("erro"));
+    }
+
+    @Test
     void recomendacoesComEngineFalhandoDeveRetornarErroAmigavel() throws Exception {
         when(recommendationEngine.recommend(any())).thenThrow(new RuntimeException("offline"));
 
@@ -255,7 +303,14 @@ class WebControllerTest {
                         List.of("Custo: dado indisponível"),
                         "Japan — nota de viagem 65: clima agradável",
                         null,
-                        null
+                        null,
+                        new TripFeasibility(
+                                new DestinationCity("JP", "Tokyo", 35.68, 139.76, List.of(9.0), true),
+                                new TravelEffort(17_600.0, 20.6, 28.1, -3.0, 9.0, 12.0, "LONG", true),
+                                new GroundCostEstimate(
+                                        "BRL", 500.0, 5_000.0, 1, 10, 1.4,
+                                        "2024", "2024", "LOW", "Estimativa terrestre por PPP"),
+                                List.of("passagens aéreas", "seguro-viagem"))
                 )),
                 List.of()
         );

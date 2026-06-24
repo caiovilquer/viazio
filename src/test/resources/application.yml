@@ -19,6 +19,8 @@ app:
       base-url: https://api.worldbank.org/v2
     wikipedia-base-url-template: https://%s.wikipedia.org/api/rest_v1
   recommendation:
+    estimates:
+      baseline-daily-ground-cost-brl: 350
     default-weights:
       weather: 0.30
       cost: 0.30

@@ -20,7 +20,10 @@ public record RecommendationRequest(
         String originCountryCode,
         String originSubdivisionCode,
         Double originLatitude,
-        Double originLongitude
+        Double originLongitude,
+        String originCityName,
+        int travelers,
+        Double maxGroundBudgetBrl
 ) {
     public RecommendationRequest {
         countryCodes = countryCodes != null ? List.copyOf(countryCodes) : List.of();
@@ -29,6 +32,7 @@ public record RecommendationRequest(
         originCountryCode = originCountryCode == null || originCountryCode.isBlank()
                 ? "BR"
                 : originCountryCode;
+        travelers = travelers > 0 ? travelers : 1;
     }
 
     public RecommendationRequest(
@@ -38,6 +42,6 @@ public record RecommendationRequest(
             String region,
             int limit) {
         this(from, to, countryCodes, region, limit, null, Map.of(), List.of(),
-                "BR", null, null, null);
+                "BR", null, null, null, null, 1, null);
     }
 }

@@ -59,13 +59,18 @@ public class RecommendationController {
             @RequestParam(required = false, defaultValue = "BR") String originCountry,
             @RequestParam(required = false) String originSubdivision,
             @RequestParam(required = false) Double originLatitude,
-            @RequestParam(required = false) Double originLongitude) {
+            @RequestParam(required = false) Double originLongitude,
+            @RequestParam(required = false) String originCity,
+            @RequestParam(required = false, defaultValue = "1") int travelers,
+            @RequestParam(required = false) Double maxGroundBudget) {
 
         validateWindow(from, to, MAX_WINDOW_DAYS);
         validateCandidateInput(countries, region);
         validateLimit(limit, MAX_LIMIT);
         validateProfile(profile);
         validateCoordinates(originLatitude, originLongitude);
+        validateRange("travelers", travelers, 1, 10);
+        validatePositiveMoney("maxGroundBudget", maxGroundBudget);
 
         RecommendationRequest request = new RecommendationRequest(
                 from,
@@ -79,7 +84,10 @@ public class RecommendationController {
                 normalizeCountryCode(originCountry, "originCountry"),
                 normalizeSubdivision(originSubdivision),
                 originLatitude,
-                originLongitude
+                originLongitude,
+                normalizeText(originCity),
+                travelers,
+                maxGroundBudget
         );
 
         return recommendationEngine.recommend(request);
@@ -100,7 +108,10 @@ public class RecommendationController {
             @RequestParam(required = false, defaultValue = "BR") String originCountry,
             @RequestParam(required = false) String originSubdivision,
             @RequestParam(required = false) Double originLatitude,
-            @RequestParam(required = false) Double originLongitude) {
+            @RequestParam(required = false) Double originLongitude,
+            @RequestParam(required = false) String originCity,
+            @RequestParam(required = false, defaultValue = "1") int travelers,
+            @RequestParam(required = false) Double maxGroundBudget) {
 
         validateWindow(from, to, MAX_PERIOD_DAYS);
         validateOptionalCandidateInput(countries, region);
@@ -109,6 +120,8 @@ public class RecommendationController {
         validateRange("destinationsPerWindow", destinationsPerWindow, 1, MAX_LIMIT);
         validateProfile(profile);
         validateCoordinates(originLatitude, originLongitude);
+        validateRange("travelers", travelers, 1, 10);
+        validatePositiveMoney("maxGroundBudget", maxGroundBudget);
 
         BestWindowsRequest request = new BestWindowsRequest(
                 from,
@@ -124,7 +137,10 @@ public class RecommendationController {
                 normalizeCountryCode(originCountry, "originCountry"),
                 normalizeSubdivision(originSubdivision),
                 originLatitude,
-                originLongitude
+                originLongitude,
+                normalizeText(originCity),
+                travelers,
+                maxGroundBudget
         );
 
         return bestWindowsService.findBestWindows(request);
@@ -263,6 +279,16 @@ public class RecommendationController {
         if (longitude != null && (!Double.isFinite(longitude) || longitude < -180.0 || longitude > 180.0)) {
             throw badRequest("'originLongitude' deve estar entre -180 e 180");
         }
+    }
+
+    private void validatePositiveMoney(String parameter, Double value) {
+        if (value != null && (!Double.isFinite(value) || value <= 0.0)) {
+            throw badRequest("'" + parameter + "' deve ser um valor positivo");
+        }
+    }
+
+    private String normalizeText(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     private ResponseStatusException badRequest(String message) {

@@ -22,6 +22,23 @@ public record TravelRecommendation(
         List<String> tradeoffs,
         String summary,
         Exchange exchangeToBrl,
-        DestinationProfile profile
+        DestinationProfile profile,
+        TripFeasibility feasibility
 ) {
+    public TravelRecommendation(
+            String countryCode,
+            String countryName,
+            double destinationScore,
+            double windowScore,
+            double tripScore,
+            DataQuality dataQuality,
+            List<ScoredCriterion> breakdown,
+            List<String> highlights,
+            List<String> tradeoffs,
+            String summary,
+            Exchange exchangeToBrl,
+            DestinationProfile profile) {
+        this(countryCode, countryName, destinationScore, windowScore, tripScore, dataQuality,
+                breakdown, highlights, tradeoffs, summary, exchangeToBrl, profile, null);
+    }
 }

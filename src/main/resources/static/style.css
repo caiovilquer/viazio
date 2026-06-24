@@ -1050,6 +1050,56 @@ body.is-loading {
     margin-bottom: var(--sp-4);
 }
 
+.viabilidade {
+    margin-bottom: var(--sp-4);
+    padding: var(--sp-4);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r);
+    background: var(--c-bg);
+}
+
+.viabilidade-titulo {
+    margin-bottom: var(--sp-3);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--c-text-muted);
+}
+
+.viabilidade-grade {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-3);
+}
+
+.viabilidade-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.viabilidade-item strong {
+    font-size: 0.88rem;
+    color: var(--c-text);
+}
+
+.viabilidade-item small,
+.viabilidade-premissa {
+    font-size: 0.75rem;
+    color: var(--c-text-muted);
+}
+
+.viabilidade-rotulo {
+    font-size: 0.7rem;
+    color: var(--c-text-subtle);
+}
+
+.viabilidade-premissa {
+    margin-top: var(--sp-3);
+}
+
 /* Breakdown accordion */
 .breakdown {
     margin-bottom: var(--sp-3);
@@ -1299,6 +1349,10 @@ body.is-loading {
     .ranking-img {
         width: 48px;
         height: 48px;
+    }
+
+    .viabilidade-grade {
+        grid-template-columns: 1fr;
     }
 }
 

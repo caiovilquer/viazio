@@ -61,7 +61,7 @@ class BestWindowsServiceTest {
 
         BestWindowsRequest request = new BestWindowsRequest(
                 from, to, 3, 6, List.of(), null, 3, null, Map.of(), List.of(),
-                "BR", null, null, null);
+                "BR", null, null, null, null, 1, null);
 
         BestWindowsResponse response = service.findBestWindows(request);
 

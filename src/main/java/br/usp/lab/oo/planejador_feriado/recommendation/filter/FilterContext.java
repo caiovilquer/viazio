@@ -1,6 +1,7 @@
 package br.usp.lab.oo.planejador_feriado.recommendation.filter;
 
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.GroundCostEstimate;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 
 /**
@@ -10,6 +11,7 @@ import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationReque
 public record FilterContext(
         String countryCode,
         Country country,
+        GroundCostEstimate groundCost,
         RecommendationRequest request
 ) {
 }

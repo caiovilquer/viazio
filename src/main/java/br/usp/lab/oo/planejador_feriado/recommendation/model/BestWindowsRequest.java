@@ -18,7 +18,10 @@ public record BestWindowsRequest(
         String originCountryCode,
         String originSubdivisionCode,
         Double originLatitude,
-        Double originLongitude
+        Double originLongitude,
+        String originCityName,
+        int travelers,
+        Double maxGroundBudgetBrl
 ) {
     public BestWindowsRequest {
         countryCodes = countryCodes != null ? List.copyOf(countryCodes) : List.of();
@@ -27,6 +30,7 @@ public record BestWindowsRequest(
         originCountryCode = originCountryCode == null || originCountryCode.isBlank()
                 ? "BR"
                 : originCountryCode;
+        travelers = travelers > 0 ? travelers : 1;
     }
 
     public boolean hasCandidates() {

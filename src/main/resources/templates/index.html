@@ -24,7 +24,7 @@
 
     <div class="hero">
         <h1 class="hero-headline">Descubra quando e para onde viajar</h1>
-        <p class="hero-sub">Compare feriados, câmbio e dias livres de qualquer destino — tudo em um só lugar.</p>
+        <p class="hero-sub">Compare calendário, clima, custo local e esforço de viagem — tudo em um só lugar.</p>
     </div>
 
     <div class="card">
@@ -72,7 +72,7 @@
 
     <div class="card">
         <h2 class="secao-titulo-card">Comparar destinos</h2>
-        <p class="secao-desc-card">Ranqueie vários países por feriados, câmbio e dias livres em uma janela de datas.</p>
+        <p class="secao-desc-card">Ranqueie países pela qualidade do destino, da janela e pela confiança dos dados.</p>
 
         <form class="form-comparacao" action="/recomendacoes" method="get"
               th:with="primeiroDia=${#temporals.createToday().plusMonths(1).withDayOfMonth(1)},
@@ -161,6 +161,36 @@
                 </div>
                 <div class="form-grid">
                     <div class="form-campo">
+                        <label for="originCity">
+                            Cidade de origem
+                            <span class="dica">Capital brasileira usada como referência quando vazio</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="originCity"
+                            name="originCity"
+                            class="input-texto"
+                            placeholder="Ex.: Brasília"
+                        >
+                    </div>
+                    <div class="form-campo">
+                        <label for="travelers">
+                            Viajantes
+                            <span class="dica">De 1 a 10 pessoas</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="travelers"
+                            name="travelers"
+                            class="input-texto"
+                            value="1"
+                            min="1"
+                            max="10"
+                        >
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-campo">
                         <label for="limit">
                             Quantidade de destinos no ranking
                             <span class="dica">De 1 a 15 (padrão: 10)</span>
@@ -173,6 +203,21 @@
                             value="10"
                             min="1"
                             max="15"
+                        >
+                    </div>
+                    <div class="form-campo">
+                        <label for="maxGroundBudget">
+                            Orçamento terrestre máximo
+                            <span class="dica">Opcional, em reais; não inclui passagens</span>
+                        </label>
+                        <input
+                            type="number"
+                            id="maxGroundBudget"
+                            name="maxGroundBudget"
+                            class="input-texto"
+                            min="1"
+                            step="0.01"
+                            placeholder="Ex.: 5000"
                         >
                     </div>
                 </div>
@@ -210,6 +255,9 @@
         var countriesInput = form.querySelector('#countries');
         var regionSelect = form.querySelector('#region');
         var limitInput = form.querySelector('#limit');
+        var travelersInput = form.querySelector('#travelers');
+        var maxGroundBudgetInput = form.querySelector('#maxGroundBudget');
+        var originCityInput = form.querySelector('#originCity');
         var limparFiltrosBtn = form.querySelector('.btn-limpar-filtros');
         var submitBtn = form.querySelector('.btn-ranking-submit');
         var loadingOverlay = document.getElementById('ranking-loading');
@@ -286,6 +334,15 @@
             limparFiltrosBtn.addEventListener('click', function () {
                 if (limitInput) {
                     limitInput.value = '10';
+                }
+                if (travelersInput) {
+                    travelersInput.value = '1';
+                }
+                if (maxGroundBudgetInput) {
+                    maxGroundBudgetInput.value = '';
+                }
+                if (originCityInput) {
+                    originCityInput.value = '';
                 }
             });
         }

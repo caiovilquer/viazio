@@ -90,6 +90,9 @@ public class WebController {
             @RequestParam(required = false) String region,
             @RequestParam(required = false, defaultValue = "10") int limit,
             @RequestParam(required = false) String profile,
+            @RequestParam(required = false) String originCity,
+            @RequestParam(required = false, defaultValue = "1") int travelers,
+            @RequestParam(required = false) Double maxGroundBudget,
             Model model) {
 
         if (from == null || from.isBlank() || to == null || to.isBlank()) {
@@ -106,7 +109,8 @@ public class WebController {
             return "recomendacoes-resultado";
         }
 
-        String validationError = validateRecommendationInput(fromDate, toDate, countries, region, limit);
+        String validationError = validateRecommendationInput(
+                fromDate, toDate, countries, region, limit, travelers, maxGroundBudget);
         if (validationError != null) {
             model.addAttribute("erro", validationError);
             model.addAttribute("fromFormatado", fromDate);
@@ -127,7 +131,10 @@ public class WebController {
                 "BR",
                 null,
                 null,
-                null
+                null,
+                normalizeText(originCity),
+                travelers,
+                maxGroundBudget
         );
 
         try {
@@ -149,7 +156,9 @@ public class WebController {
             LocalDate to,
             String countries,
             String region,
-            int limit) {
+            int limit,
+            int travelers,
+            Double maxGroundBudget) {
 
         if (from.isAfter(to)) {
             return "A data inicial deve ser anterior ou igual à data final.";
@@ -168,6 +177,15 @@ public class WebController {
 
         if (limit < 1 || limit > MAX_LIMIT) {
             return "O limite de resultados deve estar entre 1 e " + MAX_LIMIT + ".";
+        }
+
+        if (travelers < 1 || travelers > 10) {
+            return "A quantidade de viajantes deve estar entre 1 e 10.";
+        }
+
+        if (maxGroundBudget != null
+                && (!Double.isFinite(maxGroundBudget) || maxGroundBudget <= 0.0)) {
+            return "O orçamento terrestre deve ser um valor positivo.";
         }
 
         return null;
@@ -197,5 +215,9 @@ public class WebController {
             return null;
         }
         return profile.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeText(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 }

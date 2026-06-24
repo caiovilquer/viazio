@@ -34,6 +34,10 @@ app:
     connect-timeout: 3s
     read-timeout: 5s
   recommendation:
+    estimates:
+      # Base transparente para a estimativa terrestre por PPP. Não inclui passagem,
+      # seguro, visto ou taxas aeroportuárias.
+      baseline-daily-ground-cost-brl: 350
     # Pesos padrão (somam 1) usados quando nenhum perfil é escolhido.
     default-weights:
       weather: 0.30

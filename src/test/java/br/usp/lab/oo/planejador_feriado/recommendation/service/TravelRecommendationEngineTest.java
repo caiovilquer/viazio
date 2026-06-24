@@ -4,12 +4,15 @@ import br.usp.lab.oo.planejador_feriado.cost.model.CostOfLiving;
 import br.usp.lab.oo.planejador_feriado.cost.service.CostOfLivingService;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
+import br.usp.lab.oo.planejador_feriado.destination.model.DestinationCity;
+import br.usp.lab.oo.planejador_feriado.destination.service.DestinationCatalogService;
 import br.usp.lab.oo.planejador_feriado.enrichment.service.DestinationProfileService;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 import br.usp.lab.oo.planejador_feriado.exchange.service.ExchangeService;
 import br.usp.lab.oo.planejador_feriado.holiday.model.Holiday;
 import br.usp.lab.oo.planejador_feriado.holiday.service.HolidayService;
 import br.usp.lab.oo.planejador_feriado.recommendation.config.ScoringProperties;
+import br.usp.lab.oo.planejador_feriado.recommendation.config.TravelEstimateProperties;
 import br.usp.lab.oo.planejador_feriado.recommendation.detector.LongWeekendDetector;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
 import br.usp.lab.oo.planejador_feriado.recommendation.filter.CandidateFilterChain;
@@ -37,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -62,6 +66,8 @@ class TravelRecommendationEngineTest {
     private CostOfLivingService costService;
     @Mock
     private DestinationProfileService profileService;
+    @Mock
+    private DestinationCatalogService destinationCatalogService;
 
     private TravelRecommendationEngine engine;
 
@@ -78,6 +84,8 @@ class TravelRecommendationEngineTest {
                 weatherService,
                 costService,
                 profileService,
+                destinationCatalogService,
+                new TravelFeasibilityService(new TravelEstimateProperties(350.0)),
                 List.of(
                         new WeatherStrategy(),
                         new CostOfLivingStrategy(),
@@ -89,6 +97,9 @@ class TravelRecommendationEngineTest {
 
         Country brazil = country("Brazil", "BR", "BRL", -10.0, -55.0);
         when(countryService.getCountryByCode("BR")).thenReturn(brazil);
+        when(destinationCatalogService.findCity("BR", null)).thenReturn(Optional.empty());
+        when(destinationCatalogService.primaryCityOrCountryFallback(brazil))
+                .thenReturn(city(brazil, -15.8, -47.9, -3.0));
         when(holidayService.getHolidaysInWindow(eq("BR"), eq(null), eq(FROM), eq(TO)))
                 .thenReturn(List.of(new Holiday(
                         LocalDate.of(2026, 9, 7),
@@ -187,9 +198,43 @@ class TravelRecommendationEngineTest {
         assertEquals("XX", response.skipped().get(0).countryCode());
     }
 
+    @Test
+    void includesCapitalTravelEffortAndTransparentGroundEstimate() {
+        Country japan = country("Japan", "JP", "JPY", 36.0, 138.0);
+        stubCandidate(japan);
+        when(costService.getPriceLevel("BR"))
+                .thenReturn(Optional.of(new CostOfLiving("BR", 0.4, "2024")));
+        when(costService.getPriceLevel("JP"))
+                .thenReturn(Optional.of(new CostOfLiving("JP", 0.8, "2024")));
+
+        RecommendationRequest request = new RecommendationRequest(
+                FROM, TO, List.of("JP"), null, 10, null, Map.of(), List.of(),
+                "BR", null, null, null, null, 2, null);
+        TravelRecommendation recommendation = engine.recommend(request).recommendations().get(0);
+
+        assertNotNull(recommendation.feasibility());
+        assertEquals("Japan City", recommendation.feasibility().destination().name());
+        assertEquals(2, recommendation.feasibility().groundCost().travelers());
+        assertEquals(4, recommendation.feasibility().groundCost().days());
+        assertEquals(5_600.0, recommendation.feasibility().groundCost().estimatedTotal());
+        assertTrue(recommendation.feasibility().notIncluded().contains("passagens aéreas"));
+    }
+
     private void stubCandidate(Country country) {
         when(countryService.getCountryByCode(country.getIsoCode())).thenReturn(country);
         when(holidayService.getHolidaysInWindow(country.getIsoCode(), FROM, TO)).thenReturn(List.of());
+        when(destinationCatalogService.primaryCityOrCountryFallback(country))
+                .thenReturn(city(country, country.getLatitude(), country.getLongitude(), 0.0));
+    }
+
+    private DestinationCity city(Country country, double latitude, double longitude, double offset) {
+        return new DestinationCity(
+                country.getIsoCode(),
+                country.getCapitals().get(0),
+                latitude,
+                longitude,
+                List.of(offset),
+                true);
     }
 
     private Country country(

@@ -88,7 +88,10 @@ public class BestWindowsService {
                     request.originCountryCode(),
                     request.originSubdivisionCode(),
                     request.originLatitude(),
-                    request.originLongitude()
+                    request.originLongitude(),
+                    request.originCityName(),
+                    request.travelers(),
+                    request.maxGroundBudgetBrl()
             );
             topDestinations = recommendationEngine.recommend(windowRequest).recommendations();
         }
