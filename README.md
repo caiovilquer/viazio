@@ -7,27 +7,29 @@
 - Pedro Lopes Paraíso — @PedroParaiso1
 
 ## Descrição do projeto
-Este projeto tem como objetivo desenvolver um sistema web para ajudar usuários a planejar viagens curtas e feriadões. A aplicação irá reunir informações de APIs públicas sobre feriados, países e câmbio, permitindo visualizar oportunidades de viagem em períodos curtos e comparar destinos de forma simples e organizada.
+Este projeto é um sistema web de apoio ao planejamento de viagens curtas e feriadões. A aplicação combina calendários, países, clima, custo relativo, distância e conteúdo do destino para encontrar boas janelas e comparar opções de forma explicável.
 
-A proposta é centralizar informações que normalmente estão espalhadas em diferentes sites, facilitando a consulta de datas, destinos e moedas em uma única plataforma.
+A solução oferece interface Thymeleaf, API REST versionada e acesso por terminal. O motor informa notas separadas para janela e destino, confiança dos dados, premissas, pontos de atenção e candidatos descartados. Ele não se apresenta como plataforma de reservas e não trata estimativas como preços comerciais.
+
+**Estado atual:** Java 21, Spring Boot 3.5, 191 testes automatizados sem rede, OpenAPI, métricas Prometheus, imagem Docker e pipeline GitLab CI. A visão técnica consolidada está em [docs/arquitetura.md](docs/arquitetura.md).
 
 ---
 
-## Cronograma preliminar
+## Evolução do projeto
 
 ### Fase 1
-Implementação inicial do backend e integração com as APIs escolhidas. Nessa etapa, o sistema deverá já ser capaz de consultar feriados, informações básicas de países e taxas de câmbio, inicialmente sem interface web completa, apenas via terminal.
+Implementação inicial do backend e integração com as fontes escolhidas. Nessa etapa, o sistema passou a consultar feriados, informações básicas de países e taxas de câmbio, inicialmente sem interface web completa, apenas via terminal.
 
 #### Relatório de Entrega (21/Abril)
-Nessa primeira fase foi estabelecido uma sólida arquitetura utilizando **Java 21** e **Spring Boot**. A consulta aos dados pode ser feita pela **API REST** (navegador, `curl`, Swagger) e pelo **terminal**, via **Spring Shell**, usando os mesmos serviços de domínio. Os testes automatizados continuam garantindo a integração com as APIs externas.
+Nessa primeira fase foi estabelecida uma arquitetura sólida utilizando **Java 21** e **Spring Boot**. A consulta aos dados pode ser feita pela **API REST** (navegador, `curl`, Swagger) e pelo **terminal**, via **Spring Shell**, usando os mesmos serviços de domínio. Os testes automatizados continuam garantindo os contratos internos e as integrações externas.
 
 ### O que foi desenvolvido:
 1. **Modelagem de Domínio:** * Criação das entidades principais (`Country`, `Holiday` e `Exchange`) utilizando encapsulamento para garantir a imutabilidade dos dados essenciais.
-2. **Integração com APIs Externas (Clientes e DTOs):**
-   * Desenvolvemos a camada de clientes HTTP utilizando o `RestClient` do Spring.
+2. **Integração com fontes de dados (Clients e DTOs):**
+   * A camada usa `RestClient` do Spring para fontes dinâmicas e clients estáticos para catálogos embarcados.
    * Isolamos os dados externos utilizando o padrão DTO (Data Transfer Object) com `Records`, garantindo que o núcleo do sistema não seja afetado por mudanças nas APIs.
-   * **APIs integradas:**
-     * *RestCountries:* Busca de dados demográficos e geográficos.
+   * **Fontes integradas:**
+     * *Catálogo embarcado mledoze/countries:* dados demográficos e geográficos estáveis, sem dependência de rede.
      * *Nager.Date:* Busca de feriados nacionais.
      * *AwesomeAPI:* Busca de cotação de câmbio em tempo real.
 3. **Serviços e API REST:**
@@ -39,7 +41,7 @@ Nessa primeira fase foi estabelecido uma sólida arquitetura utilizando **Java 2
    * O comportamento do shell é configurado em `src/main/resources/application.yml` (desligado por padrão) e, para o modo interativo explícito, em `application-shell.yml` (perfil `shell`).
    * Nos testes, o shell fica desligado em `src/test/resources/application.yml`, para a suíte rodar como aplicação web/API sem prompt.
 5. **Testes Automatizados:**
-   * **Unitários com Mockito (sem rede):** os serviços de domínio são testados isolando as dependências externas via mocks — `CountryServiceTest` (mock de `RestCountriesClient`), `HolidayServiceTest` (mock de `NagerDateClient`), `ExchangeServiceTest` (mock de `AwesomeApiClient`) e `TravelServiceTest`. Cobrem mapeamento DTO→modelo, ordenação, deduplicação, janelas de data, casos de erro (lista vazia, falha de cliente, moeda inválida) e o atalho de BRL.
+   * **Unitários com Mockito (sem rede):** os serviços de domínio são testados isolando suas portas via mocks — `CountryServiceTest` (mock de `CountryClient`), `HolidayServiceTest` (mock de `HolidayClient`), `ExchangeServiceTest` (mock de `ExchangeClient`) e `TravelServiceTest`. Cobrem mapeamento DTO→modelo, ordenação, deduplicação, janelas de data, casos de erro (lista vazia, falha de client, moeda inválida) e o atalho de BRL.
    * **Web/controllers com `@WebMvcTest` + MockMvc (sem rede):** `CountryControllerTest`, `HolidayControllerTest`, `ExchangeControllerTest`, `TravelControllerTest` e o `WebControllerTest` da interface web (Thymeleaf) — todos com os serviços mockados (`@MockitoBean`). Os testes cobrem o caminho feliz e o mapeamento de erros (404/502).
    * **CLI:** `PlanejadorShellCommandsTest` exercita todos os comandos do Spring Shell com serviços mockados.
    * **Integração com APIs reais (`@Tag("integration")`):** `CountryServiceIntegrationTest`, `HolidayServiceIntegrationTest`, `ExchangeServiceIntegrationTest`, `TravelServiceIntegrationTest` — executados apenas com `./mvnw test -Pintegration`.
@@ -102,7 +104,7 @@ A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface
 
 3. **Refatoração e testes (pirâmide de testes):**
    * `HolidayDeduplicator` extraído do `TravelService` (lógica reutilizada pelo engine).
-   * **Unitários (base, sem rede):** `HolidayDeduplicatorTest`, `TravelServiceTest`, `LongWeekendDetectorTest`, testes das 3 strategies, `TravelRecommendationEngineTest` (Mockito).
+   * **Unitários (base, sem rede):** `HolidayDeduplicatorTest`, `TravelServiceTest`, `LongWeekendDetectorTest`, testes das quatro strategies e `TravelRecommendationEngineTest` (Mockito).
    * **Integração enxuta (meio):** `RecommendationControllerTest` (`@WebMvcTest` + MockMvc).
    * **Smoke com APIs reais (topo, `@Tag("integration")`):** testes de serviço reduzidos + `RecommendationIntegrationTest`. Rodam com `./mvnw test -Pintegration`.
    * Padrão default `./mvnw test` executa só unitários e testes web sem rede.
@@ -206,16 +208,17 @@ Endpoints operacionais:
 ---
 
 ### Fase 3
-Finalização do projeto, com melhorias na interface, refinamento das funcionalidades já implementadas, organização da arquitetura do sistema e conclusão da versão final para apresentação.
+Consolidação do produto, com refinamento do motor decisor, contrato orientado à UX, integrações resilientes, observabilidade e entrega reproduzível.
 
 #### Entrega 1 — Robustez de integração e Decorator (GoF)
 
-As APIs externas gratuitas (RestCountries, Nager.Date, AwesomeAPI) não têm SLA garantido e o motor de recomendação pode repetir a mesma chamada várias vezes ao comparar N destinos (ex.: o calendário de feriados do Brasil é consultado uma vez por candidato). Esta entrega ataca latência e resiliência sem mudar o comportamento observável da API.
+As fontes externas gratuitas não têm SLA garantido e o motor de recomendação pode repetir consultas ao comparar muitos destinos. Esta entrega controla latência, concorrência e indisponibilidade sem acoplar essas preocupações aos serviços de domínio.
 
 1. **Padrão Decorator (`Caching*Client`):**
-   * `CountryClient`, `HolidayClient` e `ExchangeClient` passaram a ser interfaces; `RestCountriesClient`, `NagerDateClient` e `AwesomeApiClient` são as implementações reais (chamam a API via `RestClient`).
-   * `CachingCountryClient`, `CachingHolidayClient` e `CachingExchangeClient` decoram essas implementações com cache em memória (Caffeine), interceptando as mesmas chamadas sem alterar a interface nem o client real.
-   * **Vantagem:** evita chamadas externas redundantes dentro de uma mesma comparação (ex.: feriados do Brasil consultados uma única vez, não uma por candidato), sem acoplar a lógica de cache ao código de integração HTTP.
+   * `CountryClient`, `HolidayClient`, `ExchangeClient`, `WeatherClient`, `WorldBankIndicatorClient` e `WikipediaClient` definem as portas de dados consumidas pelos serviços.
+   * `StaticCountryClient`, `NagerDateClient`, `AwesomeApiClient`, `OpenMeteoClient`, `WorldBankClient` e `WikipediaRestClient` são as implementações concretas.
+   * Os `Caching*Client` decoram essas implementações com cache Caffeine, interceptando as mesmas chamadas sem alterar sua interface.
+   * **Vantagem:** evita chamadas externas redundantes dentro de uma mesma comparação (ex.: feriados da origem consultados uma única vez, não uma por candidato), sem acoplar a lógica de cache ao código de integração HTTP.
    * **TTL por volatilidade dos dados:** país 24h (quase nunca muda), feriados 12h (calendário do ano é estável), câmbio 5min (cotação varia rápido — o cache aqui só evita duplicar chamadas dentro da mesma requisição de comparação).
    * Os serviços (`CountryService`, `HolidayService`, `ExchangeService`) dependem da interface, não da implementação concreta; o Spring injeta automaticamente a versão decorada (`@Primary`) em produção.
 
@@ -232,7 +235,7 @@ As APIs externas gratuitas (RestCountries, Nager.Date, AwesomeAPI) não têm SLA
 
 #### Entrega 2 — Segurança e API moderna
 
-Como o frontend React (próxima etapa) roda em processo separado (Vite, `localhost:5173`) e o projeto optou por **não** ter login, esta entrega endurece a API por outras frentes: isolamento de origem (CORS), limite de abuso (rate limit), não vazamento de detalhes internos em erros, observabilidade básica (Actuator) e documentação/versionamento formais.
+Como a API pode ser consumida por interfaces executadas em outro processo e o projeto não exige login, esta entrega endurece o contrato público por outras frentes: CORS restrito, limite de abuso, não vazamento de detalhes internos, rastreabilidade, observabilidade e versionamento formal.
 
 1. **Versionamento (`/api/v1`):**
    * `WebConfig` (`configurePathMatch`) aplica o prefixo `/api/v1` a todo `@RestController` do pacote da aplicação automaticamente — os controllers continuam mapeando apenas o recurso (`/countries`, `/holidays`, etc.), sem repetir o prefixo. Isso permite evoluir para `/api/v2` no futuro sem reescrever cada controller.
@@ -421,13 +424,18 @@ A aplicação pode ser executada e observada de forma previsível fora da máqui
 
 | Padrão | Classe(s) | Papel |
 |--------|-----------|-------|
-| **Decorator** | `CachingCountryClient`, `CachingHolidayClient`, `CachingExchangeClient`, `CachingWeatherClient`, `CachingCostOfLivingClient`, `CachingWorldBankIndicatorClient`, `CachingWikipediaClient` | Adiciona cache em memória (incl. negativo, no caso da Wikipédia) sobre os clients HTTP reais sem alterar sua interface |
+| **Decorator** | `CachingCountryClient`, `CachingHolidayClient`, `CachingExchangeClient`, `CachingWeatherClient`, `CachingWorldBankIndicatorClient`, `CachingWikipediaClient` | Adiciona cache em memória (incl. negativo, no caso da Wikipédia) sem alterar a interface da fonte |
 | **Strategy** | `ScoringStrategy` + 4 implementações | Critérios de destino plugáveis, combinados por média ponderada |
 | **Chain of Responsibility** | `CandidateFilter`, `ExcludedCountriesFilter`, `MaxGroundBudgetFilter` | Descarta candidatos por restrições explícitas e teto terrestre |
-| **Facade** | `TravelRecommendationEngine` | Orquestra os serviços de domínio e a coleta de dados externos para o motor de recomendação |
+| **Facade** | `TravelService` | Agrega país, feriados e câmbio para a visão individual |
 | **Facade** | `DestinationProfileService` | Agrega população (Banco Mundial) e resumo/imagem da Wikipédia em um `DestinationProfile` |
 
-**Planejamento (até 06/Julho):** Entrega Final
-UX/UI: Deixar com o visual final, garantindo que o sistema seja responsivo, fluido e intuitivo para qualquer pessoa usar.
+## Escopo e limites da versão atual
 
-Reta Final: Revisar se todos os testes automatizados estão passando, finalizar a documentação explicando as vantagens desses padrões e preparar a demonstração para a nossa Apresentação Final.
+- O ranking apoia a decisão; ele não reserva nem vende viagens.
+- A estimativa terrestre usa PPP e confiança baixa. Passagens, hospedagem cotada, seguro, visto, vacinas e regras de entrada não estão incluídos.
+- Clima além do horizonte de 16 dias é climatologia de dez anos, não previsão.
+- Distância e duração são aproximações geográficas e não consideram rotas, conexões ou disponibilidade de voos.
+- Caches, circuit breakers e rate limits são locais à instância. Uma implantação horizontal só precisa de estado distribuído se exigir limites globais estritos.
+
+Detalhes de componentes, fluxo, fórmulas, fontes, operação e extensões estão em [docs/arquitetura.md](docs/arquitetura.md).

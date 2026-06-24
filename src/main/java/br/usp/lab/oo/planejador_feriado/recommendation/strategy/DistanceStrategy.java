@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * Avalia a proximidade do destino em relação ao Brasil (distância great-circle).
+ * Avalia a proximidade do destino em relação à origem (distância great-circle).
  * Destinos mais perto tendem a significar voos mais baratos e menos tempo perdido
  * em trânsito — relevante para viagens curtas de feriadão.
  */

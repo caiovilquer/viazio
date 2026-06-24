@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Aplica o prefixo {@code /api/v1} a todos os {@code @RestController} (sem afetar
- * o {@code WebController}, que serve HTML) e libera CORS para o frontend React,
- * mantido em processo separado (Vite dev server).
+ * o {@code WebController}, que serve HTML) e libera CORS apenas para os clientes
+ * externos configurados.
  */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {

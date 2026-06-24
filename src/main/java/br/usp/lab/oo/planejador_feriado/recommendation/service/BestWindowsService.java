@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * Descobre proativamente as melhores janelas de viagem (feriadões/pontes do calendário
- * brasileiro) num período amplo, em vez de exigir que o usuário adivinhe as datas.
+ * da origem) num período amplo, em vez de exigir que o usuário adivinhe as datas.
  * Reaproveita o {@link LongWeekendDetector} para achar os feriadões e o
  * {@link TravelRecommendationEngine} para rankear destinos dentro de cada janela.
  */
@@ -46,7 +46,7 @@ public class BestWindowsService {
     }
 
     public BestWindowsResponse findBestWindows(BestWindowsRequest request) {
-        List<Holiday> brazilHolidays = HolidayDeduplicator.deduplicate(
+        List<Holiday> originHolidays = HolidayDeduplicator.deduplicate(
                 holidayService.getHolidaysInWindow(
                         request.originCountryCode(),
                         request.originSubdivisionCode(),
@@ -54,16 +54,16 @@ public class BestWindowsService {
                         request.to())
         );
         List<LongWeekend> longWeekends = longWeekendDetector.detect(
-                brazilHolidays, request.from(), request.to()
+                originHolidays, request.from(), request.to()
         );
 
         List<WindowSuggestion> windows = longWeekends.stream()
                 .filter(window -> window.totalDays() >= request.minDays())
                 .sorted(Comparator.comparingDouble(
                         (LongWeekend window) -> windowEvaluator.evaluate(
-                                brazilHolidays, window.start(), window.end()).score()).reversed())
+                                originHolidays, window.start(), window.end()).score()).reversed())
                 .limit(Math.max(request.topWindows(), 0))
-                .map(window -> toSuggestion(window, request, brazilHolidays))
+                .map(window -> toSuggestion(window, request, originHolidays))
                 .toList();
 
         String profile = weightResolver.resolve(request.profile(), request.weightOverrides()).profileName();

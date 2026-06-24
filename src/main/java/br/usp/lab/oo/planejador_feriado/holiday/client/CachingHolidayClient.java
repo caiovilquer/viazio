@@ -13,7 +13,7 @@ import java.util.Locale;
 /**
  * Decorator (GoF) que adiciona cache em memória sobre {@link NagerDateClient}.
  * O calendário de feriados de um ano não muda durante o dia, e o motor de
- * recomendação busca o calendário do Brasil repetidamente ao comparar destinos —
+ * recomendação pode buscar o mesmo calendário repetidamente ao comparar destinos —
  * cachear evita N chamadas idênticas em uma única requisição de comparação.
  */
 @Primary

@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Detecta feriadões e pontes no calendário brasileiro dentro de uma janela de viagem.
+ * Detecta feriadões e pontes no calendário da origem dentro de uma janela de viagem.
  * Considera feriados públicos encostados em fins de semana ou com ponte de 1 dia útil.
  */
 public final class LongWeekendDetector {

@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * Avalia o custo de vida real do destino comparado ao Brasil, usando o nível de
+ * Avalia o custo de vida real do destino comparado à origem, usando o nível de
  * preços PPP do Banco Mundial. Corrige o engano do câmbio nominal: mede se as coisas
- * são de fato mais baratas ou mais caras que no Brasil. Destino com custo igual ao
- * do Brasil pontua ~50; metade do custo ~75; o dobro, perto de 0.
+ * são de fato mais baratas ou mais caras que na origem. Destino com custo igual ao
+ * da origem pontua ~50; metade do custo ~75; o dobro, perto de 0.
  */
 @Component
 public class CostOfLivingStrategy implements ScoringStrategy {

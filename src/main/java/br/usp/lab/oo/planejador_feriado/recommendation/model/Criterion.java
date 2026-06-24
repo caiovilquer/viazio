@@ -23,7 +23,7 @@ public enum Criterion {
         this.icon = icon;
     }
 
-    /** Chave estável usada na API e na configuração de pesos (ex.: "holidays"). */
+    /** Chave estável usada na API e na configuração de pesos (ex.: "festivities"). */
     public String key() {
         return name().toLowerCase(Locale.ROOT);
     }
