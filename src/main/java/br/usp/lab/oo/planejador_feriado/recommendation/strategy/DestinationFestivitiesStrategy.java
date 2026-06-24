@@ -30,11 +30,11 @@ public class DestinationFestivitiesStrategy implements ScoringStrategy {
 
         int count = publicHolidays.size();
         double score = switch (Math.min(count, 4)) {
-            case 0 -> 25.0;
-            case 1 -> 55.0;
-            case 2 -> 72.0;
-            case 3 -> 85.0;
-            default -> 100.0;
+            case 0 -> 45.0;
+            case 1 -> 75.0;
+            case 2 -> 68.0;
+            case 3 -> 55.0;
+            default -> 40.0;
         };
 
         return ScoreEntry.of(criterion(), score, buildJustification(publicHolidays));
@@ -42,13 +42,16 @@ public class DestinationFestivitiesStrategy implements ScoringStrategy {
 
     private String buildJustification(List<Holiday> publicHolidays) {
         if (publicHolidays.isEmpty()) {
-            return "Sem feriados locais na janela";
+            return "Sem feriados nacionais no destino; menor risco de fechamentos";
         }
         String names = publicHolidays.stream()
                 .limit(2)
                 .map(Holiday::getName)
                 .collect(Collectors.joining(", "));
         String suffix = publicHolidays.size() > 2 ? " e outros" : "";
-        return publicHolidays.size() + " feriado(s) no destino: " + names + suffix;
+        String impact = publicHolidays.size() == 1
+                ? "oportunidade cultural com possível alteração de horários"
+                : "atenção a fechamentos e maior movimento";
+        return publicHolidays.size() + " feriado(s) nacionais: " + names + suffix + "; " + impact;
     }
 }

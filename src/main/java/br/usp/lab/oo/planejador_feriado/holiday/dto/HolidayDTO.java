@@ -12,6 +12,12 @@ public record HolidayDTO(
 
     String name,
     String localName,
-    List<String> types
+    List<String> types,
+    boolean global,
+    List<String> counties
 
-) {}
+) {
+    public HolidayDTO(LocalDate date, String name, String localName, List<String> types) {
+        this(date, name, localName, types, true, List.of());
+    }
+}

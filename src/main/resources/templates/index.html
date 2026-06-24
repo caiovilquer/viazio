@@ -152,7 +152,7 @@
                     </label>
                     <select id="profile" name="profile" class="input-select">
                         <option value="">Equilibrado (padrão)</option>
-                        <option value="economico">Econômico — custo e câmbio</option>
+                        <option value="economico">Econômico — custo local e proximidade</option>
                         <option value="clima-perfeito">Clima perfeito — tempo agradável</option>
                         <option value="aventura">Aventura — longe e cheio de cultura</option>
                         <option value="cultural">Cultural — festividades no destino</option>
@@ -160,21 +160,6 @@
                     </select>
                 </div>
                 <div class="form-grid">
-                    <div class="form-campo">
-                        <label for="maxRate">
-                            Orçamento: câmbio máximo (R$ por unidade)
-                            <span class="dica">Opcional — remove destinos mais caros que este valor</span>
-                        </label>
-                        <input
-                            type="number"
-                            id="maxRate"
-                            name="maxRate"
-                            class="input-texto"
-                            step="0.01"
-                            min="0"
-                            placeholder="Ex.: 3,00"
-                        >
-                    </div>
                     <div class="form-campo">
                         <label for="limit">
                             Quantidade de destinos no ranking
@@ -224,7 +209,6 @@
         var radios = form.querySelectorAll('input[name="modo"]');
         var countriesInput = form.querySelector('#countries');
         var regionSelect = form.querySelector('#region');
-        var maxRateInput = form.querySelector('#maxRate');
         var limitInput = form.querySelector('#limit');
         var limparFiltrosBtn = form.querySelector('.btn-limpar-filtros');
         var submitBtn = form.querySelector('.btn-ranking-submit');
@@ -300,9 +284,6 @@
 
         if (limparFiltrosBtn) {
             limparFiltrosBtn.addEventListener('click', function () {
-                if (maxRateInput) {
-                    maxRateInput.value = '';
-                }
                 if (limitInput) {
                     limitInput.value = '10';
                 }

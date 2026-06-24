@@ -25,18 +25,18 @@ public class CostOfLivingStrategy implements ScoringStrategy {
     @Override
     public ScoreEntry evaluate(RecommendationContext context) {
         CostOfLiving destination = context.destinationCost();
-        CostOfLiving brazil = context.brazilCost();
+        CostOfLiving origin = context.originCost();
 
-        if (destination == null || brazil == null || brazil.priceLevelRatio() <= 0) {
+        if (destination == null || origin == null || origin.priceLevelRatio() <= 0) {
             return ScoreEntry.unavailable(criterion(), "Custo de vida indisponível para o destino");
         }
 
-        double relative = destination.priceLevelRatio() / brazil.priceLevelRatio();
+        double relative = destination.priceLevelRatio() / origin.priceLevelRatio();
         double score = Math.max(0.0, Math.min(100.0, 100.0 - relative * 50.0));
 
         String justification = String.format(Locale.ROOT,
-                "%s: custo de vida ~%.0f%% do Brasil",
-                qualitative(relative), relative * 100.0);
+                "%s: nível de preços ~%.0f%% da origem (dados %s/%s)",
+                qualitative(relative), relative * 100.0, destination.year(), origin.year());
         return ScoreEntry.of(criterion(), score, justification);
     }
 

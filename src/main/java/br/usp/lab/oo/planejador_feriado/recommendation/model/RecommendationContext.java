@@ -9,23 +9,15 @@ import br.usp.lab.oo.planejador_feriado.weather.model.WeatherSummary;
 
 import java.util.List;
 
-/**
- * Reúne todos os dados já coletados para um candidato. As strategies são funções
- * puras sobre este contexto — todo o I/O externo (país, feriados, câmbio, clima,
- * custo, distância) acontece no motor, o que mantém as regras de score testáveis
- * sem mocks de HTTP. Campos de enriquecimento (clima/custo/distância) podem ser
- * {@code null} quando a API externa correspondente não respondeu.
- */
+/** Dados de um destino já coletados antes da execução das strategies. */
 public record RecommendationContext(
         Country country,
         List<Holiday> destinationHolidaysInWindow,
-        List<Holiday> brazilHolidaysInWindow,
-        List<LongWeekend> brazilLongWeekends,
         Exchange exchangeToBrl,
         WeatherSummary weather,
         CostOfLiving destinationCost,
-        CostOfLiving brazilCost,
-        Double distanceFromBrazilKm,
+        CostOfLiving originCost,
+        Double distanceFromOriginKm,
         DestinationProfile profile,
         RecommendationRequest request
 ) {

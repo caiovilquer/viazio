@@ -17,8 +17,25 @@ public record CountryDTO(
     Map<String, String> languages,
     Map<String, CurrencyDTO> currencies,
     List<String> timezones,
-    List<Double> latlng // [latitude, longitude] do centroide do país
+    List<Double> latlng, // [latitude, longitude] do centroide do país
+    Boolean independent,
+    Boolean unMember,
+    String status
 ) {
+    public CountryDTO(
+            NameDTO name,
+            String isoCode,
+            String region,
+            String subregion,
+            List<String> capital,
+            Map<String, String> languages,
+            Map<String, CurrencyDTO> currencies,
+            List<String> timezones,
+            List<Double> latlng) {
+        this(name, isoCode, region, subregion, capital, languages, currencies, timezones, latlng,
+                true, false, null);
+    }
+
     public record NameDTO(String common, Map<String, TranslationDTO> translations) {}
     public record TranslationDTO(String common) {}
     public record CurrencyDTO(String name, String symbol) {}

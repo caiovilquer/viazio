@@ -2,8 +2,11 @@ package br.usp.lab.oo.planejador_feriado;
 
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.DataQuality;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.OriginReference;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoredCriterion;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.WindowAssessment;
 import br.usp.lab.oo.planejador_feriado.recommendation.service.TravelRecommendationEngine;
 import br.usp.lab.oo.planejador_feriado.travel.model.TravelOverview;
 import br.usp.lab.oo.planejador_feriado.travel.service.TravelService;
@@ -14,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -234,16 +238,23 @@ class WebControllerTest {
         return new RecommendationResponse(
                 LocalDate.of(2026, 6, 1),
                 LocalDate.of(2026, 6, 30),
+                Instant.parse("2026-06-01T00:00:00Z"),
+                new OriginReference("BR", null, -10.0, -55.0),
                 "padrão",
-                java.util.Map.of("exchange", 0.15, "weather", 0.20),
-                List.of(),
+                java.util.Map.of("weather", 0.30, "cost", 0.30),
+                new WindowAssessment(70.0, 30, 10, 20, List.of(), "10 de 30 dias livres"),
                 List.of(new TravelRecommendation(
                         "JP",
                         "Japan",
                         68.0,
-                        List.of(new ScoredCriterion("exchange", "Câmbio", "💱", true, 100.0, 0.15, 15.0, "ok")),
-                        List.of("câmbio favorável"),
-                        "JP — score 68: câmbio favorável",
+                        70.0,
+                        65.0,
+                        new DataQuality(0.75, 75.0, 3, 4, List.of("cost")),
+                        List.of(new ScoredCriterion("weather", "Clima", "☀️", true, 80.0, 0.30, 24.0, "ok")),
+                        List.of("clima agradável"),
+                        List.of("Custo: dado indisponível"),
+                        "Japan — nota de viagem 65: clima agradável",
+                        null,
                         null
                 )),
                 List.of()

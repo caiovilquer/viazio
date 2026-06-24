@@ -24,7 +24,7 @@ public class DistanceStrategy implements ScoringStrategy {
 
     @Override
     public ScoreEntry evaluate(RecommendationContext context) {
-        Double distanceKm = context.distanceFromBrazilKm();
+        Double distanceKm = context.distanceFromOriginKm();
         if (distanceKm == null) {
             return ScoreEntry.unavailable(criterion(), "Distância indisponível para o destino");
         }
@@ -33,7 +33,7 @@ public class DistanceStrategy implements ScoringStrategy {
         score = Math.min(100.0, score);
 
         String justification = String.format(Locale.ROOT,
-                "%s: ~%,.0f km do Brasil", qualitative(score), distanceKm);
+                "%s: ~%,.0f km da origem", qualitative(score), distanceKm);
         return ScoreEntry.of(criterion(), score, justification);
     }
 

@@ -52,6 +52,14 @@ public class HolidayService {
     }
 
     public List<Holiday> getHolidaysInWindow(String isoCode, LocalDate from, LocalDate to) {
+        return getHolidaysInWindow(isoCode, null, from, to);
+    }
+
+    public List<Holiday> getHolidaysInWindow(
+            String isoCode,
+            String subdivisionCode,
+            LocalDate from,
+            LocalDate to) {
         List<Holiday> holidays = new ArrayList<>();
         for (int year = from.getYear(); year <= to.getYear(); year++) {
             holidays.addAll(getHolidaysForYear(isoCode, year));
@@ -59,6 +67,7 @@ public class HolidayService {
 
         return holidays.stream()
                 .filter(h -> !h.getDate().isBefore(from) && !h.getDate().isAfter(to))
+                .filter(h -> h.appliesTo(subdivisionCode))
                 .sorted(Comparator.comparing(Holiday::getDate))
                 .toList();
     }
@@ -69,6 +78,7 @@ public class HolidayService {
 
         return getHolidaysForYear(country, currentYear).stream()
                 .filter(h -> !h.getDate().isBefore(today))
+                .filter(h -> h.appliesTo(null))
                 .toList();
     }
 
@@ -77,7 +87,9 @@ public class HolidayService {
                 dto.date(),
                 dto.name(),
                 dto.localName(),
-                dto.types()
+                dto.types(),
+                dto.global(),
+                dto.counties()
         );
     }
 }

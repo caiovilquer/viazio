@@ -169,6 +169,41 @@ class CountryServiceTest {
     }
 
     @Test
+    void getCountriesByRegionShouldExcludeNonIndependentTerritories() {
+        CountryDTO france = new CountryDTO(
+                new CountryDTO.NameDTO("France", null),
+                "FR",
+                "Europe",
+                "Western Europe",
+                List.of("Paris"),
+                Map.of("fra", "French"),
+                Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")),
+                List.of("UTC+01:00"),
+                List.of(46.0, 2.0),
+                true,
+                true,
+                "officially-assigned");
+        CountryDTO aland = new CountryDTO(
+                new CountryDTO.NameDTO("Åland Islands", null),
+                "AX",
+                "Europe",
+                "Northern Europe",
+                List.of("Mariehamn"),
+                Map.of("swe", "Swedish"),
+                Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")),
+                List.of("UTC+02:00"),
+                List.of(60.1, 19.9),
+                false,
+                false,
+                "officially-assigned");
+        when(client.getCountriesByRegion("Europe")).thenReturn(List.of(aland, france));
+
+        List<Country> result = service.getCountriesByRegion("Europe");
+
+        assertEquals(List.of("FR"), result.stream().map(Country::getIsoCode).toList());
+    }
+
+    @Test
     void getCountriesByRegionShouldThrowNotFoundWhenEmpty() {
         when(client.getCountriesByRegion("Atlantis")).thenReturn(List.of());
 

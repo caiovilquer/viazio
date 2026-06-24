@@ -18,6 +18,7 @@ public record WindowSuggestion(
         LocalDate end,
         int totalDays,
         int bridgeDaysUsed,
+        int requiredLeaveDays,
         String label,
         double timingScore,
         List<TravelRecommendation> topDestinations

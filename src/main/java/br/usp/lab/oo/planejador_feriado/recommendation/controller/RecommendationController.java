@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/recommendations")
 public class RecommendationController {
 
-    private static final int DEFAULT_LIMIT = 10;
     private static final int MAX_LIMIT = 15;
     private static final int MAX_WINDOW_DAYS = 92;
     private static final int MAX_PERIOD_DAYS = 400;
@@ -53,27 +52,34 @@ public class RecommendationController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) String countries,
             @RequestParam(required = false) String region,
-            @RequestParam(required = false) Double maxRate,
             @RequestParam(required = false, defaultValue = "10") int limit,
             @RequestParam(required = false) String profile,
             @RequestParam(required = false) String weights,
-            @RequestParam(required = false) String exclude) {
+            @RequestParam(required = false) String exclude,
+            @RequestParam(required = false, defaultValue = "BR") String originCountry,
+            @RequestParam(required = false) String originSubdivision,
+            @RequestParam(required = false) Double originLatitude,
+            @RequestParam(required = false) Double originLongitude) {
 
         validateWindow(from, to, MAX_WINDOW_DAYS);
         validateCandidateInput(countries, region);
         validateLimit(limit, MAX_LIMIT);
         validateProfile(profile);
+        validateCoordinates(originLatitude, originLongitude);
 
         RecommendationRequest request = new RecommendationRequest(
                 from,
                 to,
                 parseCountries(countries),
                 normalizeRegion(region),
-                maxRate,
                 limit,
                 normalizeProfile(profile),
                 parseWeights(weights),
-                parseCodes(exclude)
+                parseCodes(exclude),
+                normalizeCountryCode(originCountry, "originCountry"),
+                normalizeSubdivision(originSubdivision),
+                originLatitude,
+                originLongitude
         );
 
         return recommendationEngine.recommend(request);
@@ -87,11 +93,14 @@ public class RecommendationController {
             @RequestParam(required = false, defaultValue = "6") int topWindows,
             @RequestParam(required = false) String countries,
             @RequestParam(required = false) String region,
-            @RequestParam(required = false) Double maxRate,
             @RequestParam(required = false, defaultValue = "3") int destinationsPerWindow,
             @RequestParam(required = false) String profile,
             @RequestParam(required = false) String weights,
-            @RequestParam(required = false) String exclude) {
+            @RequestParam(required = false) String exclude,
+            @RequestParam(required = false, defaultValue = "BR") String originCountry,
+            @RequestParam(required = false) String originSubdivision,
+            @RequestParam(required = false) Double originLatitude,
+            @RequestParam(required = false) Double originLongitude) {
 
         validateWindow(from, to, MAX_PERIOD_DAYS);
         validateOptionalCandidateInput(countries, region);
@@ -99,6 +108,7 @@ public class RecommendationController {
         validateRange("topWindows", topWindows, 1, 20);
         validateRange("destinationsPerWindow", destinationsPerWindow, 1, MAX_LIMIT);
         validateProfile(profile);
+        validateCoordinates(originLatitude, originLongitude);
 
         BestWindowsRequest request = new BestWindowsRequest(
                 from,
@@ -107,11 +117,14 @@ public class RecommendationController {
                 topWindows,
                 parseCountries(countries),
                 normalizeRegion(region),
-                maxRate,
                 destinationsPerWindow,
                 normalizeProfile(profile),
                 parseWeights(weights),
-                parseCodes(exclude)
+                parseCodes(exclude),
+                normalizeCountryCode(originCountry, "originCountry"),
+                normalizeSubdivision(originSubdivision),
+                originLatitude,
+                originLongitude
         );
 
         return bestWindowsService.findBestWindows(request);
@@ -178,6 +191,11 @@ public class RecommendationController {
                 .map(String::trim)
                 .filter(code -> !code.isBlank())
                 .map(code -> code.toUpperCase(Locale.ROOT))
+                .peek(code -> {
+                    if (!code.matches("[A-Z]{2}")) {
+                        throw badRequest("Código de país inválido: " + code);
+                    }
+                })
                 .collect(Collectors.toList());
     }
 
@@ -200,7 +218,7 @@ public class RecommendationController {
             } catch (NumberFormatException e) {
                 throw badRequest("Peso inválido em 'weights' para " + parts[0].trim() + ": " + parts[1].trim());
             }
-            if (value < 0) {
+            if (!Double.isFinite(value) || value < 0) {
                 throw badRequest("Pesos não podem ser negativos em 'weights'");
             }
             parsed.put(criterion, value);
@@ -214,6 +232,37 @@ public class RecommendationController {
 
     private String normalizeRegion(String region) {
         return region != null && !region.isBlank() ? region.trim() : null;
+    }
+
+    private String normalizeCountryCode(String value, String parameter) {
+        String code = value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
+        if (!code.matches("[A-Z]{2}")) {
+            throw badRequest("'" + parameter + "' deve ser um código ISO alpha-2");
+        }
+        return code;
+    }
+
+    private String normalizeSubdivision(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String subdivision = value.trim().toUpperCase(Locale.ROOT);
+        if (!subdivision.matches("[A-Z]{2}-[A-Z0-9]{1,3}")) {
+            throw badRequest("'originSubdivision' deve usar ISO 3166-2 (ex.: BR-SP)");
+        }
+        return subdivision;
+    }
+
+    private void validateCoordinates(Double latitude, Double longitude) {
+        if ((latitude == null) != (longitude == null)) {
+            throw badRequest("'originLatitude' e 'originLongitude' devem ser informadas juntas");
+        }
+        if (latitude != null && (!Double.isFinite(latitude) || latitude < -90.0 || latitude > 90.0)) {
+            throw badRequest("'originLatitude' deve estar entre -90 e 90");
+        }
+        if (longitude != null && (!Double.isFinite(longitude) || longitude < -180.0 || longitude > 180.0)) {
+            throw badRequest("'originLongitude' deve estar entre -180 e 180");
+        }
     }
 
     private ResponseStatusException badRequest(String message) {

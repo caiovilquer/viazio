@@ -1,5 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.recommendation.service;
 
+import br.usp.lab.oo.planejador_feriado.common.exception.ResourceNotFoundException;
 import br.usp.lab.oo.planejador_feriado.common.geo.GeoCalculator;
 import br.usp.lab.oo.planejador_feriado.cost.model.CostOfLiving;
 import br.usp.lab.oo.planejador_feriado.cost.service.CostOfLivingService;
@@ -12,18 +13,19 @@ import br.usp.lab.oo.planejador_feriado.exchange.service.ExchangeService;
 import br.usp.lab.oo.planejador_feriado.holiday.HolidayDeduplicator;
 import br.usp.lab.oo.planejador_feriado.holiday.model.Holiday;
 import br.usp.lab.oo.planejador_feriado.holiday.service.HolidayService;
-import br.usp.lab.oo.planejador_feriado.recommendation.detector.LongWeekendDetector;
 import br.usp.lab.oo.planejador_feriado.recommendation.dto.RecommendationResponse;
 import br.usp.lab.oo.planejador_feriado.recommendation.filter.CandidateFilterChain;
 import br.usp.lab.oo.planejador_feriado.recommendation.filter.FilterContext;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.Criterion;
-import br.usp.lab.oo.planejador_feriado.recommendation.model.LongWeekend;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.DataQuality;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.OriginReference;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationContext;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoreEntry;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoredCriterion;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.SkippedCandidate;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.WindowAssessment;
 import br.usp.lab.oo.planejador_feriado.recommendation.strategy.ScoringStrategy;
 import br.usp.lab.oo.planejador_feriado.recommendation.weight.ResolvedWeights;
 import br.usp.lab.oo.planejador_feriado.recommendation.weight.WeightResolver;
@@ -31,6 +33,7 @@ import br.usp.lab.oo.planejador_feriado.weather.model.WeatherSummary;
 import br.usp.lab.oo.planejador_feriado.weather.service.WeatherService;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -44,20 +47,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
- * Motor de recomendação (Facade sobre os serviços de domínio + Strategy para os
- * critérios). Cada candidato é avaliado em paralelo (virtual threads): coleta-se todo
- * o dado externo (país, feriados, câmbio, clima, custo, distância), aplica-se a cadeia
- * de filtros (Chain of Responsibility) e, sobrevivendo, calcula-se o score final como
- * média ponderada das notas normalizadas (0–100) das strategies, com pesos resolvidos
- * por perfil + ajuste fino.
+ * Compara todos os candidatos elegíveis, separa qualidade da janela e do destino,
+ * e reduz a nota final quando a cobertura de dados é baixa. Dados descritivos caros
+ * são carregados somente para os resultados que sobreviveram ao ranking.
  */
 @Service
 public class TravelRecommendationEngine {
 
-    private static final String BRAZIL_ISO = "BR";
-    // Centroide aproximado do Brasil, usado quando a API de países não traz coordenadas.
-    private static final double BRAZIL_FALLBACK_LAT = -10.0;
-    private static final double BRAZIL_FALLBACK_LON = -55.0;
+    private static final int MAX_EXPLICIT_CANDIDATES = 50;
+    private static final int MAX_REGION_CANDIDATES = 60;
+    private static final double DESTINATION_SHARE = 0.80;
+    private static final double WINDOW_SHARE = 0.20;
+    private static final double MIN_CONFIDENCE_MULTIPLIER = 0.75;
 
     private final CountryService countryService;
     private final HolidayService holidayService;
@@ -66,7 +67,7 @@ public class TravelRecommendationEngine {
     private final CostOfLivingService costService;
     private final DestinationProfileService profileService;
     private final List<ScoringStrategy> scoringStrategies;
-    private final LongWeekendDetector longWeekendDetector;
+    private final TravelWindowEvaluator windowEvaluator;
     private final WeightResolver weightResolver;
     private final CandidateFilterChain filterChain;
 
@@ -78,7 +79,7 @@ public class TravelRecommendationEngine {
             CostOfLivingService costService,
             DestinationProfileService profileService,
             List<ScoringStrategy> scoringStrategies,
-            LongWeekendDetector longWeekendDetector,
+            TravelWindowEvaluator windowEvaluator,
             WeightResolver weightResolver,
             CandidateFilterChain filterChain) {
         this.countryService = countryService;
@@ -88,32 +89,23 @@ public class TravelRecommendationEngine {
         this.costService = costService;
         this.profileService = profileService;
         this.scoringStrategies = scoringStrategies;
-        this.longWeekendDetector = longWeekendDetector;
+        this.windowEvaluator = windowEvaluator;
         this.weightResolver = weightResolver;
         this.filterChain = filterChain;
     }
 
     public RecommendationResponse recommend(RecommendationRequest request) {
         ResolvedWeights weights = weightResolver.resolve(request.profile(), request.weightOverrides());
-
-        List<Holiday> brazilHolidays = HolidayDeduplicator.deduplicate(
-                holidayService.getHolidaysInWindow(BRAZIL_ISO, request.from(), request.to())
-        );
-        List<LongWeekend> brazilLongWeekends = longWeekendDetector.detect(
-                brazilHolidays, request.from(), request.to()
-        );
-        BrazilReference brazil = loadBrazilReference(brazilHolidays, brazilLongWeekends);
-
+        OriginData origin = loadOrigin(request);
+        WindowAssessment window = windowEvaluator.evaluate(origin.holidays(), request.from(), request.to());
         List<String> candidateCodes = resolveCandidateCodes(request);
 
         List<TravelRecommendation> recommendations = new ArrayList<>();
         List<SkippedCandidate> skipped = new ArrayList<>();
-
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             List<Future<CandidateResult>> futures = candidateCodes.stream()
-                    .map(code -> executor.submit(() -> evaluateCandidate(code, request, brazil, weights)))
+                    .map(code -> executor.submit(() -> evaluateCandidate(code, request, origin, window, weights)))
                     .toList();
-
             for (Future<CandidateResult> future : futures) {
                 CandidateResult result = future.get();
                 if (result.recommendation() != null) {
@@ -129,167 +121,235 @@ public class TravelRecommendationEngine {
             throw new IllegalStateException("Erro ao gerar recomendações", e.getCause());
         }
 
-        recommendations.sort(Comparator.comparingDouble(TravelRecommendation::score).reversed());
+        recommendations.sort(Comparator.comparingDouble(TravelRecommendation::tripScore).reversed()
+                .thenComparing(Comparator.comparingDouble(
+                        (TravelRecommendation recommendation) ->
+                                recommendation.dataQuality().confidenceScore()).reversed())
+                .thenComparing(TravelRecommendation::countryCode));
         List<TravelRecommendation> limited = recommendations.stream()
-                .limit(Math.max(request.limit(), 0))
+                .limit(request.limit())
+                .map(this::enrichFinalist)
                 .toList();
 
         return new RecommendationResponse(
                 request.from(),
                 request.to(),
+                Instant.now(),
+                origin.reference(),
                 weights.profileName(),
                 weights.asKeyedMap(),
-                brazilLongWeekends,
+                window,
                 limited,
-                skipped
-        );
+                skipped);
     }
 
-    private BrazilReference loadBrazilReference(List<Holiday> holidays, List<LongWeekend> longWeekends) {
-        double lat = BRAZIL_FALLBACK_LAT;
-        double lon = BRAZIL_FALLBACK_LON;
-        CostOfLiving cost = null;
-        try {
-            Country brazil = countryService.getCountryByCode(BRAZIL_ISO);
-            if (brazil.hasCoordinates()) {
-                lat = brazil.getLatitude();
-                lon = brazil.getLongitude();
-            }
-        } catch (RuntimeException ignored) {
-            // mantém o fallback de coordenadas
+    private OriginData loadOrigin(RecommendationRequest request) {
+        Country country = countryService.getCountryByCode(request.originCountryCode());
+        double latitude = request.originLatitude() != null
+                ? request.originLatitude()
+                : requireCoordinate(country.getLatitude(), "latitude");
+        double longitude = request.originLongitude() != null
+                ? request.originLongitude()
+                : requireCoordinate(country.getLongitude(), "longitude");
+        if ((request.originLatitude() == null) != (request.originLongitude() == null)) {
+            throw new IllegalArgumentException("Latitude e longitude da origem devem ser informadas juntas");
         }
-        try {
-            cost = costService.getPriceLevel(BRAZIL_ISO).orElse(null);
-        } catch (RuntimeException ignored) {
-            // custo comparativo fica indisponível
+
+        List<Holiday> holidays = HolidayDeduplicator.deduplicate(
+                holidayService.getHolidaysInWindow(
+                        country.getIsoCode(),
+                        request.originSubdivisionCode(),
+                        request.from(),
+                        request.to()));
+        CostOfLiving cost = resolveCost(country.getIsoCode());
+        return new OriginData(
+                new OriginReference(
+                        country.getIsoCode(),
+                        request.originSubdivisionCode(),
+                        latitude,
+                        longitude),
+                cost,
+                holidays);
+    }
+
+    private double requireCoordinate(Double value, String coordinate) {
+        if (value == null) {
+            throw new IllegalArgumentException("Coordenada de " + coordinate + " indisponível para a origem");
         }
-        return new BrazilReference(lat, lon, cost, holidays, longWeekends);
+        return value;
     }
 
     private CandidateResult evaluateCandidate(
             String code,
             RecommendationRequest request,
-            BrazilReference brazil,
+            OriginData origin,
+            WindowAssessment window,
             ResolvedWeights weights) {
-
         try {
             Country country = countryService.getCountryByCode(code);
-            if (BRAZIL_ISO.equalsIgnoreCase(country.getIsoCode())) {
+            if (origin.reference().countryCode().equalsIgnoreCase(country.getIsoCode())) {
                 return CandidateResult.skipped(new SkippedCandidate(code, "País de origem ignorado na comparação"));
             }
 
-            Exchange exchange = resolveExchangeToBrl(country);
-
-            Optional<String> rejection = filterChain.reject(new FilterContext(code, country, exchange, request));
+            Optional<String> rejection = filterChain.reject(new FilterContext(code, country, request));
             if (rejection.isPresent()) {
                 return CandidateResult.skipped(new SkippedCandidate(code, rejection.get()));
             }
 
             List<Holiday> destinationHolidays = HolidayDeduplicator.deduplicate(
-                    holidayService.getHolidaysInWindow(country.getIsoCode(), request.from(), request.to())
-            );
-
+                    holidayService.getHolidaysInWindow(country.getIsoCode(), request.from(), request.to()));
+            Exchange exchange = resolveExchangeToBrl(country);
             WeatherSummary weather = resolveWeather(country, request);
             CostOfLiving destinationCost = resolveCost(country.getIsoCode());
-            Double distanceKm = resolveDistance(brazil, country);
-            DestinationProfile profile = resolveProfile(country);
+            Double distanceKm = resolveDistance(origin.reference(), country);
 
             RecommendationContext context = new RecommendationContext(
                     country,
                     destinationHolidays,
-                    brazil.holidays(),
-                    brazil.longWeekends(),
                     exchange,
                     weather,
                     destinationCost,
-                    brazil.cost(),
+                    origin.cost(),
                     distanceKm,
-                    profile,
-                    request
-            );
-
-            return CandidateResult.recommendation(buildRecommendation(context, weights));
+                    null,
+                    request);
+            return CandidateResult.recommendation(buildRecommendation(context, window, weights));
+        } catch (ResourceNotFoundException e) {
+            return CandidateResult.skipped(new SkippedCandidate(code, e.getMessage()));
         } catch (RuntimeException e) {
-            return CandidateResult.skipped(
-                    new SkippedCandidate(code, e.getMessage() != null ? e.getMessage() : "Erro ao processar candidato"));
+            return CandidateResult.skipped(new SkippedCandidate(code, "Dados essenciais indisponíveis"));
         }
     }
 
-    private TravelRecommendation buildRecommendation(RecommendationContext context, ResolvedWeights weights) {
+    private TravelRecommendation buildRecommendation(
+            RecommendationContext context,
+            WindowAssessment window,
+            ResolvedWeights weights) {
         List<ScoreEntry> entries = scoringStrategies.stream()
                 .map(strategy -> strategy.evaluate(context))
                 .toList();
-
-        double availableWeightSum = entries.stream()
+        double availableWeight = entries.stream()
                 .filter(ScoreEntry::available)
                 .mapToDouble(entry -> weights.weightOf(entry.criterion()))
                 .sum();
 
         List<ScoredCriterion> breakdown = new ArrayList<>();
-        double finalScore = 0.0;
+        List<String> missing = new ArrayList<>();
+        double destinationScore = 0.0;
         for (ScoreEntry entry : entries) {
-            double weight = weights.weightOf(entry.criterion());
-            double contribution = (entry.available() && availableWeightSum > 0)
-                    ? (weight / availableWeightSum) * entry.score()
+            double effectiveWeight = entry.available() && availableWeight > 0.0
+                    ? weights.weightOf(entry.criterion()) / availableWeight
                     : 0.0;
-            finalScore += contribution;
+            double contribution = effectiveWeight * entry.score();
+            destinationScore += contribution;
+            if (!entry.available()) {
+                missing.add(entry.criterion().key());
+            }
             breakdown.add(new ScoredCriterion(
                     entry.criterion().key(),
                     entry.criterion().label(),
                     entry.criterion().icon(),
                     entry.available(),
-                    entry.score(),
-                    weight,
-                    contribution,
-                    entry.justification()
-            ));
+                    round(entry.score()),
+                    round(effectiveWeight),
+                    round(contribution),
+                    entry.justification()));
         }
-
         breakdown.sort(Comparator.comparingDouble(ScoredCriterion::contribution).reversed());
-        List<String> highlights = buildHighlights(breakdown);
-        String summary = buildSummary(context.country().getIsoCode(), finalScore, highlights);
 
+        double coverage = Math.max(0.0, Math.min(1.0, availableWeight));
+        double confidence = coverage * 100.0;
+        double combined = DESTINATION_SHARE * destinationScore + WINDOW_SHARE * window.score();
+        double confidenceMultiplier = MIN_CONFIDENCE_MULTIPLIER
+                + (1.0 - MIN_CONFIDENCE_MULTIPLIER) * coverage;
+        double tripScore = combined * confidenceMultiplier;
+        DataQuality quality = new DataQuality(
+                round(coverage),
+                round(confidence),
+                entries.size() - missing.size(),
+                entries.size(),
+                List.copyOf(missing));
+
+        List<String> highlights = buildHighlights(breakdown);
+        List<String> tradeoffs = buildTradeoffs(breakdown);
+        String summary = buildSummary(context.country().getDisplayName(), tripScore, highlights, quality);
         return new TravelRecommendation(
                 context.country().getIsoCode(),
                 context.country().getDisplayName(),
-                Math.round(finalScore * 10.0) / 10.0,
+                round(destinationScore),
+                window.score(),
+                round(tripScore),
+                quality,
                 breakdown,
                 highlights,
+                tradeoffs,
                 summary,
-                context.profile()
-        );
+                context.exchangeToBrl(),
+                null);
     }
 
     private List<String> buildHighlights(List<ScoredCriterion> breakdown) {
-        List<String> highlights = new ArrayList<>();
-        for (ScoredCriterion criterion : breakdown) {
-            if (highlights.size() >= 3) {
-                break;
-            }
-            if (!criterion.available() || criterion.score() < 65.0) {
-                continue;
-            }
-            highlightFor(criterion).ifPresent(highlights::add);
+        return breakdown.stream()
+                .filter(ScoredCriterion::available)
+                .filter(criterion -> criterion.score() >= 65.0)
+                .limit(3)
+                .map(this::highlightFor)
+                .toList();
+    }
+
+    private String highlightFor(ScoredCriterion criterion) {
+        return Criterion.fromKey(criterion.criterion()).map(value -> switch (value) {
+            case WEATHER -> criterion.score() >= 80.0 ? "clima ótimo" : "clima agradável";
+            case COST -> "bom poder de compra";
+            case DISTANCE -> "deslocamento geográfico menor";
+            case FESTIVITIES -> "calendário local interessante";
+        }).orElse(criterion.label());
+    }
+
+    private List<String> buildTradeoffs(List<ScoredCriterion> breakdown) {
+        return breakdown.stream()
+                .filter(criterion -> !criterion.available() || criterion.score() < 45.0)
+                .limit(3)
+                .map(criterion -> criterion.available()
+                        ? criterion.justification()
+                        : criterion.label() + ": dado indisponível")
+                .toList();
+    }
+
+    private String buildSummary(
+            String countryName,
+            double score,
+            List<String> highlights,
+            DataQuality quality) {
+        String reasons = highlights.isEmpty() ? "sem destaque dominante" : String.join(", ", highlights);
+        return String.format(Locale.ROOT,
+                "%s — nota de viagem %.0f: %s; confiança %.0f%%",
+                countryName,
+                score,
+                reasons,
+                quality.confidenceScore());
+    }
+
+    private TravelRecommendation enrichFinalist(TravelRecommendation recommendation) {
+        try {
+            Country country = countryService.getCountryByCode(recommendation.countryCode());
+            DestinationProfile profile = profileService.buildProfile(country);
+            return new TravelRecommendation(
+                    recommendation.countryCode(),
+                    recommendation.countryName(),
+                    recommendation.destinationScore(),
+                    recommendation.windowScore(),
+                    recommendation.tripScore(),
+                    recommendation.dataQuality(),
+                    recommendation.breakdown(),
+                    recommendation.highlights(),
+                    recommendation.tradeoffs(),
+                    recommendation.summary(),
+                    recommendation.exchangeToBrl(),
+                    profile);
+        } catch (RuntimeException ignored) {
+            return recommendation;
         }
-        return highlights;
-    }
-
-    private Optional<String> highlightFor(ScoredCriterion criterion) {
-        return Criterion.fromKey(criterion.criterion()).map(c -> switch (c) {
-            case HOLIDAYS -> "ótimo para feriadão";
-            case WEATHER -> criterion.score() >= 80 ? "clima ótimo" : "clima agradável";
-            case COST -> "custo de vida baixo";
-            case EXCHANGE -> "câmbio favorável";
-            case DISTANCE -> "pertinho do Brasil";
-            case FESTIVITIES -> "festividades no destino";
-        });
-    }
-
-    private String buildSummary(String code, double score, List<String> highlights) {
-        String highlightText = highlights.isEmpty()
-                ? "sem grandes destaques"
-                : String.join(", ", highlights);
-        return String.format(Locale.ROOT, "%s — score %.0f: %s", code, score, highlightText);
     }
 
     private WeatherSummary resolveWeather(Country country, RecommendationRequest request) {
@@ -298,8 +358,11 @@ public class TravelRecommendationEngine {
         }
         try {
             return weatherService.getClimateForWindow(
-                    country.getLatitude(), country.getLongitude(), request.from(), request.to()).orElse(null);
-        } catch (RuntimeException e) {
+                    country.getLatitude(),
+                    country.getLongitude(),
+                    request.from(),
+                    request.to()).orElse(null);
+        } catch (RuntimeException ignored) {
             return null;
         }
     }
@@ -307,25 +370,20 @@ public class TravelRecommendationEngine {
     private CostOfLiving resolveCost(String isoCode) {
         try {
             return costService.getPriceLevel(isoCode).orElse(null);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ignored) {
             return null;
         }
     }
 
-    private DestinationProfile resolveProfile(Country country) {
-        try {
-            return profileService.buildProfile(country);
-        } catch (RuntimeException e) {
-            return null;
-        }
-    }
-
-    private Double resolveDistance(BrazilReference brazil, Country country) {
+    private Double resolveDistance(OriginReference origin, Country country) {
         if (!country.hasCoordinates()) {
             return null;
         }
         return GeoCalculator.haversineKm(
-                brazil.lat(), brazil.lon(), country.getLatitude(), country.getLongitude());
+                origin.latitude(),
+                origin.longitude(),
+                country.getLatitude(),
+                country.getLongitude());
     }
 
     private Exchange resolveExchangeToBrl(Country country) {
@@ -335,36 +393,41 @@ public class TravelRecommendationEngine {
         }
         try {
             return exchangeService.getExchangeRate(currency);
-        } catch (RuntimeException e) {
+        } catch (RuntimeException ignored) {
             return null;
         }
     }
 
     private List<String> resolveCandidateCodes(RecommendationRequest request) {
         Set<String> codes = new LinkedHashSet<>();
-
-        if (request.countryCodes() != null && !request.countryCodes().isEmpty()) {
-            for (String code : request.countryCodes()) {
-                if (code != null && !code.isBlank()) {
-                    codes.add(code.trim().toUpperCase(Locale.ROOT));
-                }
+        if (!request.countryCodes().isEmpty()) {
+            if (request.countryCodes().size() > MAX_EXPLICIT_CANDIDATES) {
+                throw new IllegalArgumentException(
+                        "No máximo " + MAX_EXPLICIT_CANDIDATES + " países podem ser comparados por requisição");
             }
+            request.countryCodes().stream()
+                    .filter(code -> code != null && !code.isBlank())
+                    .map(code -> code.trim().toUpperCase(Locale.ROOT))
+                    .forEach(codes::add);
             return List.copyOf(codes);
         }
 
-        List<Country> countries = countryService.getCountriesByRegion(request.region(), request.limit());
-        for (Country country : countries) {
-            codes.add(country.getIsoCode().toUpperCase(Locale.ROOT));
+        List<Country> countries = countryService.getCountriesByRegion(request.region());
+        if (countries.size() > MAX_REGION_CANDIDATES) {
+            throw new IllegalArgumentException("Região excede o limite operacional de candidatos");
         }
+        countries.stream()
+                .map(Country::getIsoCode)
+                .map(code -> code.toUpperCase(Locale.ROOT))
+                .forEach(codes::add);
         return List.copyOf(codes);
     }
 
-    private record BrazilReference(
-            double lat,
-            double lon,
-            CostOfLiving cost,
-            List<Holiday> holidays,
-            List<LongWeekend> longWeekends) {
+    private double round(double value) {
+        return Math.round(value * 10.0) / 10.0;
+    }
+
+    private record OriginData(OriginReference reference, CostOfLiving cost, List<Holiday> holidays) {
     }
 
     private record CandidateResult(TravelRecommendation recommendation, SkippedCandidate skipped) {

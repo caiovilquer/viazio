@@ -28,7 +28,7 @@ class RecommendationIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.recommendations").isArray())
                 .andExpect(jsonPath("$.recommendations.length()").value(2))
-                .andExpect(jsonPath("$.recommendations[0].score").isNumber())
+                .andExpect(jsonPath("$.recommendations[0].tripScore").isNumber())
                 .andExpect(jsonPath("$.recommendations[0].summary").isString());
     }
 }

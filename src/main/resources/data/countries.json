@@ -27,7 +27,10 @@
     "latlng": [
       42.5,
       1.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -57,7 +60,10 @@
     "latlng": [
       24,
       54
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -89,7 +95,10 @@
     "latlng": [
       33,
       65
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -119,7 +128,10 @@
     "latlng": [
       17.05,
       -61.8
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -149,7 +161,10 @@
     "latlng": [
       18.25,
       -63.16666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -179,7 +194,10 @@
     "latlng": [
       41,
       20
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -209,7 +227,10 @@
     "latlng": [
       40,
       45
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -239,7 +260,10 @@
     "latlng": [
       -12.5,
       18.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -260,7 +284,10 @@
     "latlng": [
       -90,
       0
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -291,7 +318,10 @@
     "latlng": [
       -34,
       -64
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -322,7 +352,10 @@
     "latlng": [
       -14.33333333,
       -170
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -352,7 +385,10 @@
     "latlng": [
       47.33333333,
       13.33333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -382,7 +418,10 @@
     "latlng": [
       -27,
       133
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -413,7 +452,10 @@
     "latlng": [
       12.5,
       -69.96666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -443,7 +485,10 @@
     "latlng": [
       60.116667,
       19.9
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -474,7 +519,10 @@
     "latlng": [
       40.5,
       47.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -506,7 +554,10 @@
     "latlng": [
       44,
       18
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -536,7 +587,10 @@
     "latlng": [
       13.16666666,
       -59.53333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -566,7 +620,10 @@
     "latlng": [
       24,
       90
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -598,7 +655,10 @@
     "latlng": [
       50.83333333,
       4
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -628,7 +688,10 @@
     "latlng": [
       13,
       -2
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -658,7 +721,10 @@
     "latlng": [
       43,
       25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -688,7 +754,10 @@
     "latlng": [
       26,
       50.55
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -719,7 +788,10 @@
     "latlng": [
       -3.5,
       30
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -749,7 +821,10 @@
     "latlng": [
       9.5,
       2.25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -779,7 +854,10 @@
     "latlng": [
       18.5,
       -63.41666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -809,7 +887,10 @@
     "latlng": [
       32.33333333,
       -64.75
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -843,7 +924,10 @@
     "latlng": [
       4.5,
       114.66666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -876,7 +960,10 @@
     "latlng": [
       -17,
       -65
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -910,7 +997,10 @@
     "latlng": [
       12.18,
       -68.25
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -940,7 +1030,10 @@
     "latlng": [
       -10,
       -55
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -974,7 +1067,10 @@
     "latlng": [
       24.25,
       -76
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1008,7 +1104,10 @@
     "latlng": [
       27.5,
       90.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1031,7 +1130,10 @@
     "latlng": [
       -54.43333333,
       3.4
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1062,7 +1164,10 @@
     "latlng": [
       -22,
       24
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1093,7 +1198,10 @@
     "latlng": [
       53,
       28
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1125,7 +1233,10 @@
     "latlng": [
       17.25,
       -88.75
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1156,7 +1267,10 @@
     "latlng": [
       60,
       -95
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1186,7 +1300,10 @@
     "latlng": [
       -12.5,
       96.83333333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1220,7 +1337,10 @@
     "latlng": [
       0,
       25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1251,7 +1371,10 @@
     "latlng": [
       7,
       21
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1283,7 +1406,10 @@
     "latlng": [
       -1,
       15
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1316,7 +1442,10 @@
     "latlng": [
       47,
       8
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1346,7 +1475,10 @@
     "latlng": [
       8,
       -5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1381,7 +1513,10 @@
     "latlng": [
       -21.23333333,
       -159.76666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1411,7 +1546,10 @@
     "latlng": [
       -30,
       -71
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1442,7 +1580,10 @@
     "latlng": [
       6,
       12
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1472,7 +1613,10 @@
     "latlng": [
       35,
       105
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1502,7 +1646,10 @@
     "latlng": [
       4,
       -72
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1532,7 +1679,10 @@
     "latlng": [
       10,
       -84
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1566,7 +1716,10 @@
     "latlng": [
       21.5,
       -80
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1596,7 +1749,10 @@
     "latlng": [
       16,
       -24
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1628,7 +1784,10 @@
     "latlng": [
       12.116667,
       -68.933333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1658,7 +1817,10 @@
     "latlng": [
       -10.5,
       105.66666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1689,7 +1851,10 @@
     "latlng": [
       35,
       33
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1720,7 +1885,10 @@
     "latlng": [
       49.75,
       15.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1750,7 +1918,10 @@
     "latlng": [
       51,
       9
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1781,7 +1952,10 @@
     "latlng": [
       11.5,
       43
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1811,7 +1985,10 @@
     "latlng": [
       56,
       10
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1841,7 +2018,10 @@
     "latlng": [
       15.41666666,
       -61.33333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1871,7 +2051,10 @@
     "latlng": [
       19,
       -70.66666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1901,7 +2084,10 @@
     "latlng": [
       28,
       3
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1931,7 +2117,10 @@
     "latlng": [
       -2,
       -77.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1961,7 +2150,10 @@
     "latlng": [
       59,
       26
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -1991,7 +2183,10 @@
     "latlng": [
       27,
       30
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2031,7 +2226,10 @@
     "latlng": [
       24.5,
       -13
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2063,7 +2261,10 @@
     "latlng": [
       15,
       39
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2093,7 +2294,10 @@
     "latlng": [
       40,
       -4
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2123,7 +2327,10 @@
     "latlng": [
       8,
       38
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2154,7 +2361,10 @@
     "latlng": [
       64,
       26
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2186,7 +2396,10 @@
     "latlng": [
       -18,
       175
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2216,7 +2429,10 @@
     "latlng": [
       -51.75,
       -59
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2241,7 +2457,10 @@
     "latlng": [
       6.91666666,
       158.25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2276,7 +2495,10 @@
     "latlng": [
       62,
       -7
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2306,7 +2528,10 @@
     "latlng": [
       46,
       2
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2336,7 +2561,10 @@
     "latlng": [
       -1,
       11.75
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2366,7 +2594,10 @@
     "latlng": [
       54,
       -2
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2396,7 +2627,10 @@
     "latlng": [
       12.11666666,
       -61.66666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2426,7 +2660,10 @@
     "latlng": [
       42,
       43.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2456,7 +2693,10 @@
     "latlng": [
       4,
       -53
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2492,7 +2732,10 @@
     "latlng": [
       49.46666666,
       -2.58333333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2522,7 +2765,10 @@
     "latlng": [
       8,
       -2
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2552,7 +2798,10 @@
     "latlng": [
       36.13333333,
       -5.35
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2582,7 +2831,10 @@
     "latlng": [
       72,
       -40
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2612,7 +2864,10 @@
     "latlng": [
       13.46666666,
       -16.56666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2642,7 +2897,10 @@
     "latlng": [
       11,
       -10
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2672,7 +2930,10 @@
     "latlng": [
       16.25,
       -61.583333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2704,7 +2965,10 @@
     "latlng": [
       2,
       10
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2734,7 +2998,10 @@
     "latlng": [
       39,
       22
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2764,7 +3031,10 @@
     "latlng": [
       -54.5,
       -37
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2794,7 +3064,10 @@
     "latlng": [
       15.5,
       -90.25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2826,7 +3099,10 @@
     "latlng": [
       13.46666666,
       144.78333333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2857,7 +3133,10 @@
     "latlng": [
       12,
       -15
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2887,7 +3166,10 @@
     "latlng": [
       5,
       -59
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2918,7 +3200,10 @@
     "latlng": [
       22.267,
       114.188
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2941,7 +3226,10 @@
     "latlng": [
       -53.1,
       72.51666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -2971,7 +3259,10 @@
     "latlng": [
       15,
       -86.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3001,7 +3292,10 @@
     "latlng": [
       45.16666666,
       15.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3032,7 +3326,10 @@
     "latlng": [
       19,
       -72.41666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3062,7 +3359,10 @@
     "latlng": [
       47,
       20
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3092,7 +3392,10 @@
     "latlng": [
       -5,
       120
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3123,7 +3426,10 @@
     "latlng": [
       53,
       -8
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3154,7 +3460,10 @@
     "latlng": [
       31.47,
       35.13
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3189,7 +3498,10 @@
     "latlng": [
       54.25,
       -4.5
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3221,7 +3533,10 @@
     "latlng": [
       20,
       77
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3251,7 +3566,10 @@
     "latlng": [
       -6,
       71.5
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3283,7 +3601,10 @@
     "latlng": [
       33,
       44
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3313,7 +3634,10 @@
     "latlng": [
       32,
       53
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3343,7 +3667,10 @@
     "latlng": [
       65,
       -18
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3373,7 +3700,10 @@
     "latlng": [
       42.83333333,
       12.83333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3409,7 +3739,10 @@
     "latlng": [
       49.25,
       -2.16666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3440,7 +3773,10 @@
     "latlng": [
       18.25,
       -77.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3470,7 +3806,10 @@
     "latlng": [
       31,
       36
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3500,7 +3839,10 @@
     "latlng": [
       36,
       138
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3531,7 +3873,10 @@
     "latlng": [
       1,
       38
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3562,7 +3907,10 @@
     "latlng": [
       41,
       75
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3596,7 +3944,10 @@
     "latlng": [
       13,
       105
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3631,7 +3982,10 @@
     "latlng": [
       1.41666666,
       173
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3663,7 +4017,10 @@
     "latlng": [
       -12.16666666,
       44.25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3693,7 +4050,10 @@
     "latlng": [
       17.33333333,
       -62.75
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3723,7 +4083,10 @@
     "latlng": [
       40,
       127
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3753,7 +4116,10 @@
     "latlng": [
       37,
       127.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3783,7 +4149,10 @@
     "latlng": [
       29.5,
       45.75
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3813,7 +4182,10 @@
     "latlng": [
       19.5,
       -80.5
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3844,7 +4216,10 @@
     "latlng": [
       48,
       68
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3874,7 +4249,10 @@
     "latlng": [
       18,
       105
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3905,7 +4283,10 @@
     "latlng": [
       33.83333333,
       35.83333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3935,7 +4316,10 @@
     "latlng": [
       13.88333333,
       -60.96666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3965,7 +4349,10 @@
     "latlng": [
       47.26666666,
       9.53333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -3996,7 +4383,10 @@
     "latlng": [
       7,
       81
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4026,7 +4416,10 @@
     "latlng": [
       6.5,
       -9.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4061,7 +4454,10 @@
     "latlng": [
       -29.5,
       28.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4091,7 +4487,10 @@
     "latlng": [
       56,
       24
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4123,7 +4522,10 @@
     "latlng": [
       49.75,
       6.16666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4153,7 +4555,10 @@
     "latlng": [
       57,
       25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4183,7 +4588,10 @@
     "latlng": [
       25,
       17
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4214,7 +4622,10 @@
     "latlng": [
       32,
       -5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4244,7 +4655,10 @@
     "latlng": [
       43.73333333,
       7.4
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4274,7 +4688,10 @@
     "latlng": [
       47,
       29
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4304,7 +4721,10 @@
     "latlng": [
       42.5,
       19.3
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4334,7 +4754,10 @@
     "latlng": [
       18.08333333,
       -63.95
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4365,7 +4788,10 @@
     "latlng": [
       -20,
       47
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4396,7 +4822,10 @@
     "latlng": [
       9,
       168
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4426,7 +4855,10 @@
     "latlng": [
       41.83333333,
       22
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4456,7 +4888,10 @@
     "latlng": [
       17,
       -4
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4486,7 +4921,10 @@
     "latlng": [
       22,
       98
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4516,7 +4954,10 @@
     "latlng": [
       46,
       105
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4545,7 +4986,10 @@
     "latlng": [
       22.16666666,
       113.55
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4577,7 +5021,10 @@
     "latlng": [
       15.2,
       145.75
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4607,7 +5054,10 @@
     "latlng": [
       14.666667,
       -61
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4637,7 +5087,10 @@
     "latlng": [
       20,
       -12
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4667,7 +5120,10 @@
     "latlng": [
       16.75,
       -62.2
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4698,7 +5154,10 @@
     "latlng": [
       35.83333333,
       14.58333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4730,7 +5189,10 @@
     "latlng": [
       -20.28333333,
       57.55
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4760,7 +5222,10 @@
     "latlng": [
       3.25,
       73
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4791,7 +5256,10 @@
     "latlng": [
       -13.5,
       34
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4821,7 +5289,10 @@
     "latlng": [
       23,
       -102
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4852,7 +5323,10 @@
     "latlng": [
       2.5,
       112.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4882,7 +5356,10 @@
     "latlng": [
       -18.25,
       35
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4924,7 +5401,10 @@
     "latlng": [
       -22,
       17
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4954,7 +5434,10 @@
     "latlng": [
       -21.5,
       165.5
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -4984,7 +5467,10 @@
     "latlng": [
       16,
       8
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5015,7 +5501,10 @@
     "latlng": [
       -29.03333333,
       167.95
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5045,7 +5534,10 @@
     "latlng": [
       10,
       8
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5075,7 +5567,10 @@
     "latlng": [
       13,
       -85
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5105,7 +5600,10 @@
     "latlng": [
       52.5,
       5.75
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5137,7 +5635,10 @@
     "latlng": [
       62,
       10
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5167,7 +5668,10 @@
     "latlng": [
       28,
       84
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5198,7 +5702,10 @@
     "latlng": [
       -0.53333333,
       166.91666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5229,7 +5736,10 @@
     "latlng": [
       -19.03333333,
       -169.86666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5261,7 +5771,10 @@
     "latlng": [
       -41,
       174
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5291,7 +5804,10 @@
     "latlng": [
       21,
       57
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5325,7 +5841,10 @@
     "latlng": [
       9,
       -80
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5357,7 +5876,10 @@
     "latlng": [
       -10,
       -76
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5387,7 +5909,10 @@
     "latlng": [
       -15,
       -140
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5419,7 +5944,10 @@
     "latlng": [
       -6,
       147
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5450,7 +5978,10 @@
     "latlng": [
       13,
       122
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5481,7 +6012,10 @@
     "latlng": [
       30,
       70
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5511,7 +6045,10 @@
     "latlng": [
       52,
       20
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5541,7 +6078,10 @@
     "latlng": [
       46.83333333,
       -56.33333333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5571,7 +6111,10 @@
     "latlng": [
       -25.06666666,
       -130.1
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5602,7 +6145,10 @@
     "latlng": [
       18.25,
       -66.5
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5640,7 +6186,10 @@
     "latlng": [
       31.9,
       35.2
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5670,7 +6219,10 @@
     "latlng": [
       39.5,
       -8
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5701,7 +6253,10 @@
     "latlng": [
       7.5,
       134.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5732,7 +6287,10 @@
     "latlng": [
       -23,
       -58
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5762,7 +6320,10 @@
     "latlng": [
       25.5,
       51.25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5792,7 +6353,10 @@
     "latlng": [
       -21.15,
       55.5
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5822,7 +6386,10 @@
     "latlng": [
       46,
       25
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5852,7 +6419,10 @@
     "latlng": [
       44,
       21
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5882,7 +6452,10 @@
     "latlng": [
       60,
       100
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5914,7 +6487,10 @@
     "latlng": [
       -2,
       30
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5944,7 +6520,10 @@
     "latlng": [
       25,
       45
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -5974,7 +6553,10 @@
     "latlng": [
       -8,
       159
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6006,7 +6588,10 @@
     "latlng": [
       -4.58333333,
       55.66666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6037,7 +6622,10 @@
     "latlng": [
       15,
       30
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6067,7 +6655,10 @@
     "latlng": [
       62,
       15
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6100,7 +6691,10 @@
     "latlng": [
       1.36666666,
       103.8
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6134,7 +6728,10 @@
     "latlng": [
       -15.95,
       -5.72
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6164,7 +6761,10 @@
     "latlng": [
       46.11666666,
       14.81666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6194,7 +6794,10 @@
     "latlng": [
       78,
       20
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6224,7 +6827,10 @@
     "latlng": [
       48.66666666,
       19.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6254,7 +6860,10 @@
     "latlng": [
       8.5,
       -11.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6284,7 +6893,10 @@
     "latlng": [
       43.76666666,
       12.41666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6314,7 +6926,10 @@
     "latlng": [
       14,
       -14
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6345,7 +6960,10 @@
     "latlng": [
       10,
       49
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6375,7 +6993,10 @@
     "latlng": [
       4,
       -56
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6405,7 +7026,10 @@
     "latlng": [
       7,
       30
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6435,7 +7059,10 @@
     "latlng": [
       1,
       7
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6465,7 +7092,10 @@
     "latlng": [
       13.83333333,
       -88.91666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6497,7 +7127,10 @@
     "latlng": [
       18.033333,
       -63.05
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6527,7 +7160,10 @@
     "latlng": [
       35,
       38
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6562,7 +7198,10 @@
     "latlng": [
       -26.5,
       31.5
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6592,7 +7231,10 @@
     "latlng": [
       21.75,
       -71.58333333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6623,7 +7265,10 @@
     "latlng": [
       15,
       19
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6653,7 +7298,10 @@
     "latlng": [
       -49.25,
       69.167
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6683,7 +7331,10 @@
     "latlng": [
       8,
       1.16666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6713,7 +7364,10 @@
     "latlng": [
       15,
       100
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6744,7 +7398,10 @@
     "latlng": [
       39,
       71
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6776,7 +7433,10 @@
     "latlng": [
       -9,
       -172
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6807,7 +7467,10 @@
     "latlng": [
       -8.83333333,
       125.91666666
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6838,7 +7501,10 @@
     "latlng": [
       40,
       60
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6868,7 +7534,10 @@
     "latlng": [
       34,
       9
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6899,7 +7568,10 @@
     "latlng": [
       -20,
       -175
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6929,7 +7601,10 @@
     "latlng": [
       39,
       35
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6959,7 +7634,10 @@
     "latlng": [
       11,
       -61
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -6994,7 +7672,10 @@
     "latlng": [
       -8,
       178
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7024,7 +7705,10 @@
     "latlng": [
       23.5,
       121
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7055,7 +7739,10 @@
     "latlng": [
       -6,
       35
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7085,7 +7772,10 @@
     "latlng": [
       49,
       32
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7116,7 +7806,10 @@
     "latlng": [
       1,
       32
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7144,7 +7837,10 @@
     "latlng": [
       19.3,
       166.633333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7174,7 +7870,10 @@
     "latlng": [
       38,
       -97
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7204,7 +7903,10 @@
     "latlng": [
       -33,
       -56
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7235,7 +7937,10 @@
     "latlng": [
       41,
       64
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7266,7 +7971,10 @@
     "latlng": [
       41.9,
       12.45
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7296,7 +8004,10 @@
     "latlng": [
       13.25,
       -61.2
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7326,7 +8037,10 @@
     "latlng": [
       8,
       -66
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7356,7 +8070,10 @@
     "latlng": [
       18.431383,
       -64.62305
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7386,7 +8103,10 @@
     "latlng": [
       18.35,
       -64.933333
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7416,7 +8136,10 @@
     "latlng": [
       16.16666666,
       107.83333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7448,7 +8171,10 @@
     "latlng": [
       -16,
       167
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7478,7 +8204,10 @@
     "latlng": [
       -13.3,
       -176.2
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7509,7 +8238,10 @@
     "latlng": [
       -13.58333333,
       -172.33333333
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7540,7 +8272,10 @@
     "latlng": [
       42.666667,
       21.166667
-    ]
+    ],
+    "independent": null,
+    "unMember": false,
+    "status": "user-assigned"
   },
   {
     "name": {
@@ -7570,7 +8305,10 @@
     "latlng": [
       15,
       48
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7600,7 +8338,10 @@
     "latlng": [
       -12.83333333,
       45.16666666
-    ]
+    ],
+    "independent": false,
+    "unMember": false,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7642,7 +8383,10 @@
     "latlng": [
       -29,
       24
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7672,7 +8416,10 @@
     "latlng": [
       -15,
       30
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   },
   {
     "name": {
@@ -7748,6 +8495,9 @@
     "latlng": [
       -20,
       30
-    ]
+    ],
+    "independent": true,
+    "unMember": true,
+    "status": "officially-assigned"
   }
 ]

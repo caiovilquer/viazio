@@ -15,17 +15,43 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class OpenMeteoClient implements WeatherClient {
 
-    private final RestClient restClient;
+    private final RestClient archiveClient;
+    private final RestClient forecastClient;
 
     public OpenMeteoClient(RestClientFactory restClientFactory, ExternalApisProperties properties) {
-        this.restClient = restClientFactory.builderFor(properties.openMeteo().baseUrl()).build();
+        this.archiveClient = restClientFactory.builderFor(properties.openMeteo().baseUrl()).build();
+        this.forecastClient = restClientFactory.builderFor(properties.openMeteoForecast().baseUrl()).build();
     }
 
     @Override
-    @Retry(name = "externalApi")
-    @CircuitBreaker(name = "externalApi")
-    public OpenMeteoArchiveResponse getDailyClimate(double latitude, double longitude, LocalDate start, LocalDate end) {
-        String uri = UriComponentsBuilder.fromPath("/archive")
+    @Retry(name = "weatherApi")
+    @CircuitBreaker(name = "weatherApi")
+    public OpenMeteoArchiveResponse getHistoricalDaily(
+            double latitude, double longitude, LocalDate start, LocalDate end) {
+        return archiveClient.get()
+                .uri(buildUri("/archive", latitude, longitude, start, end))
+                .retrieve()
+                .body(OpenMeteoArchiveResponse.class);
+    }
+
+    @Override
+    @Retry(name = "weatherApi")
+    @CircuitBreaker(name = "weatherApi")
+    public OpenMeteoArchiveResponse getForecastDaily(
+            double latitude, double longitude, LocalDate start, LocalDate end) {
+        return forecastClient.get()
+                .uri(buildUri("/forecast", latitude, longitude, start, end))
+                .retrieve()
+                .body(OpenMeteoArchiveResponse.class);
+    }
+
+    private String buildUri(
+            String path,
+            double latitude,
+            double longitude,
+            LocalDate start,
+            LocalDate end) {
+        return UriComponentsBuilder.fromPath(path)
                 .queryParam("latitude", latitude)
                 .queryParam("longitude", longitude)
                 .queryParam("start_date", start.format(DateTimeFormatter.ISO_LOCAL_DATE))
@@ -34,10 +60,5 @@ public class OpenMeteoClient implements WeatherClient {
                 .queryParam("timezone", "auto")
                 .build()
                 .toUriString();
-
-        return restClient.get()
-                .uri(uri)
-                .retrieve()
-                .body(OpenMeteoArchiveResponse.class);
     }
 }

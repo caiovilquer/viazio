@@ -38,8 +38,13 @@ class BestWindowsServiceTest {
 
     @BeforeEach
     void setUp() {
+        LongWeekendDetector detector = new LongWeekendDetector();
         service = new BestWindowsService(
-                holidayService, new LongWeekendDetector(), recommendationEngine, weightResolver);
+                holidayService,
+                detector,
+                new TravelWindowEvaluator(detector),
+                recommendationEngine,
+                weightResolver);
     }
 
     @Test
@@ -50,11 +55,13 @@ class BestWindowsServiceTest {
         // Corpus Christi 2026-06-04 cai numa quinta → ponte na sexta → feriadão de 4 dias.
         Holiday corpusChristi = new Holiday(
                 LocalDate.of(2026, 6, 4), "Corpus Christi", "Corpus Christi", List.of("Public"));
-        when(holidayService.getHolidaysInWindow(eq("BR"), eq(from), eq(to))).thenReturn(List.of(corpusChristi));
+        when(holidayService.getHolidaysInWindow(eq("BR"), eq(null), eq(from), eq(to)))
+                .thenReturn(List.of(corpusChristi));
         when(weightResolver.resolve(any(), any())).thenReturn(new ResolvedWeights("padrão", Map.of()));
 
         BestWindowsRequest request = new BestWindowsRequest(
-                from, to, 3, 6, List.of(), null, null, 3, null, Map.of(), List.of());
+                from, to, 3, 6, List.of(), null, 3, null, Map.of(), List.of(),
+                "BR", null, null, null);
 
         BestWindowsResponse response = service.findBestWindows(request);
 

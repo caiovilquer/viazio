@@ -31,16 +31,16 @@ class DestinationFestivitiesStrategyTest {
         ScoreEntry none = strategy.evaluate(context(List.of()));
 
         assertTrue(withFestivities.score() > none.score());
-        assertTrue(withFestivities.justification().contains("feriado(s) no destino"));
-        assertTrue(none.justification().contains("Sem feriados locais"));
+        assertTrue(withFestivities.justification().contains("feriado(s) nacionais"));
+        assertTrue(none.justification().contains("Sem feriados nacionais"));
     }
 
     private RecommendationContext context(List<Holiday> destinationHolidays) {
         Country country = new Country("Japan", "JP", "Asia", "Eastern Asia",
                 List.of("Tokyo"), List.of("Japanese"), List.of("JPY"), List.of("UTC+09:00"));
         RecommendationRequest request = new RecommendationRequest(
-                LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("JP"), null, null, 10);
+                LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("JP"), null, 10);
         return new RecommendationContext(
-                country, destinationHolidays, List.of(), List.of(), null, null, null, null, null, null, request);
+                country, destinationHolidays, null, null, null, null, null, null, request);
     }
 }

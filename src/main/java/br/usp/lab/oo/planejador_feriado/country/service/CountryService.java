@@ -70,6 +70,10 @@ public class CountryService {
     }
 
     public List<Country> getCountriesByRegion(String region, int limit) {
+        return getCountriesByRegion(region).stream().limit(limit).toList();
+    }
+
+    public List<Country> getCountriesByRegion(String region) {
         List<CountryDTO> responseList;
         try {
             responseList = client.getCountriesByRegion(region);
@@ -84,8 +88,8 @@ public class CountryService {
         }
 
         return responseList.stream()
-                .limit(limit)
                 .map(this::toModel)
+                .filter(Country::isTravelEligible)
                 .toList();
     }
 
@@ -112,7 +116,10 @@ public class CountryService {
                 List.of(),
             dto.timezones(),
             latitude,
-            longitude
+            longitude,
+            Boolean.TRUE.equals(dto.independent()),
+            Boolean.TRUE.equals(dto.unMember()),
+            dto.status()
         );
     }
 

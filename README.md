@@ -91,18 +91,13 @@ A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface
 #### Entrega 2 — Motor decisor e Strategy (GoF)
 
 1. **Motor Decisor de Recomendação (`/api/v1/recommendations`):**
-   * `TravelRecommendationEngine` orquestra `CountryService`, `HolidayService` e `ExchangeService` (sem reimplementar integrações).
-   * Entrada: janela (`from`/`to`), lista ISO (`countries=JP,FR`) **ou** região (`region=Europe&limit=10`), opcional `maxRate` (câmbio máximo em BRL).
-   * Saída: ranking com score 0–100, breakdown por critério e summary (ex.: `JP — score 68: feriadão de 4 dias, câmbio muito favorável`).
-   * Detecção de feriadão/ponte no calendário **BR** (`LongWeekendDetector`) + bônus por feriados do **destino** na janela.
-   * **Algoritmo de score (total 100 pts):**
-     * Feriados/feriadões na janela — máx. **40 pts** (feriadão 4+ dias = 25; 3 dias = 18; feriado isolado = 8 cada, cap 30; bônus destino +5/feriado, cap 10).
-     * Câmbio para BRL — máx. **35 pts** (≤1 BRL = 35; ≤3 = 25; ≤5 = 15; >5 = 8; acima de `maxRate` = 0).
-     * Dias livres vs dias totais — máx. **25 pts** (fins de semana + feriados públicos BR na janela).
+   * `TravelRecommendationEngine` introduziu a comparação de múltiplos destinos sem duplicar os serviços de domínio.
+   * Entrada por lista ISO ou região, com janela de datas e limite de resultados.
+   * Saída com ranking, detalhamento por critério e candidatos não avaliados.
    * Candidatos com falha vão para `skipped` sem derrubar o ranking.
 
 2. **Padrão Strategy (`ScoringStrategy`):**
-   * `HolidayWindowStrategy`, `ExchangeRateStrategy` e `FreeDaysRatioStrategy` — cada regra de score isolada e plugável via `List<ScoringStrategy>` no engine.
+   * Regras de avaliação isoladas e plugáveis via `List<ScoringStrategy>` no engine.
    * Complementa o Facade: enquanto o `TravelService` agrega dados de **um** país, o motor compara **vários** destinos com regras extensíveis.
 
 3. **Refatoração e testes (pirâmide de testes):**
@@ -117,21 +112,24 @@ A Fase 2 evoluiu em duas entregas dentro do mesmo escopo: primeiro a **interface
 | Padrão | Classe(s) | Entrega | Papel |
 |--------|-----------|---------|-------|
 | **Facade** | `TravelService` | 1 | Agrega país + feriados + câmbio de um destino |
-| **Strategy** | `ScoringStrategy` + 3 implementações | 2 | Regras de score plugáveis no motor de recomendação |
+| **Strategy** | `ScoringStrategy` + implementações | 2 | Regras de score plugáveis no motor de recomendação |
 
 #### Como usar a API de recomendações
 ```bash
 # Comparar destinos por código ISO
 curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR"
 
-# Comparar por região (máx. 10 países por padrão)
+# Avaliar todos os países independentes da região e retornar os 5 melhores
 curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&region=Europe&limit=5"
 
 # Com perfil de pesos (economico, clima-perfeito, aventura, cultural, equilibrado)
 curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&countries=JP,FR,AR&profile=economico"
 
-# Ajuste fino de pesos por critério + orçamento + exclusões
-curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&region=Americas&weights=clima:0.4,custo:0.3&maxRate=4.0&exclude=US"
+# Ajuste fino de pesos por critério + exclusões
+curl "http://localhost:8080/api/v1/recommendations?from=2026-06-01&to=2026-06-30&region=Americas&weights=weather:0.4,cost:0.3&exclude=US"
+
+# Considerar feriados de uma subdivisão e coordenadas exatas de origem
+curl "http://localhost:8080/api/v1/recommendations?from=2026-07-09&to=2026-07-12&countries=AR,CL&originCountry=BR&originSubdivision=BR-SP&originLatitude=-23.55&originLongitude=-46.63"
 
 # Melhores janelas de viagem (feriadões) num período, com destinos por janela
 curl "http://localhost:8080/api/v1/recommendations/best-windows?from=2026-01-01&to=2026-12-31&minDays=4&countries=AR,CL,PT"
@@ -154,8 +152,8 @@ Acesse no navegador: [http://localhost:8080](http://localhost:8080)
 * Escolha o modo de candidatos:
   * **Por países:** códigos ISO separados por vírgula (ex: `JP,FR,US`).
   * **Por região:** selecione `Europe`, `Americas`, `Asia`, `Africa` ou `Oceania`.
-* Opcionalmente, defina **câmbio máximo (BRL)** e **limite de resultados** (1–15, padrão 10).
-* Clique em **Comparar destinos** para ver o ranking com score (0–100), feriadões no Brasil na janela, breakdown por critério e resumo de cada destino.
+* Opcionalmente, escolha um perfil e o **limite de resultados** (1–15, padrão 10).
+* Clique em **Comparar destinos** para ver nota da janela, nota do destino, nota combinada, confiança dos dados, breakdown e pontos de atenção.
 * Use **Ver detalhes** em qualquer item do ranking para abrir a consulta individual daquele país (`/viagem?codigo=XX` ou `/viagem?destino=nome`).
 * Destinos não avaliados aparecem discretamente na seção *Destinos não avaliados* (campo `skipped`).
 
@@ -222,42 +220,60 @@ Como o frontend React (próxima etapa) roda em processo separado (Vite, `localho
 
 #### Entrega 3 — Motor de decisão completo
 
-O ponto fraco do motor anterior: ~55–65 dos 100 pontos vinham do calendário do Brasil (idêntico para todo destino), então o ranking era basicamente "moeda mais barata" — e câmbio nominal engana (1 JPY barato ≠ Japão barato). Esta entrega reconstrói o motor para comparar destinos de forma honesta, explicável e personalizável.
+O motor separa conceitos que não devem ser confundidos: oportunidade do calendário, adequação do destino e confiança dos dados. O resultado deixa explícito o que foi medido, o que está faltando e por que um destino ficou acima de outro.
 
-1. **Score normalizado + média ponderada:**
-   * Cada `ScoringStrategy` devolve uma nota **0–100** comparável entre critérios (`ScoreEntry`), não mais pontos absolutos que se somam.
-   * O score final é a **média ponderada** das notas dos critérios disponíveis. Quando um dado falta (ex.: clima/custo que a API não retornou), o critério fica `available=false` e é **excluído da média** (renormalizada) — em vez de penalizar o destino com zero.
-   * O breakdown (`ScoredCriterion`) expõe, por critério: nota 0–100, peso aplicado, **contribuição** efetiva no score, rótulo, ícone e justificativa — tudo pronto para a UI renderizar sem de/para próprio.
+1. **Três notas com responsabilidades distintas:**
+   * `destinationScore`: média ponderada dos critérios próprios do destino.
+   * `windowScore`: qualidade da janela no calendário de origem, incluindo dias livres, folgas necessárias e feriadões.
+   * `tripScore`: combinação de 80% destino + 20% janela, reduzida quando a cobertura de dados é incompleta.
+   * `DataQuality` expõe cobertura, confiança, quantidade de critérios disponíveis e lista de dados ausentes.
 
-2. **Seis critérios (Strategy):**
+2. **Quatro critérios de destino (Strategy):**
 
    | Critério | Strategy | Fonte |
    |----------|----------|-------|
-   | 🎉 Feriados e pontes | `HolidayWindowStrategy` | Nager.Date (calendário BR) |
-   | ☀️ Clima | `WeatherStrategy` | Open-Meteo Archive (climatologia) |
+   | ☀️ Clima | `WeatherStrategy` | Open-Meteo Forecast ou climatologia de 10 anos |
    | 💰 Custo de vida | `CostOfLivingStrategy` | World Bank (PPP de consumo ÷ câmbio oficial) |
-   | 💱 Câmbio | `ExchangeRateStrategy` | AwesomeAPI |
-   | ✈️ Distância | `DistanceStrategy` | great-circle (Haversine) a partir do Brasil |
-   | 🎊 Festividades no destino | `DestinationFestivitiesStrategy` | Nager.Date (feriados do destino) |
+   | ✈️ Distância | `DistanceStrategy` | great-circle (Haversine) a partir da origem |
+   | 🎊 Calendário local | `DestinationFestivitiesStrategy` | Nager.Date (feriados nacionais do destino) |
 
-   O critério de **custo (PPP)** corrige o engano do câmbio nominal: mede se as coisas são de fato mais baratas que no Brasil ("custo de vida ~70% do Brasil").
+   O câmbio nominal continua disponível na resposta para conversão e apresentação, mas não participa do ranking.
 
-3. **Pesos configuráveis: perfis + ajuste fino:**
+3. **Origem configurável e calendário correto:**
+   * Origem padrão `BR`, com suporte a `originCountry`, `originSubdivision`, `originLatitude` e `originLongitude`.
+   * Feriados regionais só entram quando a subdivisão ISO 3166-2 correspondente é informada; sem subdivisão, apenas feriados nacionais são considerados.
+   * `TravelWindowEvaluator` calcula dias livres, dias úteis de folga e qualidade da janela sem contaminar a comparação entre destinos.
+
+4. **Clima com semântica temporal correta:**
+   * Janelas dentro dos próximos 16 dias usam previsão real.
+   * Datas mais distantes usam os mesmos dias do calendário nos dez anos anteriores, incluindo média, variabilidade e probabilidade de chuva.
+   * A resposta identifica `FORECAST` ou `CLIMATOLOGY`, período de referência e tamanho da amostra.
+
+5. **Seleção regional honesta:**
+   * O dataset identifica países independentes, membros da ONU e status ISO; territórios não entram automaticamente no ranking regional.
+   * `limit` controla somente a quantidade devolvida. Todos os países independentes da região são avaliados antes do corte.
+   * Listas explícitas aceitam até 50 países e regiões até 60 candidatos.
+
+6. **Pesos configuráveis: perfis + ajuste fino:**
    * Pesos padrão e **perfis** nomeados (`economico`, `clima-perfeito`, `aventura`, `cultural`, `equilibrado`) ficam em `application.yml` (`app.recommendation`), via `@ConfigurationProperties` (`ScoringProperties`).
-   * `WeightResolver` combina **pesos padrão → perfil → ajuste fino por critério** (`?weights=clima:0.4,custo:0.2`), normalizando para somar 1. A resposta **ecoa** o perfil e os pesos aplicados, para a UI exibir/ajustar.
+   * `WeightResolver` combina **pesos padrão → perfil → ajuste fino por critério** (`?weights=weather:0.4,cost:0.2`), normalizando para somar 1.
    * Endpoint: `?profile=economico` e/ou `?weights=...`.
 
-4. **Filtros de candidatos (Chain of Responsibility):**
-   * `CandidateFilter` encadeia filtros que descartam candidatos **antes** do scoring: `ExcludedCountriesFilter` (exclusões do usuário) e `MaxExchangeRateFilter` (orçamento). Incluir/remover um filtro é só adicionar/remover um bean — o motor só conhece o primeiro elo.
+7. **Filtros e explicabilidade:**
+   * `CandidateFilter` mantém a cadeia extensível de restrições obrigatórias; `ExcludedCountriesFilter` processa exclusões explícitas antes do scoring.
    * Descartados aparecem em `skipped` com o motivo.
+   * Cada recomendação inclui destaques, pontos de atenção, breakdown completo e resumo com confiança.
 
-5. **Endpoint "melhores janelas" (`GET /api/v1/recommendations/best-windows`):**
-   * Em vez de exigir que o usuário adivinhe as datas, dado um período amplo o sistema encontra os **melhores feriadões/pontes** do calendário BR (reaproveitando o `LongWeekendDetector`), ranqueados por qualidade do timing; opcionalmente rankeia os melhores destinos **dentro de cada janela** (reaproveitando o motor).
+8. **Endpoint "melhores janelas" (`GET /api/v1/recommendations/best-windows`):**
+   * Dado um período amplo, encontra feriadões e pontes no calendário da origem.
+   * Cada janela informa score, dias totais, dias de ponte e dias de folga necessários; opcionalmente inclui os melhores destinos.
 
-6. **Coleta paralela e degradação graciosa:**
-   * As strategies são funções puras sobre um `RecommendationContext` rico; todo o I/O (país, feriados, câmbio, clima, custo, distância) acontece no motor, por candidato, em **virtual threads**. Falha de enriquecimento (clima/custo) vira critério indisponível, não derruba o candidato.
+9. **Coleta paralela e custo controlado:**
+   * Candidatos são avaliados em virtual threads.
+   * Falhas de clima, custo ou câmbio degradam somente o dado correspondente.
+   * Wikipédia e população são carregadas apenas para os finalistas após o ranking.
 
-7. **Testes:** strategies novas (`WeatherStrategyTest`, `DistanceStrategyTest`, `CostOfLivingStrategyTest`, `DestinationFestivitiesStrategyTest`), `WeightResolverTest`, `CandidateFilterChainTest`, `GeoCalculatorTest`, `BestWindowsServiceTest`, além do `TravelRecommendationEngineTest` e dos controllers atualizados — **129 testes** no total.
+10. **Testes:** cobertura do ranking regional completo, irrelevância do câmbio nominal, penalização por baixa cobertura, previsão de curto prazo, climatologia de dez anos, feriados por subdivisão, janela independente do destino e validação HTTP.
 
 > Nota de integração: durante o desenvolvimento, a API gratuita do **RestCountries v3.1 foi descontinuada** (passou a exigir chave) e o indicador único de nível de preços do Banco Mundial (`PA.NUS.PPPC.RF`) foi **arquivado**. Resolvido sem depender de chaves: (a) os dados de países passaram a vir de um **dataset estático embarcado** (`StaticCountryClient`, lendo `resources/data/countries.json`, derivado do projeto MIT mledoze/countries) — países quase não mudam, então a app fica independente de rede para essa informação; (b) o custo de vida é **calculado** como PPP de consumo (`PA.NUS.PRVT.PP`) ÷ câmbio oficial (`PA.NUS.FCRF`) no ano mais recente comum. As demais integrações (Nager.Date, AwesomeAPI, Open-Meteo) seguem ao vivo.
 
@@ -308,4 +324,3 @@ Até aqui, um destino era só nome, feriados e câmbio. Esta entrega adiciona co
 UX/UI: Deixar com o visual final, garantindo que o sistema seja responsivo, fluido e intuitivo para qualquer pessoa usar.
 
 Reta Final: Revisar se todos os testes automatizados estão passando, finalizar a documentação explicando as vantagens desses padrões e preparar a demonstração para a nossa Apresentação Final.
-

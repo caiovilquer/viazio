@@ -31,8 +31,20 @@ public class CachingWeatherClient implements WeatherClient {
     }
 
     @Override
-    public OpenMeteoArchiveResponse getDailyClimate(double latitude, double longitude, LocalDate start, LocalDate end) {
-        String key = String.format(Locale.ROOT, "%.2f:%.2f:%s:%s", latitude, longitude, start, end);
-        return cache.get(key, k -> delegate.getDailyClimate(latitude, longitude, start, end));
+    public OpenMeteoArchiveResponse getHistoricalDaily(
+            double latitude, double longitude, LocalDate start, LocalDate end) {
+        String key = key("history", latitude, longitude, start, end);
+        return cache.get(key, k -> delegate.getHistoricalDaily(latitude, longitude, start, end));
+    }
+
+    @Override
+    public OpenMeteoArchiveResponse getForecastDaily(
+            double latitude, double longitude, LocalDate start, LocalDate end) {
+        String key = key("forecast", latitude, longitude, start, end);
+        return cache.get(key, k -> delegate.getForecastDaily(latitude, longitude, start, end));
+    }
+
+    private String key(String source, double latitude, double longitude, LocalDate start, LocalDate end) {
+        return String.format(Locale.ROOT, "%s:%.2f:%.2f:%s:%s", source, latitude, longitude, start, end);
     }
 }

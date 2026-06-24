@@ -88,7 +88,6 @@ public class WebController {
             @RequestParam(required = false) String to,
             @RequestParam(required = false) String countries,
             @RequestParam(required = false) String region,
-            @RequestParam(required = false) Double maxRate,
             @RequestParam(required = false, defaultValue = "10") int limit,
             @RequestParam(required = false) String profile,
             Model model) {
@@ -121,11 +120,14 @@ public class WebController {
                 toDate,
                 countryCodes,
                 normalizeRegion(region),
-                maxRate,
                 limit,
                 normalizeProfile(profile),
                 java.util.Map.of(),
-                List.of()
+                List.of(),
+                "BR",
+                null,
+                null,
+                null
         );
 
         try {

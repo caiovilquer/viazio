@@ -15,16 +15,13 @@ class WeightResolverTest {
 
     private final WeightResolver resolver = new WeightResolver(new ScoringProperties(
             Map.of(
-                    "holidays", 0.25, "weather", 0.20, "cost", 0.20,
-                    "exchange", 0.15, "distance", 0.10, "festivities", 0.10
+                    "weather", 0.30, "cost", 0.30, "distance", 0.25, "festivities", 0.15
             ),
             Map.of(
                     "economico", Map.of(
-                            "cost", 0.32, "exchange", 0.28, "holidays", 0.20,
-                            "distance", 0.12, "weather", 0.05, "festivities", 0.03),
+                            "cost", 0.55, "distance", 0.25, "weather", 0.15, "festivities", 0.05),
                     "clima-perfeito", Map.of(
-                            "weather", 0.45, "holidays", 0.20, "cost", 0.13,
-                            "festivities", 0.10, "distance", 0.07, "exchange", 0.05)
+                            "weather", 0.60, "cost", 0.18, "festivities", 0.12, "distance", 0.10)
             )
     ));
 
@@ -41,8 +38,7 @@ class WeightResolverTest {
         ResolvedWeights resolved = resolver.resolve("economico", Map.of());
 
         assertEquals("economico", resolved.profileName());
-        // Em "economico" o custo pesa mais que feriados.
-        assertTrue(resolved.weightOf(Criterion.COST) > resolved.weightOf(Criterion.HOLIDAYS));
+        assertTrue(resolved.weightOf(Criterion.COST) > resolved.weightOf(Criterion.DISTANCE));
         assertEquals(1.0, totalWeight(resolved), 0.0001);
     }
 

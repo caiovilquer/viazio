@@ -1,10 +1,9 @@
 package br.usp.lab.oo.planejador_feriado.cost.model;
 
 /**
- * Nível de preços de um país relativo aos EUA, a partir do indicador do Banco Mundial
- * {@code PA.NUS.PPPC.RF} (razão entre o fator de conversão PPP e a taxa de câmbio de
- * mercado). Valores abaixo de 1 indicam preços mais baratos que os americanos; é um
- * proxy melhor de "custo real de viagem" do que o câmbio nominal.
+ * Nível de preços de um país relativo aos EUA, calculado com os indicadores do Banco
+ * Mundial de PPP de consumo e câmbio oficial. É um proxy macroeconômico transparente,
+ * não uma cotação de gastos turísticos em tempo real.
  *
  * @param countryCode      código ISO do país
  * @param priceLevelRatio  razão de nível de preços (PPP / câmbio de mercado)

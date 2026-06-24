@@ -10,6 +10,7 @@ import br.usp.lab.oo.planejador_feriado.recommendation.model.BestWindowsRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.LongWeekend;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationRequest;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
+import br.usp.lab.oo.planejador_feriado.recommendation.model.WindowAssessment;
 import br.usp.lab.oo.planejador_feriado.recommendation.weight.WeightResolver;
 import org.springframework.stereotype.Service;
 
@@ -25,27 +26,32 @@ import java.util.List;
 @Service
 public class BestWindowsService {
 
-    private static final String BRAZIL_ISO = "BR";
-
     private final HolidayService holidayService;
     private final LongWeekendDetector longWeekendDetector;
+    private final TravelWindowEvaluator windowEvaluator;
     private final TravelRecommendationEngine recommendationEngine;
     private final WeightResolver weightResolver;
 
     public BestWindowsService(
             HolidayService holidayService,
             LongWeekendDetector longWeekendDetector,
+            TravelWindowEvaluator windowEvaluator,
             TravelRecommendationEngine recommendationEngine,
             WeightResolver weightResolver) {
         this.holidayService = holidayService;
         this.longWeekendDetector = longWeekendDetector;
+        this.windowEvaluator = windowEvaluator;
         this.recommendationEngine = recommendationEngine;
         this.weightResolver = weightResolver;
     }
 
     public BestWindowsResponse findBestWindows(BestWindowsRequest request) {
         List<Holiday> brazilHolidays = HolidayDeduplicator.deduplicate(
-                holidayService.getHolidaysInWindow(BRAZIL_ISO, request.from(), request.to())
+                holidayService.getHolidaysInWindow(
+                        request.originCountryCode(),
+                        request.originSubdivisionCode(),
+                        request.from(),
+                        request.to())
         );
         List<LongWeekend> longWeekends = longWeekendDetector.detect(
                 brazilHolidays, request.from(), request.to()
@@ -53,16 +59,21 @@ public class BestWindowsService {
 
         List<WindowSuggestion> windows = longWeekends.stream()
                 .filter(window -> window.totalDays() >= request.minDays())
-                .sorted(Comparator.comparingDouble(this::timingScore).reversed())
+                .sorted(Comparator.comparingDouble(
+                        (LongWeekend window) -> windowEvaluator.evaluate(
+                                brazilHolidays, window.start(), window.end()).score()).reversed())
                 .limit(Math.max(request.topWindows(), 0))
-                .map(window -> toSuggestion(window, request))
+                .map(window -> toSuggestion(window, request, brazilHolidays))
                 .toList();
 
         String profile = weightResolver.resolve(request.profile(), request.weightOverrides()).profileName();
         return new BestWindowsResponse(request.from(), request.to(), profile, windows);
     }
 
-    private WindowSuggestion toSuggestion(LongWeekend window, BestWindowsRequest request) {
+    private WindowSuggestion toSuggestion(
+            LongWeekend window,
+            BestWindowsRequest request,
+            List<Holiday> originHolidays) {
         List<TravelRecommendation> topDestinations = List.of();
         if (request.hasCandidates()) {
             RecommendationRequest windowRequest = new RecommendationRequest(
@@ -70,30 +81,29 @@ public class BestWindowsService {
                     window.end(),
                     request.countryCodes(),
                     request.region(),
-                    request.maxExchangeRate(),
                     request.destinationsPerWindow(),
                     request.profile(),
                     request.weightOverrides(),
-                    request.excludedCountryCodes()
+                    request.excludedCountryCodes(),
+                    request.originCountryCode(),
+                    request.originSubdivisionCode(),
+                    request.originLatitude(),
+                    request.originLongitude()
             );
             topDestinations = recommendationEngine.recommend(windowRequest).recommendations();
         }
 
-        double score = Math.round(timingScore(window) * 10.0) / 10.0;
+        WindowAssessment assessment = windowEvaluator.evaluate(originHolidays, window.start(), window.end());
         return new WindowSuggestion(
                 window.start(),
                 window.end(),
                 window.totalDays(),
                 window.bridgeDaysUsed(),
+                assessment.requiredLeaveDays(),
                 label(window),
-                score,
+                assessment.score(),
                 topDestinations
         );
-    }
-
-    private double timingScore(LongWeekend window) {
-        double score = window.totalDays() * 18.0 + (window.bridgeDaysUsed() > 0 ? 8.0 : 0.0);
-        return Math.min(100.0, score);
     }
 
     private String label(LongWeekend window) {

@@ -110,6 +110,25 @@ class HolidayServiceTest {
     }
 
     @Test
+    void getHolidaysInWindowShouldOnlyIncludeMatchingSubdivision() {
+        HolidayDTO national = new HolidayDTO(
+                LocalDate.of(2026, 7, 9), "National", "Nacional", List.of("Public"), true, List.of());
+        HolidayDTO saoPaulo = new HolidayDTO(
+                LocalDate.of(2026, 7, 9), "São Paulo", "São Paulo", List.of("Public"), false, List.of("BR-SP"));
+        HolidayDTO rio = new HolidayDTO(
+                LocalDate.of(2026, 7, 9), "Rio", "Rio", List.of("Public"), false, List.of("BR-RJ"));
+        when(client.getPublicHolidays(2026, "BR")).thenReturn(List.of(national, saoPaulo, rio));
+
+        List<Holiday> withoutSubdivision = service.getHolidaysInWindow(
+                "BR", LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 31));
+        List<Holiday> forSaoPaulo = service.getHolidaysInWindow(
+                "BR", "BR-SP", LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 31));
+
+        assertEquals(List.of("National"), withoutSubdivision.stream().map(Holiday::getName).toList());
+        assertEquals(List.of("National", "São Paulo"), forSaoPaulo.stream().map(Holiday::getName).toList());
+    }
+
+    @Test
     void getUpcomingHolidaysShouldDropPastDatesInCurrentYear() {
         Country brazil = new Country("Brazil", "BR", "Americas", "South America",
                 List.of("Brasília"), List.of("Portuguese"), List.of("BRL"), List.of("UTC-03:00"));

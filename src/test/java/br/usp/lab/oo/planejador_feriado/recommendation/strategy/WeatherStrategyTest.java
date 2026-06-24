@@ -53,8 +53,8 @@ class WeatherStrategyTest {
         Country country = new Country("Japan", "JP", "Asia", "Eastern Asia",
                 List.of("Tokyo"), List.of("Japanese"), List.of("JPY"), List.of("UTC+09:00"));
         RecommendationRequest request = new RecommendationRequest(
-                LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("JP"), null, null, 10);
+                LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("JP"), null, 10);
         return new RecommendationContext(
-                country, List.of(), List.of(), List.of(), null, weather, null, null, null, null, request);
+                country, List.of(), null, weather, null, null, null, null, request);
     }
 }

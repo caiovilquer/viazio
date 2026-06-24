@@ -16,6 +16,9 @@ public class Country {
     private final List<String> timezones;
     private final Double latitude;
     private final Double longitude;
+    private final boolean independent;
+    private final boolean unMember;
+    private final String status;
 
     public Country(
             String name, String isoCode,
@@ -23,7 +26,8 @@ public class Country {
             List<String> capitals, List<String> languages,
             List<String> currencies, List<String> timezones
         ){
-        this(name, null, isoCode, region, subregion, capitals, languages, currencies, timezones, null, null);
+        this(name, null, isoCode, region, subregion, capitals, languages, currencies, timezones,
+                null, null, true, false, null);
     }
 
     public Country(
@@ -33,7 +37,8 @@ public class Country {
             List<String> currencies, List<String> timezones,
             Double latitude, Double longitude
         ){
-        this(name, null, isoCode, region, subregion, capitals, languages, currencies, timezones, latitude, longitude);
+        this(name, null, isoCode, region, subregion, capitals, languages, currencies, timezones,
+                latitude, longitude, true, false, null);
     }
 
     public Country(
@@ -42,6 +47,18 @@ public class Country {
             List<String> capitals, List<String> languages,
             List<String> currencies, List<String> timezones,
             Double latitude, Double longitude
+        ){
+        this(name, localizedName, isoCode, region, subregion, capitals, languages, currencies, timezones,
+                latitude, longitude, true, false, null);
+    }
+
+    public Country(
+            String name, String localizedName, String isoCode,
+            String region, String subregion,
+            List<String> capitals, List<String> languages,
+            List<String> currencies, List<String> timezones,
+            Double latitude, Double longitude,
+            boolean independent, boolean unMember, String status
         ){
         this.name = name;
         this.localizedName = localizedName;
@@ -54,6 +71,9 @@ public class Country {
         this.timezones = timezones != null ? List.copyOf(timezones) : List.of();
         this.latitude = latitude;
         this.longitude = longitude;
+        this.independent = independent;
+        this.unMember = unMember;
+        this.status = status;
     }
 
     public String getMainCurrency() {
@@ -67,6 +87,11 @@ public class Country {
     /** Indica se o país tem coordenadas geográficas conhecidas (necessárias p/ clima e distância). */
     public boolean hasCoordinates() {
         return latitude != null && longitude != null;
+    }
+
+    /** Apenas Estados independentes entram automaticamente em rankings regionais. */
+    public boolean isTravelEligible() {
+        return independent;
     }
 
     /** Nome em português, quando disponível; cai para o nome padrão (inglês) senão. */
@@ -137,5 +162,14 @@ public class Country {
     }
     public Double getLongitude() {
         return longitude;
+    }
+    public boolean isIndependent() {
+        return independent;
+    }
+    public boolean isUnMember() {
+        return unMember;
+    }
+    public String getStatus() {
+        return status;
     }
 }

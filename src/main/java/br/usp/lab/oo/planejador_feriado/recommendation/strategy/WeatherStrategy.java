@@ -32,14 +32,21 @@ public class WeatherStrategy implements ScoringStrategy {
         }
 
         double tempScore = temperatureScore(weather.avgTempC());
-        double precipScore = Math.max(0.0, 100.0 - weather.avgDailyPrecipMm() * 12.0);
-        double score = 0.7 * tempScore + 0.3 * precipScore;
+        double rainAmountScore = Math.max(0.0, 100.0 - weather.avgDailyPrecipMm() * 10.0);
+        double rainyDaysScore = Math.max(0.0, 100.0 - weather.rainyDayProbability() * 100.0);
+        double precipitationScore = 0.55 * rainAmountScore + 0.45 * rainyDaysScore;
+        double stabilityScore = Math.max(0.0, 100.0 - weather.tempStdDevC() * 8.0);
+        double score = 0.65 * tempScore + 0.25 * precipitationScore + 0.10 * stabilityScore;
 
         String justification = String.format(Locale.ROOT,
-                "%s: ~%.0f°C e %s",
+                "%s: ~%.0f°C, %s (%s, %d anos)",
                 qualitative(score),
                 weather.avgTempC(),
-                describeRain(weather.avgDailyPrecipMm()));
+                describeRain(weather.rainyDayProbability()),
+                weather.sourceType() == br.usp.lab.oo.planejador_feriado.weather.model.WeatherSourceType.FORECAST
+                        ? "previsão"
+                        : "climatologia",
+                weather.sampledYears());
         return ScoreEntry.of(criterion(), score, justification);
     }
 
@@ -66,11 +73,11 @@ public class WeatherStrategy implements ScoringStrategy {
         return "Clima desafiador";
     }
 
-    private String describeRain(double avgDailyPrecipMm) {
-        if (avgDailyPrecipMm < 1.0) {
+    private String describeRain(double rainyDayProbability) {
+        if (rainyDayProbability < 0.2) {
             return "tempo seco";
         }
-        if (avgDailyPrecipMm < 4.0) {
+        if (rainyDayProbability < 0.5) {
             return "chuva ocasional";
         }
         return "chuva frequente";

@@ -10,5 +10,9 @@ import java.time.LocalDate;
  */
 public interface WeatherClient {
 
-    OpenMeteoArchiveResponse getDailyClimate(double latitude, double longitude, LocalDate start, LocalDate end);
+    OpenMeteoArchiveResponse getHistoricalDaily(
+            double latitude, double longitude, LocalDate start, LocalDate end);
+
+    OpenMeteoArchiveResponse getForecastDaily(
+            double latitude, double longitude, LocalDate start, LocalDate end);
 }

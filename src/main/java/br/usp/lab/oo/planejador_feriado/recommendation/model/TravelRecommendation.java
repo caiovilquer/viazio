@@ -1,22 +1,27 @@
 package br.usp.lab.oo.planejador_feriado.recommendation.model;
 
 import br.usp.lab.oo.planejador_feriado.enrichment.model.DestinationProfile;
+import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 
 import java.util.List;
 
 /**
- * Recomendação de um destino: score final 0–100 (média ponderada dos critérios
- * disponíveis), breakdown explicável, "highlights" curtos para chips na UI, um
- * resumo de uma linha e um perfil descritivo (bandeira/imagem/texto da Wikipédia)
- * que não participa do score — é só para a UI mostrar o destino de forma vívida.
+ * Ranking explicável. destinationScore mede adequação do destino; windowScore mede
+ * o calendário de origem; tripScore combina ambos e aplica a confiança dos dados.
+ * O câmbio é informativo e nunca participa do score.
  */
 public record TravelRecommendation(
         String countryCode,
         String countryName,
-        double score,
+        double destinationScore,
+        double windowScore,
+        double tripScore,
+        DataQuality dataQuality,
         List<ScoredCriterion> breakdown,
         List<String> highlights,
+        List<String> tradeoffs,
         String summary,
+        Exchange exchangeToBrl,
         DestinationProfile profile
 ) {
 }

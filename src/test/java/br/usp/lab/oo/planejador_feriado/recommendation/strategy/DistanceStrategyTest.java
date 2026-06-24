@@ -44,8 +44,8 @@ class DistanceStrategyTest {
         Country country = new Country("Argentina", "AR", "Americas", "South America",
                 List.of("Buenos Aires"), List.of("Spanish"), List.of("ARS"), List.of("UTC-03:00"));
         RecommendationRequest request = new RecommendationRequest(
-                LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("AR"), null, null, 10);
+                LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("AR"), null, 10);
         return new RecommendationContext(
-                country, List.of(), List.of(), List.of(), null, null, null, null, distanceKm, null, request);
+                country, List.of(), null, null, null, null, distanceKm, null, request);
     }
 }

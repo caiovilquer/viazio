@@ -10,10 +10,8 @@ import java.util.Optional;
  */
 public enum Criterion {
 
-    HOLIDAYS("Feriados e pontes", "🎉"),
     WEATHER("Clima", "☀️"),
     COST("Custo de vida", "💰"),
-    EXCHANGE("Câmbio", "💱"),
     DISTANCE("Distância", "✈️"),
     FESTIVITIES("Festividades no destino", "🎊");
 

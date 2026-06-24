@@ -37,14 +37,15 @@
             <p class="ranking-periodo">
                 De <strong th:text="${#temporals.format(resultado.from(), 'dd/MM/yyyy')}">01/07/2026</strong>
                 até <strong th:text="${#temporals.format(resultado.to(), 'dd/MM/yyyy')}">31/07/2026</strong>
-                &mdash; analisado com base em feriados, câmbio e dias livres.
+                &mdash; janela e destinos avaliados separadamente, com confiança explícita dos dados.
             </p>
         </div>
 
-        <div class="secao-bloco" th:if="${not #lists.isEmpty(resultado.brazilLongWeekends())}">
-            <p class="secao-bloco-titulo">Feriadões no Brasil nesta janela</p>
+        <div class="secao-bloco" th:if="${not #lists.isEmpty(resultado.window().longWeekends())}">
+            <p class="secao-bloco-titulo">Feriadões na origem nesta janela</p>
+            <p th:text="${resultado.window().explanation()}">Resumo da janela</p>
             <div class="feriadao-grid">
-                <div class="feriadao-card" th:each="lw : ${resultado.brazilLongWeekends()}">
+                <div class="feriadao-card" th:each="lw : ${resultado.window().longWeekends()}">
                     <p class="feriadao-datas">
                         <span th:text="${#temporals.format(lw.start(), 'dd/MM')}">01/07</span>
                         &ndash;
@@ -76,7 +77,7 @@
                     th:with="summaryBruto=${rec.summary()},
                              summaryDesc=${summaryBruto.contains(': ') ? #strings.substringAfter(summaryBruto, ': ') : summaryBruto},
                              summaryFinal=${#strings.length(summaryDesc) > 0 ? #strings.toUpperCase(#strings.substring(summaryDesc, 0, 1)) + #strings.substring(summaryDesc, 1) : summaryDesc},
-                             faixaScore=${rec.score() > 70 ? 'score-alto' : (rec.score() > 40 ? 'score-medio' : 'score-baixo')}">
+                             faixaScore=${rec.tripScore() > 70 ? 'score-alto' : (rec.tripScore() > 40 ? 'score-medio' : 'score-baixo')}">
 
                     <div class="ranking-cabecalho">
                         <span class="ranking-posicao" th:text="'#' + ${recStat.count}">#1</span>
@@ -98,23 +99,34 @@
                         <div class="score-meta">
                             <span class="score-label">Compatibilidade</span>
                             <span class="score-pct" th:classappend="${' ' + faixaScore}"
-                                  th:text="${#numbers.formatDecimal(rec.score(), 1, 'POINT', 0, 'COMMA')} + '%'">68%</span>
+                                  th:text="${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')} + '%'">68%</span>
                         </div>
                         <div class="score-bar"
                              role="progressbar"
                              aria-valuemin="0"
                              aria-valuemax="100"
-                             th:attr="aria-label='Compatibilidade: ' + ${#numbers.formatDecimal(rec.score(), 1, 'POINT', 0, 'COMMA')} + ' por cento',aria-valuenow=${#numbers.formatDecimal(rec.score(), 1, 'POINT', 0, 'COMMA')}">
+                             th:attr="aria-label='Compatibilidade: ' + ${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')} + ' por cento',aria-valuenow=${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')}">
                             <div class="score-bar-fill"
                                  th:classappend="${' ' + faixaScore}"
-                                 th:style="'width:' + ${rec.score()} + '%'"></div>
+                                 th:style="'width:' + ${rec.tripScore()} + '%'"></div>
                         </div>
+                        <p class="breakdown-justificativa"
+                           th:text="'Destino ' + ${#numbers.formatDecimal(rec.destinationScore(), 1, 'POINT', 0, 'COMMA')} + '/100 · janela ' + ${#numbers.formatDecimal(rec.windowScore(), 1, 'POINT', 0, 'COMMA')} + '/100 · confiança ' + ${#numbers.formatDecimal(rec.dataQuality().confidenceScore(), 1, 'POINT', 0, 'COMMA')} + '%'">
+                            Destino, janela e confiança
+                        </p>
                     </div>
 
                     <p class="ranking-resumo" th:text="${summaryFinal}">Clima ótimo, custo de vida baixo.</p>
 
                     <div class="highlights" th:if="${not #lists.isEmpty(rec.highlights())}">
                         <span class="highlight-chip" th:each="h : ${rec.highlights()}" th:text="${h}">clima ótimo</span>
+                    </div>
+
+                    <div class="skipped-bloco" th:if="${not #lists.isEmpty(rec.tradeoffs())}">
+                        <p class="skipped-titulo">Pontos de atenção</p>
+                        <ul class="skipped-lista">
+                            <li th:each="tradeoff : ${rec.tradeoffs()}" th:text="${tradeoff}">Ponto de atenção</li>
+                        </ul>
                     </div>
 
                     <details class="breakdown">
