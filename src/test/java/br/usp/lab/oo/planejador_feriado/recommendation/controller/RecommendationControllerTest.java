@@ -54,7 +54,8 @@ class RecommendationControllerTest {
                         68.0,
                         List.of(new ScoredCriterion("exchange", "Câmbio", "💱", true, 100.0, 0.15, 15.0, "ok")),
                         List.of("câmbio favorável"),
-                        "JP — score 68: câmbio favorável"
+                        "JP — score 68: câmbio favorável",
+                        null
                 )),
                 List.of()
         );

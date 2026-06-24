@@ -5,6 +5,8 @@ import br.usp.lab.oo.planejador_feriado.cost.model.CostOfLiving;
 import br.usp.lab.oo.planejador_feriado.cost.service.CostOfLivingService;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
+import br.usp.lab.oo.planejador_feriado.enrichment.model.DestinationProfile;
+import br.usp.lab.oo.planejador_feriado.enrichment.service.DestinationProfileService;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 import br.usp.lab.oo.planejador_feriado.exchange.service.ExchangeService;
 import br.usp.lab.oo.planejador_feriado.holiday.HolidayDeduplicator;
@@ -62,6 +64,7 @@ public class TravelRecommendationEngine {
     private final ExchangeService exchangeService;
     private final WeatherService weatherService;
     private final CostOfLivingService costService;
+    private final DestinationProfileService profileService;
     private final List<ScoringStrategy> scoringStrategies;
     private final LongWeekendDetector longWeekendDetector;
     private final WeightResolver weightResolver;
@@ -73,6 +76,7 @@ public class TravelRecommendationEngine {
             ExchangeService exchangeService,
             WeatherService weatherService,
             CostOfLivingService costService,
+            DestinationProfileService profileService,
             List<ScoringStrategy> scoringStrategies,
             LongWeekendDetector longWeekendDetector,
             WeightResolver weightResolver,
@@ -82,6 +86,7 @@ public class TravelRecommendationEngine {
         this.exchangeService = exchangeService;
         this.weatherService = weatherService;
         this.costService = costService;
+        this.profileService = profileService;
         this.scoringStrategies = scoringStrategies;
         this.longWeekendDetector = longWeekendDetector;
         this.weightResolver = weightResolver;
@@ -187,6 +192,7 @@ public class TravelRecommendationEngine {
             WeatherSummary weather = resolveWeather(country, request);
             CostOfLiving destinationCost = resolveCost(country.getIsoCode());
             Double distanceKm = resolveDistance(brazil, country);
+            DestinationProfile profile = resolveProfile(country);
 
             RecommendationContext context = new RecommendationContext(
                     country,
@@ -198,6 +204,7 @@ public class TravelRecommendationEngine {
                     destinationCost,
                     brazil.cost(),
                     distanceKm,
+                    profile,
                     request
             );
 
@@ -244,11 +251,12 @@ public class TravelRecommendationEngine {
 
         return new TravelRecommendation(
                 context.country().getIsoCode(),
-                context.country().getName(),
+                context.country().getDisplayName(),
                 Math.round(finalScore * 10.0) / 10.0,
                 breakdown,
                 highlights,
-                summary
+                summary,
+                context.profile()
         );
     }
 
@@ -299,6 +307,14 @@ public class TravelRecommendationEngine {
     private CostOfLiving resolveCost(String isoCode) {
         try {
             return costService.getPriceLevel(isoCode).orElse(null);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private DestinationProfile resolveProfile(Country country) {
+        try {
+            return profileService.buildProfile(country);
         } catch (RuntimeException e) {
             return null;
         }

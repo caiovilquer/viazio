@@ -31,7 +31,7 @@ class TravelControllerTest {
     void shouldReturnOverviewForCountryCode() throws Exception {
         Country japan = new Country("Japan", "JP", "Asia", "Eastern Asia",
                 List.of("Tokyo"), List.of("Japanese"), List.of("JPY"), List.of("UTC+09:00"));
-        TravelOverview overview = new TravelOverview(japan, List.of(), new Exchange("JPY", 0.035));
+        TravelOverview overview = new TravelOverview(japan, List.of(), new Exchange("JPY", 0.035), null);
 
         when(travelService.getOverviewByCountryCode("JP")).thenReturn(overview);
 

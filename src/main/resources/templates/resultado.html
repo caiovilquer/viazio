@@ -29,10 +29,18 @@
 
     <div th:if="${overview}" class="card">
 
-        <div class="pais-hero">
+        <div class="pais-hero" th:with="perfil=${overview.profile}">
+            <img th:if="${perfil != null and perfil.imageUrl() != null}"
+                 th:src="${perfil.imageUrl()}" alt="" class="pais-hero-img" />
             <div>
-                <div class="pais-nome" th:text="${overview.country.name}">Nome do País</div>
+                <div class="pais-nome">
+                    <span th:if="${overview.country.flagEmoji != null}" aria-hidden="true"
+                          th:text="${overview.country.flagEmoji}">🏳️</span>
+                    <span th:text="${overview.country.displayName}">Nome do País</span>
+                </div>
                 <span class="pais-iso" th:text="${overview.country.isoCode}">XX</span>
+                <p class="pais-descricao" th:if="${perfil != null and perfil.description() != null}"
+                   th:text="${perfil.description()}">descrição curta do destino</p>
             </div>
         </div>
 
@@ -65,6 +73,23 @@
                 <span class="info-valor"
                       th:text="${not #lists.isEmpty(overview.country.timezones)} ? ${overview.country.timezones[0]} : '—'">—</span>
             </div>
+            <div class="info-item" th:if="${overview.profile != null and overview.profile.population() != null}">
+                <span class="info-rotulo">População</span>
+                <span class="info-valor"
+                      th:text="${#numbers.formatInteger(overview.profile.population(), 1, 'POINT')} + ' (' + ${overview.profile.populationYear()} + ')'">—</span>
+            </div>
+        </div>
+
+        <div class="secao-bloco" th:if="${overview.profile != null and overview.profile.extract() != null}">
+            <p class="secao-bloco-titulo">Sobre o destino</p>
+            <p class="wiki-resumo"
+               th:text="${overview.profile.extract()}">
+                Resumo do destino vindo da Wikipédia.
+            </p>
+            <a th:if="${overview.profile.wikipediaUrl() != null}" th:href="${overview.profile.wikipediaUrl()}"
+               target="_blank" rel="noopener noreferrer" class="wiki-link">
+                Leia mais na Wikipédia &rarr;
+            </a>
         </div>
 
         <div th:if="${overview.exchangeToBrl != null}" class="cambio-card"
@@ -80,7 +105,7 @@
 
         <div>
             <p class="secao-titulo">
-                Próximos feriados em <span th:text="${overview.country.name}"></span>
+                Próximos feriados em <span th:text="${overview.country.displayName}"></span>
             </p>
 
             <ul class="feriado-lista" th:if="${not #lists.isEmpty(overview.upcomingHolidays)}">

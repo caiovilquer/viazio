@@ -3,6 +3,7 @@ package br.usp.lab.oo.planejador_feriado.recommendation.service;
 import br.usp.lab.oo.planejador_feriado.cost.service.CostOfLivingService;
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
+import br.usp.lab.oo.planejador_feriado.enrichment.service.DestinationProfileService;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 import br.usp.lab.oo.planejador_feriado.exchange.service.ExchangeService;
 import br.usp.lab.oo.planejador_feriado.holiday.model.Holiday;
@@ -57,6 +58,8 @@ class TravelRecommendationEngineTest {
     private br.usp.lab.oo.planejador_feriado.weather.service.WeatherService weatherService;
     @Mock
     private CostOfLivingService costService;
+    @Mock
+    private DestinationProfileService profileService;
 
     private TravelRecommendationEngine engine;
 
@@ -83,6 +86,7 @@ class TravelRecommendationEngineTest {
                 exchangeService,
                 weatherService,
                 costService,
+                profileService,
                 List.of(
                         new HolidayWindowStrategy(),
                         new ExchangeRateStrategy(),

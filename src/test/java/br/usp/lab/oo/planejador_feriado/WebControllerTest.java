@@ -37,7 +37,7 @@ class WebControllerTest {
     private TravelOverview overviewFor(String name, String isoCode) {
         Country country = new Country(name, isoCode, "Americas", "South America",
                 List.of("Brasília"), List.of("Portuguese"), List.of("BRL"), List.of("UTC-03:00"));
-        return new TravelOverview(country, List.of(), null);
+        return new TravelOverview(country, List.of(), null, null);
     }
 
     @Test
@@ -243,7 +243,8 @@ class WebControllerTest {
                         68.0,
                         List.of(new ScoredCriterion("exchange", "Câmbio", "💱", true, 100.0, 0.15, 15.0, "ok")),
                         List.of("câmbio favorável"),
-                        "JP — score 68: câmbio favorável"
+                        "JP — score 68: câmbio favorável",
+                        null
                 )),
                 List.of()
         );

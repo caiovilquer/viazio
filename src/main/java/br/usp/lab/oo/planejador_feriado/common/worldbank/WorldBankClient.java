@@ -1,8 +1,7 @@
-package br.usp.lab.oo.planejador_feriado.cost.client;
+package br.usp.lab.oo.planejador_feriado.common.worldbank;
 
 import br.usp.lab.oo.planejador_feriado.common.config.ExternalApisProperties;
 import br.usp.lab.oo.planejador_feriado.common.config.RestClientFactory;
-import br.usp.lab.oo.planejador_feriado.cost.dto.WorldBankIndicatorPoint;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -19,7 +18,7 @@ import java.util.Locale;
  * {@link JsonNode} e convertido para uma lista tipada de pontos.
  */
 @Component
-public class WorldBankClient implements CostOfLivingClient {
+public class WorldBankClient implements WorldBankIndicatorClient {
 
     private final RestClient restClient;
 

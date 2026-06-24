@@ -99,6 +99,7 @@ public class CountryService {
 
         return new Country(
             dto.name().common(),
+            resolveLocalizedName(dto),
             dto.isoCode(),
             dto.region(),
             dto.subregion(),
@@ -113,5 +114,13 @@ public class CountryService {
             latitude,
             longitude
         );
+    }
+
+    private String resolveLocalizedName(CountryDTO dto) {
+        if (dto.name() == null || dto.name().translations() == null) {
+            return null;
+        }
+        CountryDTO.TranslationDTO portuguese = dto.name().translations().get("por");
+        return portuguese != null ? portuguese.common() : null;
     }
 }

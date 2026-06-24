@@ -1,7 +1,7 @@
 package br.usp.lab.oo.planejador_feriado.cost.service;
 
-import br.usp.lab.oo.planejador_feriado.cost.client.CostOfLivingClient;
-import br.usp.lab.oo.planejador_feriado.cost.dto.WorldBankIndicatorPoint;
+import br.usp.lab.oo.planejador_feriado.common.worldbank.WorldBankIndicatorClient;
+import br.usp.lab.oo.planejador_feriado.common.worldbank.WorldBankIndicatorPoint;
 import br.usp.lab.oo.planejador_feriado.cost.model.CostOfLiving;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 class CostOfLivingServiceTest {
 
     @Mock
-    private CostOfLivingClient client;
+    private WorldBankIndicatorClient client;
 
     @Test
     void computesPriceLevelFromLatestCommonYear() {

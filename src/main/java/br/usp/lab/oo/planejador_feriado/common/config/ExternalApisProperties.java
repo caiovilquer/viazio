@@ -10,6 +10,7 @@ public record ExternalApisProperties(
         Api awesomeApi,
         Api openMeteo,
         Api worldBank,
+        String wikipediaBaseUrlTemplate,
         Duration connectTimeout,
         Duration readTimeout
 ) {

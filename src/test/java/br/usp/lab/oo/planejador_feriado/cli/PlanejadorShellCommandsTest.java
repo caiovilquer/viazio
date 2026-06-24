@@ -100,7 +100,7 @@ class PlanejadorShellCommandsTest {
     @Test
     void travelShouldAggregateCountryHolidaysAndExchange() {
         Holiday holiday = new Holiday(LocalDate.of(2026, 12, 25), "Christmas Day", "Natal", List.of("Public"));
-        TravelOverview overview = new TravelOverview(japan(), List.of(holiday), new Exchange("JPY", 0.035));
+        TravelOverview overview = new TravelOverview(japan(), List.of(holiday), new Exchange("JPY", 0.035), null);
         when(travelService.getOverviewByCountryCode("JP")).thenReturn(overview);
 
         String output = commands.travel("JP");
@@ -114,7 +114,7 @@ class PlanejadorShellCommandsTest {
 
     @Test
     void travelShouldShowPlaceholdersWhenNoHolidaysAndNoExchange() {
-        TravelOverview overview = new TravelOverview(japan(), List.of(), null);
+        TravelOverview overview = new TravelOverview(japan(), List.of(), null, null);
         when(travelService.getOverviewByCountryCode("JP")).thenReturn(overview);
 
         String output = commands.travel("JP");

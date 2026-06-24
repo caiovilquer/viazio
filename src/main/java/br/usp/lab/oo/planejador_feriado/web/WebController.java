@@ -55,7 +55,7 @@ public class WebController {
         try {
             TravelOverview overview = travelService.getOverviewByQuery(query);
             model.addAttribute("overview", overview);
-            model.addAttribute("termoBuscado", overview.country().getName());
+            model.addAttribute("termoBuscado", overview.country().getDisplayName());
         } catch (RuntimeException e) {
             if (isCodeQuery) {
                 model.addAttribute("erro",

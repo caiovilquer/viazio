@@ -26,6 +26,9 @@ app:
       base-url: https://archive-api.open-meteo.com/v1
     world-bank:
       base-url: https://api.worldbank.org/v2
+    # %s é substituído pelo código do idioma (pt, en) — a API da Wikipédia usa um
+    # subdomínio por idioma, então o RestClient é montado por chamada.
+    wikipedia-base-url-template: https://%s.wikipedia.org/api/rest_v1
     connect-timeout: 3s
     read-timeout: 5s
   recommendation:

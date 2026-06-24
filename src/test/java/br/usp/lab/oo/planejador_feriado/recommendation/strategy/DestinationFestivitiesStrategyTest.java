@@ -41,6 +41,6 @@ class DestinationFestivitiesStrategyTest {
         RecommendationRequest request = new RecommendationRequest(
                 LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("JP"), null, null, 10);
         return new RecommendationContext(
-                country, destinationHolidays, List.of(), List.of(), null, null, null, null, null, request);
+                country, destinationHolidays, List.of(), List.of(), null, null, null, null, null, null, request);
     }
 }

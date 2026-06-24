@@ -2,6 +2,8 @@ package br.usp.lab.oo.planejador_feriado.travel.service;
 
 import br.usp.lab.oo.planejador_feriado.country.model.Country;
 import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
+import br.usp.lab.oo.planejador_feriado.enrichment.model.DestinationProfile;
+import br.usp.lab.oo.planejador_feriado.enrichment.service.DestinationProfileService;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 import br.usp.lab.oo.planejador_feriado.exchange.service.ExchangeService;
 import br.usp.lab.oo.planejador_feriado.holiday.HolidayDeduplicator;
@@ -13,8 +15,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * Facade que agrega país, feriados futuros e câmbio para BRL em uma única operação.
- * Esconde a orquestração de CountryService, HolidayService e ExchangeService.
+ * Facade que agrega país, feriados futuros, câmbio para BRL e perfil descritivo
+ * (população + Wikipédia) em uma única operação. Esconde a orquestração de
+ * CountryService, HolidayService, ExchangeService e DestinationProfileService.
  */
 @Service
 public class TravelService {
@@ -22,14 +25,17 @@ public class TravelService {
     private final CountryService countryService;
     private final HolidayService holidayService;
     private final ExchangeService exchangeService;
+    private final DestinationProfileService profileService;
 
     public TravelService(
             CountryService countryService,
             HolidayService holidayService,
-            ExchangeService exchangeService) {
+            ExchangeService exchangeService,
+            DestinationProfileService profileService) {
         this.countryService = countryService;
         this.holidayService = holidayService;
         this.exchangeService = exchangeService;
+        this.profileService = profileService;
     }
 
 public TravelOverview getOverviewByCountryCode(String countryCode) {
@@ -44,7 +50,16 @@ public TravelOverview getOverviewByCountryCode(String countryCode) {
         List<Holiday> rawHolidays = holidayService.getUpcomingHolidays(country);
         List<Holiday> cleanHolidays = HolidayDeduplicator.deduplicate(rawHolidays);
         Exchange exchangeToBrl = resolveExchangeToBrl(country);
-        return new TravelOverview(country, cleanHolidays, exchangeToBrl);
+        DestinationProfile profile = resolveProfile(country);
+        return new TravelOverview(country, cleanHolidays, exchangeToBrl, profile);
+    }
+
+    private DestinationProfile resolveProfile(Country country) {
+        try {
+            return profileService.buildProfile(country);
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     private Exchange resolveExchangeToBrl(Country country) {

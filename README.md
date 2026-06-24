@@ -261,19 +261,47 @@ O ponto fraco do motor anterior: ~55–65 dos 100 pontos vinham do calendário d
 
 > Nota de integração: durante o desenvolvimento, a API gratuita do **RestCountries v3.1 foi descontinuada** (passou a exigir chave) e o indicador único de nível de preços do Banco Mundial (`PA.NUS.PPPC.RF`) foi **arquivado**. Resolvido sem depender de chaves: (a) os dados de países passaram a vir de um **dataset estático embarcado** (`StaticCountryClient`, lendo `resources/data/countries.json`, derivado do projeto MIT mledoze/countries) — países quase não mudam, então a app fica independente de rede para essa informação; (b) o custo de vida é **calculado** como PPP de consumo (`PA.NUS.PRVT.PP`) ÷ câmbio oficial (`PA.NUS.FCRF`) no ano mais recente comum. As demais integrações (Nager.Date, AwesomeAPI, Open-Meteo) seguem ao vivo.
 
+#### Entrega 4 — Enriquecimento e Decorator (GoF)
+
+Até aqui, um destino era só nome, feriados e câmbio. Esta entrega adiciona conteúdo descritivo (resumo, imagem, link da Wikipédia) e dados demográficos (população), tanto na consulta individual quanto em cada item do ranking de recomendações — sem afetar o score, que continua puramente sobre os 6 critérios definidos na Entrega 3.
+
+1. **Padrão Facade (`DestinationProfileService`):**
+   * Agrega população (Banco Mundial) e resumo/imagem (Wikipédia) em um único `DestinationProfile`, da mesma forma que o `TravelService` agrega país+feriados+câmbio. `TravelService` e `TravelRecommendationEngine` passam a chamar só essa fachada, sem conhecer as duas fontes por trás.
+   * **Degradação graciosa por sub-busca:** se a Wikipédia falhar, a população continua disponível (e vice-versa); se ambas falharem, o destino ainda aparece no ranking/consulta, só sem enriquecimento — mesmo espírito das strategies de recomendação.
+
+2. **Bandeira e nome localizado (`Country`):**
+   * `getFlagEmoji()` deriva o emoji da bandeira a partir do código ISO 3166-1 alpha-2 (combinação dos "regional indicator symbols" Unicode), sem precisar de mais uma chamada externa.
+   * `getDisplayName()` prioriza o nome em português (`countries.json` ganhou as traduções `pt-BR` do dataset MIT mledoze/countries) e cai para o nome em inglês quando não houver tradução.
+
+3. **População via Banco Mundial (`demographics`):**
+   * `DemographicsService` busca o indicador `SP.POP.TOTL` e resolve o ano mais recente com dado disponível.
+   * O client genérico de indicadores do Banco Mundial (usado também pelo custo de vida da Entrega 3) foi extraído para `common/worldbank` (`WorldBankIndicatorClient` + `CachingWorldBankIndicatorClient`), eliminando duplicação entre os dois consumidores.
+
+4. **Resumo e imagem via Wikipédia (`enrichment`):**
+   * `WikipediaRestClient` consome o endpoint `page/summary` da API REST da Wikipédia; tenta primeiro `pt.wikipedia.org` e cai para `en.wikipedia.org` quando não há artigo com aquele título em português.
+   * `WikiSummary` carrega descrição curta (`description`, usada como legenda) e texto completo (`extract`, usado na seção "Sobre o destino"), além de imagem e URL da página.
+   * **Padrão Decorator (`CachingWikipediaClient`):** cache por idioma+título com TTL de 30 dias (resumos de país quase não mudam) e **cache negativo** (guarda o "não encontrado" também) para não repetir a busca a cada recomendação de destinos sem artigo correspondente.
+
+5. **Templates e UX:**
+   * `/viagem`: hero com bandeira, nome localizado e imagem da Wikipédia; bloco de população; seção "Sobre o destino" com o texto completo (`extract`) e link "Leia mais na Wikipédia".
+   * `/recomendacoes`: cada item do ranking ganha bandeira, miniatura e legenda curta — deliberadamente sem população, para manter os cards enxutos (o detalhe completo fica a um clique, em "Ver informações completas").
+
+6. **Correção de integração (User-Agent):** a API REST da Wikimedia [bloqueia com `403`](https://meta.wikimedia.org/wiki/User-Agent_policy) requisições sem um User-Agent identificável — o `RestClientFactory` (compartilhado por todos os clients HTTP) usava o padrão do `HttpURLConnection` do Java, que cai nesse bloqueio. Corrigido com um `User-Agent` fixo (`planejador-feriado/0.0.1 (+url do repositório)`) em todas as chamadas externas. Encontrado e corrigido durante a verificação manual ponta-a-ponta com as APIs reais, antes de qualquer release.
+
+7. **Testes:** `CountryTest` (bandeira/nome localizado), `DemographicsServiceTest`, `WikipediaServiceTest` (fallback pt→en, fallback de imagem), `DestinationProfileServiceTest` (composição da fachada + degradação por sub-busca), `CachingWorldBankIndicatorClientTest`, `CachingWikipediaClientTest` (incl. cache negativo) — **160 testes** no total.
+
 #### Padrões GoF na Fase 3
 
 | Padrão | Classe(s) | Papel |
 |--------|-----------|-------|
-| **Decorator** | `CachingCountryClient`, `CachingHolidayClient`, `CachingExchangeClient`, `CachingWeatherClient`, `CachingCostOfLivingClient` | Adiciona cache em memória sobre os clients HTTP reais sem alterar sua interface |
+| **Decorator** | `CachingCountryClient`, `CachingHolidayClient`, `CachingExchangeClient`, `CachingWeatherClient`, `CachingCostOfLivingClient`, `CachingWorldBankIndicatorClient`, `CachingWikipediaClient` | Adiciona cache em memória (incl. negativo, no caso da Wikipédia) sobre os clients HTTP reais sem alterar sua interface |
 | **Strategy** | `ScoringStrategy` + 6 implementações | Critérios de score plugáveis, combinados por média ponderada |
 | **Chain of Responsibility** | `CandidateFilter` + filtros | Descarta candidatos (orçamento, exclusões) antes do scoring |
-| **Facade** | `TravelRecommendationEngine` | Orquestra os serviços de domínio e a coleta de dados externos |
+| **Facade** | `TravelRecommendationEngine` | Orquestra os serviços de domínio e a coleta de dados externos para o motor de recomendação |
+| **Facade** | `DestinationProfileService` | Agrega população (Banco Mundial) e resumo/imagem da Wikipédia em um `DestinationProfile` |
 
 **Funcionalidades planejadas:**
-- Migração da fonte de dados de países (dataset estático embarcado ou API com chave).
 - Filtro de visto na cadeia de candidatos.
-- Descrição e imagem do destino via Wikipedia.
 - Frontend React consumindo `/api/v1/recommendations`.
 
 **Planejamento (até 06/Julho):** Entrega Final

@@ -19,6 +19,7 @@ public record CountryDTO(
     List<String> timezones,
     List<Double> latlng // [latitude, longitude] do centroide do país
 ) {
-    public record NameDTO(String common) {}
+    public record NameDTO(String common, Map<String, TranslationDTO> translations) {}
+    public record TranslationDTO(String common) {}
     public record CurrencyDTO(String name, String symbol) {}
 }

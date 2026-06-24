@@ -36,7 +36,7 @@ class CountryServiceTest {
 
     private CountryDTO brazilDto() {
         return new CountryDTO(
-                new CountryDTO.NameDTO("Brazil"),
+                new CountryDTO.NameDTO("Brazil", Map.of("por", new CountryDTO.TranslationDTO("Brasil"))),
                 "BR",
                 "Americas",
                 "South America",
@@ -55,6 +55,7 @@ class CountryServiceTest {
         Country country = service.getCountryByCode("BR");
 
         assertEquals("Brazil", country.getName());
+        assertEquals("Brasil", country.getDisplayName());
         assertEquals("BR", country.getIsoCode());
         assertEquals("Americas", country.getRegion());
         assertEquals("South America", country.getSubregion());
@@ -148,13 +149,13 @@ class CountryServiceTest {
 
     @Test
     void getCountriesByRegionShouldRespectLimit() {
-        CountryDTO france = new CountryDTO(new CountryDTO.NameDTO("France"), "FR", "Europe", "Western Europe",
+        CountryDTO france = new CountryDTO(new CountryDTO.NameDTO("France", null), "FR", "Europe", "Western Europe",
                 List.of("Paris"), Map.of("fra", "French"),
                 Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"), List.of(46.0, 2.0));
-        CountryDTO italy = new CountryDTO(new CountryDTO.NameDTO("Italy"), "IT", "Europe", "Southern Europe",
+        CountryDTO italy = new CountryDTO(new CountryDTO.NameDTO("Italy", null), "IT", "Europe", "Southern Europe",
                 List.of("Rome"), Map.of("ita", "Italian"),
                 Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"), List.of(42.8, 12.8));
-        CountryDTO spain = new CountryDTO(new CountryDTO.NameDTO("Spain"), "ES", "Europe", "Southern Europe",
+        CountryDTO spain = new CountryDTO(new CountryDTO.NameDTO("Spain", null), "ES", "Europe", "Southern Europe",
                 List.of("Madrid"), Map.of("spa", "Spanish"),
                 Map.of("EUR", new CountryDTO.CurrencyDTO("Euro", "€")), List.of("UTC+01:00"), List.of(40.0, -4.0));
 

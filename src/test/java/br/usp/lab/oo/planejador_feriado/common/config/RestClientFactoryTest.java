@@ -16,6 +16,7 @@ class RestClientFactoryTest {
                 new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),
+                "https://%s.example.com",
                 Duration.ofSeconds(1),
                 Duration.ofSeconds(2));
 
@@ -32,6 +33,7 @@ class RestClientFactoryTest {
                 new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),
                 new ExternalApisProperties.Api("https://example.com"),
+                "https://%s.example.com",
                 null,
                 null);
 

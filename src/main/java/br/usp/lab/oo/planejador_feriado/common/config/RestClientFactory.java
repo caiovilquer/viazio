@@ -1,5 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.common.config;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -10,6 +11,14 @@ import org.springframework.web.client.RestClient;
  */
 @Component
 public class RestClientFactory {
+
+    /**
+     * Algumas APIs (ex.: Wikimedia REST API) retornam 403 para requisições sem um
+     * User-Agent identificável, bloqueando o User-Agent padrão do {@code HttpURLConnection}
+     * do Java. Ver https://meta.wikimedia.org/wiki/User-Agent_policy.
+     */
+    private static final String USER_AGENT =
+            "planejador-feriado/0.0.1 (+https://gitlab.com/grupo-laboo/laboo_projeto)";
 
     private final ExternalApisProperties properties;
 
@@ -24,6 +33,7 @@ public class RestClientFactory {
 
         return RestClient.builder()
                 .baseUrl(baseUrl)
-                .requestFactory(requestFactory);
+                .requestFactory(requestFactory)
+                .defaultHeader(HttpHeaders.USER_AGENT, USER_AGENT);
     }
 }

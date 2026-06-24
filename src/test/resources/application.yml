@@ -15,6 +15,7 @@ app:
       base-url: https://archive-api.open-meteo.com/v1
     world-bank:
       base-url: https://api.worldbank.org/v2
+    wikipedia-base-url-template: https://%s.wikipedia.org/api/rest_v1
   recommendation:
     default-weights:
       holidays: 0.25

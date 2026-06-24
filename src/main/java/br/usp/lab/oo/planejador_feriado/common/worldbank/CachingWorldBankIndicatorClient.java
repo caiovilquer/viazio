@@ -1,6 +1,5 @@
-package br.usp.lab.oo.planejador_feriado.cost.client;
+package br.usp.lab.oo.planejador_feriado.common.worldbank;
 
-import br.usp.lab.oo.planejador_feriado.cost.dto.WorldBankIndicatorPoint;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.context.annotation.Primary;
@@ -17,12 +16,12 @@ import java.util.Locale;
  */
 @Primary
 @Component
-public class CachingCostOfLivingClient implements CostOfLivingClient {
+public class CachingWorldBankIndicatorClient implements WorldBankIndicatorClient {
 
-    private final CostOfLivingClient delegate;
+    private final WorldBankIndicatorClient delegate;
     private final Cache<String, List<WorldBankIndicatorPoint>> cache;
 
-    public CachingCostOfLivingClient(WorldBankClient delegate) {
+    public CachingWorldBankIndicatorClient(WorldBankClient delegate) {
         this.delegate = delegate;
         this.cache = Caffeine.newBuilder()
                 .maximumSize(1000)

@@ -80,8 +80,18 @@
 
                     <div class="ranking-cabecalho">
                         <span class="ranking-posicao" th:text="'#' + ${recStat.count}">#1</span>
+                        <span class="ranking-flag" th:if="${rec.profile() != null and rec.profile().flagEmoji() != null}"
+                              aria-hidden="true" th:text="${rec.profile().flagEmoji()}">🏳️</span>
                         <span class="ranking-pais-nome" th:text="${rec.countryName()}">Japan</span>
                         <span class="pais-iso" th:text="${rec.countryCode()}">JP</span>
+                    </div>
+
+                    <div class="ranking-media"
+                         th:if="${rec.profile() != null and (rec.profile().imageUrl() != null or rec.profile().description() != null)}">
+                        <img th:if="${rec.profile().imageUrl() != null}" th:src="${rec.profile().imageUrl()}" alt=""
+                             class="ranking-img" loading="lazy" />
+                        <p th:if="${rec.profile().description() != null}" class="ranking-tagline"
+                           th:text="${rec.profile().description()}">descrição curta do destino</p>
                     </div>
 
                     <div class="score-container">

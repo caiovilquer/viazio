@@ -1,4 +1,4 @@
-package br.usp.lab.oo.planejador_feriado.cost.dto;
+package br.usp.lab.oo.planejador_feriado.common.worldbank;
 
 /**
  * Um ponto da série de um indicador do Banco Mundial (ano + valor), já extraído do

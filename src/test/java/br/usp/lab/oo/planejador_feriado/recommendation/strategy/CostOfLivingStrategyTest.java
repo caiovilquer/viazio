@@ -49,6 +49,6 @@ class CostOfLivingStrategyTest {
         RecommendationRequest request = new RecommendationRequest(
                 LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("AR"), null, null, 10);
         return new RecommendationContext(
-                country, List.of(), List.of(), List.of(), null, null, destinationCost, brazil, null, request);
+                country, List.of(), List.of(), List.of(), null, null, destinationCost, brazil, null, null, request);
     }
 }

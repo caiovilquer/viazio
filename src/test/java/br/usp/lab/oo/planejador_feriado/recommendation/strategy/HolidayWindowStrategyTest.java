@@ -54,6 +54,6 @@ class HolidayWindowStrategyTest {
                 LocalDate.of(2026, 6, 1), LocalDate.of(2026, 6, 30), List.of("JP"), null, null, 10);
 
         return new RecommendationContext(
-                country, List.of(), brazilHolidays, longWeekends, null, null, null, null, null, request);
+                country, List.of(), brazilHolidays, longWeekends, null, null, null, null, null, null, request);
     }
 }

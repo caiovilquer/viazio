@@ -1,7 +1,7 @@
 package br.usp.lab.oo.planejador_feriado.cost.service;
 
-import br.usp.lab.oo.planejador_feriado.cost.client.CostOfLivingClient;
-import br.usp.lab.oo.planejador_feriado.cost.dto.WorldBankIndicatorPoint;
+import br.usp.lab.oo.planejador_feriado.common.worldbank.WorldBankIndicatorClient;
+import br.usp.lab.oo.planejador_feriado.common.worldbank.WorldBankIndicatorPoint;
 import br.usp.lab.oo.planejador_feriado.cost.model.CostOfLiving;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +24,9 @@ public class CostOfLivingService {
     private static final String PPP_INDICATOR = "PA.NUS.PRVT.PP";   // PPP conversion factor, private consumption
     private static final String FX_INDICATOR = "PA.NUS.FCRF";       // Official exchange rate (LCU per US$)
 
-    private final CostOfLivingClient client;
+    private final WorldBankIndicatorClient client;
 
-    public CostOfLivingService(CostOfLivingClient client) {
+    public CostOfLivingService(WorldBankIndicatorClient client) {
         this.client = client;
     }
 
