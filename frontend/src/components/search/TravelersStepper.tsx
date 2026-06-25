@@ -1,0 +1,44 @@
+import { Minus, Plus, Users } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+
+export function TravelersStepper({
+  value,
+  max = 10,
+  onChange,
+}: {
+  value: number
+  max?: number
+  onChange: (value: number) => void
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-3">
+      <span className="flex items-center gap-2 text-sm font-medium">
+        <Users className="size-4 text-muted-foreground" />
+        Viajantes
+      </span>
+      <div className="flex items-center gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="size-8 rounded-full"
+          disabled={value <= 1}
+          onClick={() => onChange(Math.max(1, value - 1))}
+        >
+          <Minus className="size-3.5" />
+        </Button>
+        <span className="w-6 text-center text-sm font-semibold tabular-nums">{value}</span>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="size-8 rounded-full"
+          disabled={value >= max}
+          onClick={() => onChange(Math.min(max, value + 1))}
+        >
+          <Plus className="size-3.5" />
+        </Button>
+      </div>
+    </div>
+  )
+}
