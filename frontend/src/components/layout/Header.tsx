@@ -1,9 +1,12 @@
 import { NavLink, Link } from 'react-router-dom'
 import { Plane } from 'lucide-react'
 import { navItems } from './nav-items'
+import { useFavorites } from '@/lib/favorites'
 import { cn } from '@/lib/utils'
 
 export function Header() {
+  const favoritesCount = useFavorites().length
+
   return (
     <header className="sticky top-0 z-50 hidden border-b border-border/60 bg-background/80 backdrop-blur-xl md:block">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
@@ -21,7 +24,7 @@ export function Header() {
               end={item.end}
               className={({ isActive }) =>
                 cn(
-                  'rounded-full px-4 py-2 text-sm font-medium transition-colors',
+                  'flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors',
                   isActive
                     ? 'bg-primary/10 text-primary'
                     : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
@@ -29,6 +32,11 @@ export function Header() {
               }
             >
               {item.label}
+              {item.to === '/salvos' && favoritesCount > 0 && (
+                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                  {favoritesCount > 9 ? '9+' : favoritesCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

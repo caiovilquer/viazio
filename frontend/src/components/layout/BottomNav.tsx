@@ -1,10 +1,12 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { navItems } from './nav-items'
+import { useFavorites } from '@/lib/favorites'
 import { cn } from '@/lib/utils'
 
 export function BottomNav() {
   const location = useLocation()
+  const favoritesCount = useFavorites().length
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/60 bg-background/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
@@ -27,13 +29,20 @@ export function BottomNav() {
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                   />
                 )}
-                <Icon
-                  className={cn(
-                    'size-5 transition-colors',
-                    isActive ? 'text-primary' : 'text-muted-foreground',
+                <span className="relative">
+                  <Icon
+                    className={cn(
+                      'size-5 transition-colors',
+                      isActive ? 'text-primary' : 'text-muted-foreground',
+                    )}
+                    strokeWidth={isActive ? 2.4 : 2}
+                  />
+                  {item.to === '/salvos' && favoritesCount > 0 && (
+                    <span className="absolute -right-1.5 -top-1.5 flex size-3.5 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-primary-foreground">
+                      {favoritesCount > 9 ? '9+' : favoritesCount}
+                    </span>
                   )}
-                  strokeWidth={isActive ? 2.4 : 2}
-                />
+                </span>
                 <span className={cn(isActive ? 'text-foreground' : 'text-muted-foreground')}>
                   {item.label}
                 </span>

@@ -4,6 +4,7 @@ import { ArrowLeft, Clock, ExternalLink, MapPin, Plane, Wallet } from 'lucide-re
 import { useCountry, useHolidays, useTravelOverview } from '@/api/queries'
 import type { TravelRecommendation } from '@/api/types'
 import { ScoreRing } from '@/components/shared/ScoreRing'
+import { FavoriteButton } from '@/components/shared/FavoriteButton'
 import { CriterionBreakdown } from '@/components/results/CriterionBreakdown'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -67,7 +68,12 @@ export function DestinationPage() {
             </h1>
             <p className="text-sm text-muted-foreground">{country.subregion}</p>
           </div>
-          {recommendation && <ScoreRing score={recommendation.tripScore} size={64} label="score" />}
+          {recommendation && (
+            <div className="flex items-center gap-3">
+              <FavoriteButton recommendation={recommendation} />
+              <ScoreRing score={recommendation.tripScore} size={64} label="score" />
+            </div>
+          )}
         </motion.div>
 
         {profile?.extract && <p className="text-balance leading-relaxed text-muted-foreground">{profile.extract}</p>}

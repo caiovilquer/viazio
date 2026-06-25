@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Check, Plane, Sparkles, AlertTriangle } from 'lucide-react'
 import type { TravelRecommendation } from '@/api/types'
 import { ScoreRing } from '@/components/shared/ScoreRing'
+import { FavoriteButton } from '@/components/shared/FavoriteButton'
 import { Badge } from '@/components/ui/badge'
 import { formatBrl } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -100,7 +101,7 @@ export function RecommendationCard({
         selectable && selectDisabled && !selected && 'opacity-50',
       )}
     >
-      {selectable && (
+      {selectable ? (
         <motion.button
           type="button"
           whileTap={{ scale: 0.9 }}
@@ -117,6 +118,8 @@ export function RecommendationCard({
         >
           <Check className="size-4" strokeWidth={3} />
         </motion.button>
+      ) : (
+        <FavoriteButton recommendation={recommendation} size="sm" className="absolute right-3 top-3 z-10" />
       )}
 
       {selectable ? (

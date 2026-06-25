@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { ArrowRight, CalendarRange, Cloud, Compass, Landmark, MapPinned, Wallet } from 'lucide-react'
 import { useMeta } from '@/api/queries'
 import { Button } from '@/components/ui/button'
+import { ExampleSearchChips } from '@/components/landing/ExampleSearchChips'
 
 const steps = [
   {
@@ -86,6 +87,8 @@ export function LandingPage() {
               <Link to="/janelas">Ver melhores janelas do ano</Link>
             </Button>
           </motion.div>
+
+          <ExampleSearchChips />
 
           <motion.div
             initial={{ opacity: 0 }}
