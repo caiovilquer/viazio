@@ -102,7 +102,7 @@ export function DestinationPage() {
             <Fact
               icon={Wallet}
               label="Custo terrestre/dia"
-              value={formatBrl(recommendation.feasibility.groundCost.estimatedDailyPerPerson * (exchange?.valueInReais ?? 1))}
+              value={formatBrl(recommendation.feasibility.groundCost.estimatedDailyPerPerson)}
             />
             <Fact icon={MapPin} label="Câmbio" value={exchange ? `1 ${exchange.currency} = ${formatBrl(exchange.valueInReais)}` : '—'} />
           </section>
