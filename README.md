@@ -184,6 +184,22 @@ Acesse no navegador: [http://localhost:8080](http://localhost:8080)
 * Use **Ver detalhes** em qualquer item do ranking para abrir a consulta individual daquele país (`/viagem?codigo=XX` ou `/viagem?destino=nome`).
 * Destinos não avaliados aparecem discretamente na seção *Destinos não avaliados* (campo `skipped`).
 
+#### Como rodar o frontend (Viazio)
+Com o backend já rodando em `http://localhost:8080` (passo anterior), instale as dependências e suba o servidor de desenvolvimento do frontend em outro terminal:
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+Acesse no navegador: [http://localhost:5173](http://localhost:5173). O Vite faz proxy de `/api` para o backend e o CORS já está liberado para essa origem (`app.cors.allowed-origins`).
+
+Outros comandos úteis:
+```bash
+pnpm build    # build de produção (tsc + vite build)
+pnpm preview  # serve o build de produção localmente
+pnpm lint     # lint (oxlint)
+```
+
 #### Como rodar os testes
 ```bash
 # Unitários + web (sem rede) — padrão
