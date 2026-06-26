@@ -1,14 +1,43 @@
 import { useSyncExternalStore } from 'react'
-import type { TravelRecommendation } from '@/api/types'
+import type { CriterionKey, ProfileKey, TravelRecommendation } from '@/api/types'
+import { searchParamsToCriteria } from '@/lib/search-params'
 
 const STORAGE_KEY = 'feriadao:favorites'
 const CHANGE_EVENT = 'feriadao:favorites-changed'
+
+/** The search context a destination was saved under — so we can show it and,
+ *  when comparing saved destinations, re-score them on a common window. */
+export interface FavoriteContext {
+  from?: string
+  to?: string
+  profile?: ProfileKey | null
+  weights?: Partial<Record<CriterionKey, number>>
+  travelers?: number
+  originCountry?: string
+  originCity?: string
+}
 
 export interface FavoriteEntry {
   countryCode: string
   countryName: string
   savedAt: string
   recommendation: TravelRecommendation
+  context?: FavoriteContext
+}
+
+/** Derive a savable context from a search querystring (results/destino pages). */
+export function favoriteContextFromParams(params: URLSearchParams): FavoriteContext | undefined {
+  const c = searchParamsToCriteria(params)
+  if (!c) return undefined
+  return {
+    from: c.from,
+    to: c.to,
+    profile: c.profile,
+    weights: c.weights,
+    travelers: c.travelers,
+    originCountry: c.origin.countryCode,
+    originCity: c.origin.city,
+  }
 }
 
 let cachedRaw: string | null | undefined
@@ -48,13 +77,14 @@ export function isFavorite(code: string): boolean {
   return getSnapshot().some((f) => f.countryCode === code)
 }
 
-export function addFavorite(recommendation: TravelRecommendation) {
+export function addFavorite(recommendation: TravelRecommendation, context?: FavoriteContext) {
   const entries = getSnapshot().filter((f) => f.countryCode !== recommendation.countryCode)
   entries.push({
     countryCode: recommendation.countryCode,
     countryName: recommendation.countryName,
     savedAt: new Date().toISOString(),
     recommendation,
+    context,
   })
   writeAll(entries)
 }
@@ -63,9 +93,9 @@ export function removeFavorite(code: string) {
   writeAll(getSnapshot().filter((f) => f.countryCode !== code))
 }
 
-export function toggleFavorite(recommendation: TravelRecommendation) {
+export function toggleFavorite(recommendation: TravelRecommendation, context?: FavoriteContext) {
   if (isFavorite(recommendation.countryCode)) removeFavorite(recommendation.countryCode)
-  else addFavorite(recommendation)
+  else addFavorite(recommendation, context)
 }
 
 function subscribe(callback: () => void) {

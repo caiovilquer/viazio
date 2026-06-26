@@ -3,15 +3,17 @@ import { motion } from 'framer-motion'
 import { Heart } from 'lucide-react'
 import { toast } from 'sonner'
 import type { TravelRecommendation } from '@/api/types'
-import { toggleFavorite, useIsFavorite } from '@/lib/favorites'
+import { toggleFavorite, useIsFavorite, type FavoriteContext } from '@/lib/favorites'
 import { cn } from '@/lib/utils'
 
 export function FavoriteButton({
   recommendation,
+  context,
   className,
   size = 'md',
 }: {
   recommendation: TravelRecommendation
+  context?: FavoriteContext
   className?: string
   size?: 'sm' | 'md'
 }) {
@@ -21,7 +23,7 @@ export function FavoriteButton({
     e.preventDefault()
     e.stopPropagation()
     const willSave = !saved
-    toggleFavorite(recommendation)
+    toggleFavorite(recommendation, context)
     toast.success(willSave ? `${recommendation.countryName} salvo` : `${recommendation.countryName} removido dos salvos`)
   }
 
@@ -33,15 +35,15 @@ export function FavoriteButton({
       aria-pressed={saved}
       aria-label={saved ? `Remover ${recommendation.countryName} dos salvos` : `Salvar ${recommendation.countryName}`}
       className={cn(
-        'flex items-center justify-center rounded-full border-2 shadow backdrop-blur transition-colors',
-        size === 'sm' ? 'size-7' : 'size-9',
+        'flex items-center justify-center rounded-full border backdrop-blur transition-[color,background-color,border-color]',
+        size === 'sm' ? 'size-8' : 'size-9',
         saved
-          ? 'border-primary bg-primary text-primary-foreground'
-          : 'border-white/80 bg-background/70 text-foreground hover:border-primary/60',
+          ? 'border-primary/50 bg-primary/15 text-primary'
+          : 'border-hairline bg-background/50 text-foreground/80 hover:border-primary/40 hover:text-primary',
         className,
       )}
     >
-      <Heart className={size === 'sm' ? 'size-3.5' : 'size-4'} fill={saved ? 'currentColor' : 'none'} />
+      <Heart className={size === 'sm' ? 'size-4' : 'size-4'} fill={saved ? 'currentColor' : 'none'} />
     </motion.button>
   )
 }

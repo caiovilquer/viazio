@@ -1,14 +1,48 @@
+import { useRef, useState, type ReactNode } from 'react'
 import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowLeft, Clock, ExternalLink, MapPin, Plane, Wallet } from 'lucide-react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { AlertTriangle, ArrowLeft, Clock, Coins, ExternalLink, Wallet } from 'lucide-react'
 import { useCountry, useHolidays, useTravelOverview } from '@/api/queries'
-import type { TravelRecommendation } from '@/api/types'
+import { useDestinationImage } from '@/api/images'
+import type { Region, TravelRecommendation } from '@/api/types'
 import { ScoreRing } from '@/components/shared/ScoreRing'
 import { FavoriteButton } from '@/components/shared/FavoriteButton'
+import { Flag } from '@/components/shared/Flag'
+import { RouteGlyph } from '@/components/shared/Glyphs'
+import { Reveal } from '@/components/shared/Reveal'
+import { favoriteContextFromParams, type FavoriteContext } from '@/lib/favorites'
 import { CriterionBreakdown } from '@/components/results/CriterionBreakdown'
-import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { formatBrl, formatDateLong } from '@/lib/format'
+import { exchangeUnit, formatBrl, formatDateLong, formatExchange } from '@/lib/format'
+import { heroItem, staggerContainer } from '@/lib/motion'
+import { cn } from '@/lib/utils'
+
+const regionPt: Record<Region, string> = {
+  Africa: 'África',
+  Americas: 'Américas',
+  Asia: 'Ásia',
+  Europe: 'Europa',
+  Oceania: 'Oceania',
+}
+
+const classLabel: Record<string, string> = {
+  short: 'Viagem curta',
+  medium: 'Distância média',
+  long: 'Viagem longa',
+}
+
+/** Wikipedia's country `imageUrl` is often just the flag — reject those. */
+function isLikelyFlag(url?: string | null) {
+  if (!url) return true
+  const u = url.toLowerCase()
+  return u.includes('flag') || u.endsWith('.svg')
+}
+
+function tzLabel(hours: number | null | undefined) {
+  if (hours == null) return null
+  if (hours === 0) return 'Mesmo fuso'
+  return `${hours > 0 ? '+' : '−'}${Math.abs(hours)}h de fuso`
+}
 
 export function DestinationPage() {
   const { countryCode = '' } = useParams()
@@ -24,129 +58,364 @@ export function DestinationPage() {
 
   const profile = recommendation?.profile ?? overview?.profile
   const exchange = recommendation?.exchangeToBrl ?? overview?.exchangeToBrl
-  const isLoading = loadingCountry || (!recommendation && loadingOverview)
+  const exUnit = exchangeUnit(exchange)
+  const feasibility = recommendation?.feasibility ?? null
 
+  const photoCity = feasibility?.destination.name ?? country?.capitals?.[0] ?? country?.name
+  const { data: cityPhoto } = useDestinationImage(photoCity, 1920)
+  const backendPhoto = profile && !isLikelyFlag(profile.imageUrl) ? profile.imageUrl : null
+  const photoUrl = cityPhoto ?? backendPhoto ?? null
+
+  const isLoading = loadingCountry || (!recommendation && loadingOverview)
   const backHref = params.toString() ? `/resultados?${params.toString()}` : '/buscar'
+  const savedContext = favoriteContextFromParams(params)
 
   if (isLoading || !country) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-8">
-        <Skeleton className="h-64 w-full rounded-3xl" />
-        <Skeleton className="mt-6 h-8 w-1/2" />
-        <Skeleton className="mt-3 h-24 w-full" />
+      <div className="pb-16">
+        <Skeleton className="h-[56vh] min-h-[20rem] w-full rounded-none sm:min-h-[26rem]" />
+        <div className="mx-auto max-w-4xl space-y-6 px-4 pt-10 sm:px-6">
+          <Skeleton className="h-20 w-full rounded-2xl" />
+          <Skeleton className="h-5 w-2/3" />
+          <Skeleton className="h-28 w-full rounded-2xl" />
+        </div>
       </div>
     )
   }
 
+  const name = country.localizedName ?? country.name
+  const eyebrow = regionPt[country.region] ?? country.region
+
   return (
-    <div className="mx-auto max-w-3xl pb-16">
-      <div className="relative h-64 w-full overflow-hidden bg-muted sm:h-80">
-        {profile?.imageUrl ? (
-          <img src={profile.imageUrl} alt={country.name} className="size-full object-cover" />
-        ) : (
-          <div className="flex size-full items-center justify-center text-7xl">{profile?.flagEmoji ?? '🌍'}</div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
-        <Link
-          to={backHref}
-          className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1.5 text-sm font-medium shadow backdrop-blur"
-        >
-          <ArrowLeft className="size-4" />
-          Voltar
-        </Link>
-      </div>
+    <div className="pb-16">
+      <DestinationHero
+        name={name}
+        eyebrow={eyebrow}
+        countryCode={countryCode}
+        photoUrl={photoUrl}
+        recommendation={recommendation}
+        savedContext={savedContext}
+        backHref={backHref}
+      />
 
-      <div className="-mt-10 space-y-8 px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-end justify-between rounded-3xl border border-border bg-card p-5 shadow-sm"
-        >
-          <div>
-            <h1 className="font-display text-2xl font-semibold sm:text-3xl">
-              {profile?.flagEmoji} {country.localizedName ?? country.name}
-            </h1>
-            <p className="text-sm text-muted-foreground">{country.subregion}</p>
+      {feasibility && (
+        <Reveal className="relative z-20 mx-auto -mt-12 max-w-4xl px-4 sm:px-6">
+          <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline elevate-lg sm:grid-cols-4">
+            <Stat
+              glyph={<RouteGlyph className="size-4" />}
+              label="Distância"
+              value={`${Math.round(feasibility.travelEffort.distanceKm).toLocaleString('pt-BR')} km`}
+              sub={classLabel[feasibility.travelEffort.classification]}
+            />
+            <Stat
+              glyph={<Clock className="size-4" />}
+              label="Tempo de voo"
+              value={`${Math.round(feasibility.travelEffort.estimatedTravelHoursMin)}–${Math.round(
+                feasibility.travelEffort.estimatedTravelHoursMax,
+              )}h`}
+              sub={tzLabel(feasibility.travelEffort.timeZoneDifferenceHours)}
+            />
+            <Stat
+              glyph={<Wallet className="size-4" />}
+              label="Custo / dia"
+              value={
+                feasibility.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0
+                  ? formatBrl(feasibility.groundCost.estimatedDailyPerPerson)
+                  : '—'
+              }
+              sub={
+                feasibility.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0
+                  ? `≈ ${formatBrl(feasibility.groundCost.estimatedTotal)} no total`
+                  : 'Sem estimativa'
+              }
+            />
+            <Stat
+              glyph={<Coins className="size-4" />}
+              label="Câmbio"
+              value={exUnit ? formatBrl(exUnit.amount) : '—'}
+              sub={exUnit ? `por ${exUnit.unitLabel} ${exUnit.currency}` : 'Sem cotação'}
+            />
           </div>
-          {recommendation && (
-            <div className="flex items-center gap-3">
-              <FavoriteButton recommendation={recommendation} />
-              <ScoreRing score={recommendation.tripScore} size={64} label="score" />
-            </div>
-          )}
-        </motion.div>
+        </Reveal>
+      )}
 
-        {profile?.extract && <p className="text-balance leading-relaxed text-muted-foreground">{profile.extract}</p>}
-
-        {profile?.wikipediaUrl && (
-          <a
-            href={profile.wikipediaUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-          >
-            Saiba mais na Wikipédia
-            <ExternalLink className="size-3.5" />
-          </a>
+      <div className="mx-auto max-w-4xl space-y-12 px-4 pt-12 sm:px-6">
+        {profile?.extract && (
+          <Reveal className="space-y-4">
+            <p className="max-w-2xl text-pretty text-lg leading-relaxed text-foreground/85">
+              {profile.extract}
+            </p>
+            {profile.wikipediaUrl && (
+              <a
+                href={profile.wikipediaUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-gold transition-opacity hover:opacity-80"
+              >
+                Ler mais na Wikipédia
+                <ExternalLink className="size-3.5" />
+              </a>
+            )}
+          </Reveal>
         )}
 
         {recommendation && (
-          <section className="space-y-3">
-            <h2 className="font-display text-lg font-semibold">Por que esse destino?</h2>
+          <Reveal className="space-y-5">
+            <SectionTitle eyebrow="Análise">Por que esse destino</SectionTitle>
+
+            {(recommendation.highlights.length > 0 || recommendation.tradeoffs.length > 0) && (
+              <div className="flex flex-wrap gap-2">
+                {recommendation.highlights.map((h) => (
+                  <span
+                    key={h}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-2/60 px-3 py-1 text-xs text-foreground/85"
+                  >
+                    <span className="size-1 rounded-full bg-gold/80" />
+                    {h}
+                  </span>
+                ))}
+                {recommendation.tradeoffs.map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-chart-3/25 bg-chart-3/10 px-3 py-1 text-xs text-chart-3"
+                  >
+                    <AlertTriangle className="size-3" />
+                    {t}
+                  </span>
+                ))}
+              </div>
+            )}
+
             <CriterionBreakdown breakdown={recommendation.breakdown} />
-          </section>
+
+            <p className="text-xs text-muted-foreground">
+              Baseado em {recommendation.dataQuality.availableCriteria} de{' '}
+              {recommendation.dataQuality.totalCriteria} critérios com dados.
+            </p>
+          </Reveal>
         )}
 
-        {recommendation?.feasibility && (
-          <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Fact icon={Plane} label="Distância" value={`${Math.round(recommendation.feasibility.travelEffort.distanceKm).toLocaleString('pt-BR')} km`} />
-            <Fact
-              icon={Clock}
-              label="Tempo de voo"
-              value={`${Math.round(recommendation.feasibility.travelEffort.estimatedTravelHoursMin)}–${Math.round(recommendation.feasibility.travelEffort.estimatedTravelHoursMax)}h`}
-            />
-            <Fact
-              icon={Wallet}
-              label="Custo terrestre/dia"
-              value={formatBrl(recommendation.feasibility.groundCost.estimatedDailyPerPerson)}
-            />
-            <Fact icon={MapPin} label="Câmbio" value={exchange ? `1 ${exchange.currency} = ${formatBrl(exchange.valueInReais)}` : '—'} />
-          </section>
-        )}
-
-        <section className="space-y-2">
-          <h2 className="font-display text-lg font-semibold">Sobre {country.localizedName ?? country.name}</h2>
-          <div className="flex flex-wrap gap-2 text-sm">
-            <Badge variant="outline">Capital: {country.capitals.join(', ') || '—'}</Badge>
-            <Badge variant="outline">Idiomas: {country.languages.join(', ') || '—'}</Badge>
-            <Badge variant="outline">Moeda: {country.currencies.join(', ') || '—'}</Badge>
-          </div>
-        </section>
+        <Reveal className="space-y-5">
+          <SectionTitle eyebrow="Perfil">Sobre {name}</SectionTitle>
+          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline sm:grid-cols-2">
+            <InfoRow label="Capital" value={country.capitals.join(', ') || '—'} />
+            <InfoRow label="Idiomas" value={country.languages.join(', ') || '—'} />
+            <InfoRow label="Moeda" value={country.currencies.join(', ') || '—'} />
+            {country.timezones.length > 0 && (
+              <InfoRow label="Fuso horário" value={country.timezones.slice(0, 3).join(', ')} />
+            )}
+            {profile?.population != null && (
+              <InfoRow
+                label="População"
+                value={`${profile.population.toLocaleString('pt-BR')}${
+                  profile.populationYear ? ` (${profile.populationYear})` : ''
+                }`}
+              />
+            )}
+            <InfoRow label="Região" value={country.subregion || regionPt[country.region]} />
+            {!feasibility && formatExchange(exchange) && (
+              <InfoRow label="Câmbio" value={formatExchange(exchange) as string} />
+            )}
+          </dl>
+        </Reveal>
 
         {holidays && holidays.length > 0 && (
-          <section className="space-y-3">
-            <h2 className="font-display text-lg font-semibold">Próximos feriados</h2>
-            <div className="space-y-2">
+          <Reveal className="space-y-5">
+            <SectionTitle eyebrow="Calendário">Próximos feriados</SectionTitle>
+            <ol className="relative space-y-1">
+              <span aria-hidden className="absolute bottom-3 left-[6px] top-3 w-px bg-hairline" />
               {holidays.slice(0, 6).map((h) => (
-                <div key={`${h.date}-${h.name}`} className="flex items-center justify-between rounded-xl border border-border px-4 py-2.5 text-sm">
-                  <span className="font-medium">{h.localName}</span>
-                  <span className="text-muted-foreground">{formatDateLong(h.date)}</span>
-                </div>
+                <li key={`${h.date}-${h.name}`} className="relative flex items-baseline gap-4 py-2.5 pl-7">
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-[1.1rem] size-3.5 rounded-full border-2 border-gold/70 bg-background"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium">{h.localName}</p>
+                    {h.name !== h.localName && (
+                      <p className="text-xs text-muted-foreground">{h.name}</p>
+                    )}
+                  </div>
+                  <time className="shrink-0 text-sm tabular-nums text-muted-foreground">
+                    {formatDateLong(h.date)}
+                  </time>
+                </li>
               ))}
-            </div>
-          </section>
+            </ol>
+          </Reveal>
         )}
       </div>
     </div>
   )
 }
 
-function Fact({ icon: Icon, label, value }: { icon: typeof Plane; label: string; value: string }) {
+function DestinationHero({
+  name,
+  eyebrow,
+  countryCode,
+  photoUrl,
+  recommendation,
+  savedContext,
+  backHref,
+}: {
+  name: string
+  eyebrow: string
+  countryCode: string
+  photoUrl: string | null
+  recommendation?: TravelRecommendation
+  savedContext?: FavoriteContext
+  backHref: string
+}) {
+  const reduce = useReducedMotion()
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const y = useTransform(scrollYProgress, [0, 1], [0, 60])
+  const scale = useTransform(scrollYProgress, [0, 1], [1.02, 1.1])
+  const [loaded, setLoaded] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const showPhoto = Boolean(photoUrl) && !failed
+
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-border bg-card p-3">
-      <Icon className="size-4 text-muted-foreground" />
-      <span className="text-sm font-semibold">{value}</span>
-      <span className="text-xs text-muted-foreground">{label}</span>
+    <div ref={ref} className="relative h-[56vh] min-h-[20rem] w-full overflow-hidden sm:min-h-[26rem]">
+      <motion.div
+        className="absolute -inset-x-0 -top-[8%] h-[116%]"
+        style={reduce ? undefined : { y, scale }}
+      >
+        <div className="absolute inset-0 bg-[linear-gradient(150deg,var(--surface-3),var(--surface-1))]">
+          <Flag
+            code={countryCode}
+            className="absolute inset-0 size-full scale-150 rounded-none object-cover opacity-30 blur-3xl ring-0"
+          />
+          <div className="absolute inset-0 atlas-grid opacity-60 mask-fade-edges" />
+          {!showPhoto && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Flag
+                code={countryCode}
+                className="h-24 w-36 rounded-2xl object-cover shadow-2xl ring-1 ring-white/15"
+              />
+            </div>
+          )}
+        </div>
+        {photoUrl && !failed && (
+          <img
+            src={photoUrl}
+            alt={name}
+            onLoad={() => setLoaded(true)}
+            onError={() => setFailed(true)}
+            className={cn(
+              'absolute inset-0 size-full object-cover transition-opacity duration-700',
+              loaded ? 'opacity-100' : 'opacity-0',
+            )}
+          />
+        )}
+      </motion.div>
+
+      {/* scrims for legibility */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/35 to-background/5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-background/45 via-transparent to-transparent" />
+
+      <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between p-4 sm:p-6">
+        <Link
+          to={backHref}
+          className="inline-flex items-center gap-1.5 rounded-full border border-hairline glass px-3.5 py-2 text-sm font-medium text-foreground/90 transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          Voltar
+        </Link>
+        {recommendation && <FavoriteButton recommendation={recommendation} context={savedContext} />}
+      </div>
+
+      <div className="absolute inset-x-0 bottom-0 z-10">
+        <div className="mx-auto flex max-w-4xl items-end justify-between gap-4 px-4 pb-16 sm:px-6">
+          <motion.div
+            variants={staggerContainer(0.08)}
+            initial="hidden"
+            animate="show"
+            className="min-w-0"
+          >
+            <motion.p
+              variants={heroItem}
+              className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-gold/90"
+            >
+              {eyebrow}
+            </motion.p>
+            <motion.h1
+              variants={heroItem}
+              className="flex items-center gap-3 text-balance font-display text-3xl leading-tight tracking-tight sm:text-5xl"
+            >
+              <Flag
+                code={countryCode}
+                className="h-7 w-11 shrink-0 rounded-md shadow-lg sm:h-9 sm:w-14"
+              />
+              {name}
+            </motion.h1>
+          </motion.div>
+
+          {recommendation && (
+            <motion.div
+              variants={heroItem}
+              initial="hidden"
+              animate="show"
+              className="shrink-0 rounded-2xl border border-hairline glass p-2 sm:p-2.5"
+            >
+              <ScoreRing
+                score={recommendation.tripScore}
+                size={72}
+                strokeWidth={6}
+                label="viagem"
+                animate
+              />
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SectionTitle({ eyebrow, children }: { eyebrow?: string; children: ReactNode }) {
+  return (
+    <div>
+      {eyebrow && (
+        <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold/80">
+          {eyebrow}
+        </p>
+      )}
+      <h2 className="font-display text-xl tracking-tight sm:text-2xl">{children}</h2>
+    </div>
+  )
+}
+
+function Stat({
+  glyph,
+  label,
+  value,
+  sub,
+}: {
+  glyph: ReactNode
+  label: string
+  value: ReactNode
+  sub?: string | null
+}) {
+  return (
+    <div className="bg-surface-1 p-4 transition-colors hover:bg-surface-2 sm:p-5">
+      <div className="flex items-center gap-2 text-[0.7rem] font-medium uppercase tracking-wider text-muted-foreground">
+        <span className="text-gold/85">{glyph}</span>
+        {label}
+      </div>
+      <p className="mt-2 font-display text-lg tabular-nums sm:text-xl">{value}</p>
+      {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+    </div>
+  )
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-surface-1 px-4 py-3.5">
+      <dt className="text-[0.7rem] font-medium uppercase tracking-wider text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="mt-1 text-pretty text-sm">{value}</dd>
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from 'next-themes'
+import { MotionConfig } from 'framer-motion'
 import './index.css'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -18,13 +19,15 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <TooltipProvider delayDuration={150}>
-            <App />
-            <Toaster position="top-center" richColors />
-          </TooltipProvider>
+          <MotionConfig reducedMotion="user">
+            <TooltipProvider delayDuration={150}>
+              <App />
+              <Toaster position="top-center" richColors />
+            </TooltipProvider>
+          </MotionConfig>
         </BrowserRouter>
       </QueryClientProvider>
     </ThemeProvider>

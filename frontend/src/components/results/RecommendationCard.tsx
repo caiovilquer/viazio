@@ -1,12 +1,77 @@
+import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Check, Plane, Sparkles, AlertTriangle } from 'lucide-react'
+import { Check, AlertTriangle } from 'lucide-react'
 import type { TravelRecommendation } from '@/api/types'
+import { useDestinationImage } from '@/api/images'
 import { ScoreRing } from '@/components/shared/ScoreRing'
 import { FavoriteButton } from '@/components/shared/FavoriteButton'
-import { Badge } from '@/components/ui/badge'
-import { formatBrl } from '@/lib/format'
+import { Flag } from '@/components/shared/Flag'
+import { favoriteContextFromParams } from '@/lib/favorites'
+import { formatExchange } from '@/lib/format'
+import { ease } from '@/lib/motion'
 import { cn } from '@/lib/utils'
+
+/** Wikipedia's country `imageUrl` is often just the flag — reject those. */
+function isLikelyFlag(url?: string | null) {
+  if (!url) return true
+  const u = url.toLowerCase()
+  return u.includes('flag') || u.endsWith('.svg')
+}
+
+function CardBanner({
+  recommendation,
+  photoUrl,
+}: {
+  recommendation: TravelRecommendation
+  photoUrl: string | null
+}) {
+  const { countryName, countryCode } = recommendation
+  const [loaded, setLoaded] = useState(false)
+
+  return (
+    <div className="relative h-40 w-full overflow-hidden sm:h-44">
+      {/* Base layer — flag color wash + framed flag (placeholder + graceful fallback) */}
+      <div className="absolute inset-0 bg-[linear-gradient(140deg,var(--surface-3),var(--surface-1))]">
+        <Flag
+          code={countryCode}
+          className="absolute inset-0 size-full scale-150 rounded-none object-cover opacity-35 blur-2xl ring-0"
+        />
+        {!photoUrl && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Flag
+              code={countryCode}
+              className="h-[4.5rem] w-[6.75rem] rounded-lg object-cover shadow-2xl ring-1 ring-white/15 transition-transform duration-500 group-hover:scale-[1.05]"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Real destination photo on top, fading in */}
+      {photoUrl && (
+        <img
+          src={photoUrl}
+          alt={countryName}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          className={cn(
+            'absolute inset-0 size-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.05]',
+            loaded ? 'opacity-100' : 'opacity-0',
+          )}
+        />
+      )}
+
+      <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/25 to-transparent" />
+
+      <div className="absolute inset-x-4 bottom-3 flex items-center gap-2.5">
+        <Flag code={countryCode} className="h-5 w-7 shrink-0 shadow-sm" />
+        <p className="truncate font-display text-xl font-semibold tracking-tight text-foreground drop-shadow-sm">
+          {countryName}
+        </p>
+      </div>
+    </div>
+  )
+}
 
 export function RecommendationCard({
   recommendation,
@@ -15,6 +80,7 @@ export function RecommendationCard({
   selectable = false,
   selected = false,
   selectDisabled = false,
+  showRank = true,
   onToggleSelect,
 }: {
   recommendation: TravelRecommendation
@@ -23,67 +89,68 @@ export function RecommendationCard({
   selectable?: boolean
   selected?: boolean
   selectDisabled?: boolean
+  showRank?: boolean
   onToggleSelect?: () => void
 }) {
-  const { profile, exchangeToBrl, feasibility } = recommendation
+  const { exchangeToBrl, feasibility, profile } = recommendation
+  const exchangeLabel = formatExchange(exchangeToBrl)
+  const savedContext = useMemo(
+    () => (searchQuery ? favoriteContextFromParams(new URLSearchParams(searchQuery)) : undefined),
+    [searchQuery],
+  )
+  const { data: cityPhoto } = useDestinationImage(feasibility?.destination.name)
+  const backendPhoto = !isLikelyFlag(profile.imageUrl) ? profile.imageUrl : null
+  const photoUrl = cityPhoto ?? backendPhoto ?? null
+  // Distance already surfaces in the "Viagem longa: ~X km" tradeoff — don't repeat it in the meta row.
+  const distanceInTradeoff = recommendation.tradeoffs.some((t) => t.includes('km'))
 
   const body = (
     <>
-      <div className="relative h-40 w-full overflow-hidden bg-muted sm:h-48">
-        {profile.imageUrl ? (
-          <img
-            src={profile.imageUrl}
-            alt={recommendation.countryName}
-            loading="lazy"
-            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center text-5xl">
-            {profile.flagEmoji ?? '🌍'}
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
-        <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-background/90 px-2.5 py-1 text-xs font-semibold backdrop-blur">
-          <Sparkles className="size-3 text-primary" />#{rank}
-        </div>
-        <div className="absolute bottom-3 left-4 right-4 flex items-end justify-between text-white">
-          <div>
-            <p className="font-display text-xl font-semibold drop-shadow">
-              {profile.flagEmoji} {recommendation.countryName}
-            </p>
-          </div>
-        </div>
-      </div>
+      <CardBanner recommendation={recommendation} photoUrl={photoUrl} />
 
-      <div className="flex items-start justify-between gap-3 p-4">
-        <div className="min-w-0 flex-1 space-y-2">
-          <p className="line-clamp-2 text-sm text-muted-foreground">{recommendation.summary}</p>
-          <div className="flex flex-wrap gap-1.5">
+      <div className="space-y-3.5 p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
             {recommendation.highlights.slice(0, 2).map((h) => (
-              <Badge key={h} variant="secondary" className="gap-1 font-normal">
+              <span
+                key={h}
+                className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-2/60 px-2.5 py-0.5 text-xs text-foreground/85"
+              >
+                <span className="size-1 rounded-full bg-gold/80" />
                 {h}
-              </Badge>
+              </span>
             ))}
             {recommendation.tradeoffs.slice(0, 1).map((t) => (
-              <Badge key={t} variant="outline" className="gap-1 font-normal text-muted-foreground">
+              <span
+                key={t}
+                className="inline-flex items-center gap-1 rounded-full border border-chart-3/25 bg-chart-3/10 px-2.5 py-0.5 text-xs text-chart-3"
+              >
                 <AlertTriangle className="size-3" />
                 {t}
-              </Badge>
+              </span>
             ))}
-          </div>
-          <div className="flex flex-wrap items-center gap-3 pt-1 text-xs text-muted-foreground">
-            {exchangeToBrl && (
-              <span>1 {exchangeToBrl.currency} = {formatBrl(exchangeToBrl.valueInReais)}</span>
+            {recommendation.highlights.length === 0 && recommendation.tradeoffs.length === 0 && (
+              <span className="text-sm text-muted-foreground">
+                Destino tranquilo, sem grandes destaques.
+              </span>
             )}
-            {feasibility && (
-              <span className="flex items-center gap-1">
-                <Plane className="size-3" />
+          </div>
+          <ScoreRing score={recommendation.tripScore} size={48} strokeWidth={5} />
+        </div>
+
+        {(exchangeLabel || (feasibility && !distanceInTradeoff)) && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+            {exchangeLabel && <span>{exchangeLabel}</span>}
+            {exchangeLabel && feasibility && !distanceInTradeoff && (
+              <span className="size-0.5 rounded-full bg-muted-foreground/50" />
+            )}
+            {feasibility && !distanceInTradeoff && (
+              <span className="tabular-nums">
                 {Math.round(feasibility.travelEffort.distanceKm).toLocaleString('pt-BR')} km
               </span>
             )}
           </div>
-        </div>
-        <ScoreRing score={recommendation.tripScore} size={56} strokeWidth={5} className="shrink-0" />
+        )}
       </div>
     </>
   )
@@ -91,16 +158,25 @@ export function RecommendationCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: Math.min(rank * 0.06, 0.4), ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.4, delay: Math.min(rank * 0.05, 0.4), ease: ease.out }}
       whileHover={{ y: -4 }}
       className={cn(
-        'group relative overflow-hidden rounded-3xl border bg-card shadow-sm transition-shadow hover:shadow-xl',
-        selected ? 'border-primary ring-2 ring-primary/30' : 'border-border',
+        'group relative overflow-hidden rounded-2xl border bg-surface/70 transition-[box-shadow,border-color]',
+        selected
+          ? 'border-gold/50 ring-1 ring-gold/30 elevate-lg'
+          : 'border-hairline elevate hover:border-foreground/15 hover:elevate-lg',
         selectable && selectDisabled && !selected && 'opacity-50',
       )}
     >
+      {showRank && (
+        <span className="absolute left-3 top-3 z-10 inline-flex items-center rounded-full border border-hairline bg-background/60 px-2.5 py-1 text-xs font-semibold backdrop-blur">
+          <span className="text-gold">#</span>
+          {rank}
+        </span>
+      )}
+
       {selectable ? (
         <motion.button
           type="button"
@@ -110,16 +186,21 @@ export function RecommendationCard({
           aria-pressed={selected}
           aria-label={selected ? 'Remover da comparação' : 'Selecionar para comparar'}
           className={cn(
-            'absolute right-3 top-3 z-10 flex size-7 items-center justify-center rounded-full border-2 shadow backdrop-blur transition-colors',
+            'absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full border backdrop-blur transition-colors',
             selected
-              ? 'border-primary bg-primary text-primary-foreground'
-              : 'border-white/80 bg-background/70 text-transparent hover:border-primary/60',
+              ? 'border-gold bg-gold text-gold-foreground'
+              : 'border-hairline bg-background/50 text-transparent hover:border-gold/50',
           )}
         >
           <Check className="size-4" strokeWidth={3} />
         </motion.button>
       ) : (
-        <FavoriteButton recommendation={recommendation} size="sm" className="absolute right-3 top-3 z-10" />
+        <FavoriteButton
+          recommendation={recommendation}
+          context={savedContext}
+          size="sm"
+          className="absolute right-3 top-3 z-10"
+        />
       )}
 
       {selectable ? (
@@ -131,7 +212,11 @@ export function RecommendationCard({
           {body}
         </button>
       ) : (
-        <Link to={`/destino/${recommendation.countryCode}?${searchQuery}`} state={{ recommendation }} className="block">
+        <Link
+          to={`/destino/${recommendation.countryCode}?${searchQuery}`}
+          state={{ recommendation }}
+          className="block"
+        >
           {body}
         </Link>
       )}

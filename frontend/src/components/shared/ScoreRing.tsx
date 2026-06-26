@@ -1,14 +1,17 @@
 import { motion } from 'framer-motion'
+import { useCountUp } from './CountUp'
+import { ease } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
-const toneColor: Record<string, string> = {
-  excellent: 'var(--chart-2)',
+// Warm tiers — never grey.
+const tierColor: Record<string, string> = {
+  excellent: 'var(--gold)',
   good: 'var(--primary)',
   fair: 'var(--chart-3)',
-  poor: 'var(--muted-foreground)',
+  poor: 'var(--chart-5)',
 }
 
-function toneOf(score: number) {
+function tierOf(score: number) {
   if (score >= 80) return 'excellent'
   if (score >= 60) return 'good'
   if (score >= 40) return 'fair'
@@ -20,47 +23,81 @@ export function ScoreRing({
   size = 64,
   strokeWidth = 6,
   label,
+  animate = false,
   className,
 }: {
   score: number
   size?: number
   strokeWidth?: number
   label?: string
+  /** Draw the arc + count the number on mount. Use for a single prominent ring. */
+  animate?: boolean
   className?: string
 }) {
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
   const clamped = Math.max(0, Math.min(100, score))
-  const tone = toneOf(clamped)
+  const tier = tierOf(clamped)
+  const targetOffset = circumference - (clamped / 100) * circumference
+  const display = useCountUp(Math.round(clamped), 1.1, animate)
 
   return (
-    <div className={cn('relative flex items-center justify-center', className)} style={{ width: size, height: size }}>
+    <div
+      className={cn('relative flex shrink-0 items-center justify-center', className)}
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="-rotate-90">
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="var(--border)"
+          stroke="var(--surface-3)"
           strokeWidth={strokeWidth}
         />
-        <motion.circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={toneColor[tone]}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: circumference - (clamped / 100) * circumference }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-        />
+        {animate ? (
+          <motion.circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={tierColor[tier]}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset: targetOffset }}
+            transition={{ duration: 1.1, ease: ease.out, delay: 0.1 }}
+          />
+        ) : (
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={tierColor[tier]}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={targetOffset}
+          />
+        )}
       </svg>
-      <div className="absolute flex flex-col items-center">
-        <span className="font-display text-lg font-semibold leading-none tabular-nums">{Math.round(clamped)}</span>
-        {label && <span className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</span>}
+      <div className="absolute flex flex-col items-center leading-none">
+        <span
+          className="font-display font-semibold tabular-nums text-foreground"
+          style={{ fontSize: size * 0.3 }}
+        >
+          {display}
+        </span>
+        {label && (
+          <span
+            className="mt-0.5 uppercase tracking-[0.12em] text-muted-foreground"
+            style={{ fontSize: Math.max(8, size * 0.12) }}
+          >
+            {label}
+          </span>
+        )}
       </div>
     </div>
   )

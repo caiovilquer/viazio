@@ -184,7 +184,7 @@ export interface GroundCostEstimate {
 export interface TripFeasibility {
   destination: DestinationCity
   travelEffort: TravelEffort
-  groundCost: GroundCostEstimate
+  groundCost: GroundCostEstimate | null
   notIncluded: string[]
 }
 

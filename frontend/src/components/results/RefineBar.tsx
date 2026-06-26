@@ -20,6 +20,15 @@ const profileIcons: Record<ProfileKey, typeof Sparkles> = {
   cultural: Landmark,
 }
 
+function chipClass(active: boolean) {
+  return cn(
+    'flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-[color,background-color,border-color]',
+    active
+      ? 'border-gold/40 bg-gold/10 text-foreground'
+      : 'border-hairline bg-surface-2/50 text-muted-foreground hover:border-foreground/15 hover:text-foreground',
+  )
+}
+
 export function RefineBar({
   profiles,
   criteria,
@@ -44,20 +53,16 @@ export function RefineBar({
   const [sheetOpen, setSheetOpen] = useState(false)
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-6 rounded-2xl border border-border bg-card/60 p-3 sm:p-4"
-    >
+    <div className="mb-6 rounded-2xl border border-hairline bg-surface/50 p-4">
       <div className="flex items-center justify-between gap-2">
-        <p className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
+        <p className="flex items-center gap-2 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
           <SlidersHorizontal className="size-3.5" />
           Refinar por prioridade
           {dirty && (
             <motion.span
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary"
+              className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-semibold tracking-[0.08em] text-gold"
             >
               prévia ao vivo
             </motion.span>
@@ -67,7 +72,7 @@ export function RefineBar({
           <button
             type="button"
             onClick={onReset}
-            className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+            className="flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             <RotateCcw className="size-3" />
             Restaurar
@@ -83,16 +88,11 @@ export function RefineBar({
             <motion.button
               key={profile.key}
               type="button"
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => onSelectProfile(profile.key)}
-              className={cn(
-                'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
-                isActive
-                  ? 'border-primary bg-primary/10 text-primary'
-                  : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
+              className={chipClass(isActive)}
             >
-              <Icon className="size-3.5" strokeWidth={2.4} />
+              <Icon className={cn('size-3.5', isActive && 'text-gold')} strokeWidth={2.2} />
               {profile.label}
             </motion.button>
           )
@@ -101,21 +101,18 @@ export function RefineBar({
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <motion.button
             type="button"
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => setSheetOpen(true)}
-            className={cn(
-              'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
-              custom
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground',
-            )}
+            className={chipClass(custom)}
           >
-            <SlidersHorizontal className="size-3.5" strokeWidth={2.4} />
+            <SlidersHorizontal className={cn('size-3.5', custom && 'text-gold')} strokeWidth={2.2} />
             Personalizar
           </motion.button>
           <SheetContent className="flex flex-col gap-0 overflow-y-auto">
             <SheetHeader>
-              <SheetTitle>Personalizar prioridades</SheetTitle>
+              <SheetTitle className="font-display text-xl tracking-tight">
+                Personalizar prioridades
+              </SheetTitle>
               <SheetDescription>
                 Ajuste os pesos e veja o ranking se reorganizar instantaneamente.
               </SheetDescription>
@@ -126,6 +123,6 @@ export function RefineBar({
           </SheetContent>
         </Sheet>
       </div>
-    </motion.div>
+    </div>
   )
 }

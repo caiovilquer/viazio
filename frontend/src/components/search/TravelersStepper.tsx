@@ -11,8 +11,8 @@ export function TravelersStepper({
   onChange: (value: number) => void
 }) {
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-border bg-card px-4 py-3">
-      <span className="flex items-center gap-2 text-sm font-medium">
+    <div className="flex items-center justify-between rounded-xl border border-hairline bg-surface/50 px-4 py-3">
+      <span className="flex items-center gap-2.5 text-sm font-medium">
         <Users className="size-4 text-muted-foreground" />
         Viajantes
       </span>
@@ -20,10 +20,11 @@ export function TravelersStepper({
         <Button
           type="button"
           variant="outline"
-          size="icon"
-          className="size-8 rounded-full"
+          size="icon-sm"
+          className="rounded-full"
           disabled={value <= 1}
           onClick={() => onChange(Math.max(1, value - 1))}
+          aria-label="Remover viajante"
         >
           <Minus className="size-3.5" />
         </Button>
@@ -31,10 +32,11 @@ export function TravelersStepper({
         <Button
           type="button"
           variant="outline"
-          size="icon"
-          className="size-8 rounded-full"
+          size="icon-sm"
+          className="rounded-full"
           disabled={value >= max}
           onClick={() => onChange(Math.min(max, value + 1))}
+          aria-label="Adicionar viajante"
         >
           <Plus className="size-3.5" />
         </Button>

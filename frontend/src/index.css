@@ -6,145 +6,314 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  Viazio — design system (dark-first)
+  Direction: deep navy canvas · warm ivory ink · matte gold (rare accent) ·
+  coral/peach (emotional only) · soft late-afternoon light · discreet Atlas texture.
+*/
+
 @theme inline {
     --font-heading: 'Fraunces Variable', serif;
     --font-sans: 'Geist Variable', sans-serif;
     --font-display: 'Fraunces Variable', serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
-    --color-ring: var(--ring);
-    --color-input: var(--input);
-    --color-border: var(--border);
-    --color-destructive: var(--destructive);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-accent: var(--accent);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-muted: var(--muted);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-secondary: var(--secondary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-primary: var(--primary);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-popover: var(--popover);
-    --color-card-foreground: var(--card-foreground);
-    --color-card: var(--card);
-    --color-foreground: var(--foreground);
+
+    /* semantic colors -> raw vars */
     --color-background: var(--background);
-    --radius-sm: calc(var(--radius) * 0.6);
-    --radius-md: calc(var(--radius) * 0.8);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    /* Viazio extensions */
+    --color-gold: var(--gold);
+    --color-gold-foreground: var(--gold-foreground);
+    --color-coral: var(--primary);
+    --color-surface: var(--surface-1);
+    --color-surface-2: var(--surface-2);
+    --color-surface-3: var(--surface-3);
+    --color-hairline: var(--hairline);
+    --color-ink: var(--background);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    --radius-sm: calc(var(--radius) * 0.55);
+    --radius-md: calc(var(--radius) * 0.75);
     --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) * 1.4);
-    --radius-2xl: calc(var(--radius) * 1.8);
-    --radius-3xl: calc(var(--radius) * 2.2);
-    --radius-4xl: calc(var(--radius) * 2.6);
+    --radius-xl: calc(var(--radius) * 1.45);
+    --radius-2xl: calc(var(--radius) * 1.9);
+    --radius-3xl: calc(var(--radius) * 2.4);
+    --radius-4xl: calc(var(--radius) * 3);
+
+    /* motion tokens */
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-:root {
-    --background: oklch(0.99 0.004 75);
-    --foreground: oklch(0.2 0.03 270);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.2 0.03 270);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.2 0.03 270);
-    --primary: oklch(0.64 0.19 35);
-    --primary-foreground: oklch(0.99 0.005 75);
-    --secondary: oklch(0.95 0.015 75);
-    --secondary-foreground: oklch(0.25 0.03 270);
-    --muted: oklch(0.96 0.01 75);
-    --muted-foreground: oklch(0.5 0.03 270);
-    --accent: oklch(0.68 0.11 195);
-    --accent-foreground: oklch(0.99 0.005 75);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.91 0.012 75);
-    --input: oklch(0.91 0.012 75);
-    --ring: oklch(0.64 0.19 35 / 50%);
-    --chart-1: oklch(0.64 0.19 35);
-    --chart-2: oklch(0.68 0.11 195);
-    --chart-3: oklch(0.75 0.15 85);
-    --chart-4: oklch(0.55 0.16 300);
-    --chart-5: oklch(0.6 0.02 270);
-    --radius: 1rem;
-    --sidebar: oklch(0.97 0.008 75);
-    --sidebar-foreground: oklch(0.2 0.03 270);
-    --sidebar-primary: oklch(0.64 0.19 35);
-    --sidebar-primary-foreground: oklch(0.99 0.005 75);
-    --sidebar-accent: oklch(0.68 0.11 195);
-    --sidebar-accent-foreground: oklch(0.99 0.005 75);
-    --sidebar-border: oklch(0.91 0.012 75);
-    --sidebar-ring: oklch(0.64 0.19 35 / 50%);
-}
-
+/* Single signature theme. Defined under both selectors so shadcn's
+   `dark:` variant utilities (the app is forced to dark) stay coherent. */
+:root,
 .dark {
-    --background: oklch(0.17 0.025 270);
-    --foreground: oklch(0.96 0.006 75);
-    --card: oklch(0.21 0.028 270);
-    --card-foreground: oklch(0.96 0.006 75);
-    --popover: oklch(0.21 0.028 270);
-    --popover-foreground: oklch(0.96 0.006 75);
-    --primary: oklch(0.68 0.18 35);
-    --primary-foreground: oklch(0.15 0.02 270);
-    --secondary: oklch(0.27 0.025 270);
-    --secondary-foreground: oklch(0.96 0.006 75);
-    --muted: oklch(0.25 0.022 270);
-    --muted-foreground: oklch(0.68 0.02 270);
-    --accent: oklch(0.65 0.11 195);
-    --accent-foreground: oklch(0.12 0.02 270);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.68 0.18 35 / 50%);
-    --chart-1: oklch(0.68 0.18 35);
-    --chart-2: oklch(0.65 0.11 195);
-    --chart-3: oklch(0.75 0.15 85);
-    --chart-4: oklch(0.6 0.16 300);
-    --chart-5: oklch(0.7 0.02 270);
-    --sidebar: oklch(0.21 0.028 270);
-    --sidebar-foreground: oklch(0.96 0.006 75);
-    --sidebar-primary: oklch(0.68 0.18 35);
-    --sidebar-primary-foreground: oklch(0.15 0.02 270);
-    --sidebar-accent: oklch(0.65 0.11 195);
-    --sidebar-accent-foreground: oklch(0.12 0.02 270);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.68 0.18 35 / 50%);
+    --background: oklch(0.165 0.026 264);
+    --foreground: oklch(0.935 0.015 83);
+
+    /* layered surfaces */
+    --surface-1: oklch(0.205 0.027 262);
+    --surface-2: oklch(0.238 0.029 261);
+    --surface-3: oklch(0.272 0.031 260);
+
+    --card: var(--surface-1);
+    --card-foreground: var(--foreground);
+    --popover: oklch(0.225 0.029 261);
+    --popover-foreground: var(--foreground);
+
+    /* coral / peach — emotional accent, used sparingly */
+    --primary: oklch(0.71 0.155 41);
+    --primary-foreground: oklch(0.21 0.035 47);
+
+    --secondary: oklch(0.252 0.029 260);
+    --secondary-foreground: var(--foreground);
+
+    --muted: oklch(0.235 0.025 261);
+    --muted-foreground: oklch(0.74 0.022 78);
+
+    /* matte gold — rare accent */
+    --gold: oklch(0.815 0.092 86);
+    --gold-foreground: oklch(0.21 0.03 60);
+    --accent: var(--gold);
+    --accent-foreground: var(--gold-foreground);
+
+    --destructive: oklch(0.63 0.18 25);
+
+    --hairline: oklch(0.92 0.03 80 / 0.1);
+    --border: var(--hairline);
+    --input: oklch(0.92 0.03 80 / 0.14);
+    --ring: oklch(0.815 0.092 86 / 0.55);
+
+    /* score / data tones — warm, never grey */
+    --chart-1: var(--primary);
+    --chart-2: var(--gold);
+    --chart-3: oklch(0.78 0.105 52);
+    --chart-4: oklch(0.7 0.1 30);
+    --chart-5: oklch(0.74 0.028 76);
+
+    --radius: 0.95rem;
+
+    --sidebar: var(--surface-1);
+    --sidebar-foreground: var(--foreground);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: var(--primary-foreground);
+    --sidebar-accent: var(--gold);
+    --sidebar-accent-foreground: var(--gold-foreground);
+    --sidebar-border: var(--hairline);
+    --sidebar-ring: var(--ring);
+
+    /* warm layered elevation (used by .elevate utilities) */
+    --shadow-color: 250 35% 4%;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border;
     }
-  body {
-    @apply bg-background text-foreground antialiased;
+    *:focus-visible {
+        @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
     }
-  html {
-    @apply font-sans scroll-smooth;
+    body {
+        @apply bg-background text-foreground antialiased font-sans;
+        font-feature-settings: "cv11", "ss01";
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
     }
-  ::selection {
-    @apply bg-primary/25;
-  }
+    html {
+        @apply scroll-smooth;
+        font-optical-sizing: auto;
+        color-scheme: dark;
+        -webkit-tap-highlight-color: transparent;
+    }
+    ::selection {
+        background: oklch(0.71 0.155 41 / 0.28);
+    }
+    /* native date picker — tint the indicator to match the dark theme */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        opacity: 0.5;
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+    }
+    input[type="date"]:hover::-webkit-calendar-picker-indicator {
+        opacity: 0.85;
+    }
+    /* Refined scrollbar */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: oklch(0.92 0.03 80 / 0.12);
+        border-radius: 9999px;
+        border: 3px solid transparent;
+        background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: oklch(0.92 0.03 80 / 0.22);
+        background-clip: padding-box;
+    }
 }
 
 @layer utilities {
-  .font-display {
-    font-family: var(--font-display);
-  }
-  .text-balance {
-    text-wrap: balance;
-  }
-  .no-scrollbar {
-    scrollbar-width: none;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+    .font-display {
+        font-family: var(--font-display);
+        font-weight: 560;
+        letter-spacing: -0.015em;
+    }
+    .text-balance {
+        text-wrap: balance;
+    }
+    .text-pretty {
+        text-wrap: pretty;
+    }
+    .no-scrollbar {
+        scrollbar-width: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .text-gold {
+        color: var(--gold);
+    }
+    /* discreet gold gradient for emphasis words / numerals */
+    .text-gold-gradient {
+        background: linear-gradient(
+            105deg,
+            oklch(0.88 0.07 90) 0%,
+            oklch(0.82 0.095 84) 45%,
+            oklch(0.68 0.09 70) 100%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    /* glass — use sparingly (sticky bars, floating panels) */
+    .glass {
+        background: color-mix(in oklab, var(--surface-2) 62%, transparent);
+        -webkit-backdrop-filter: blur(18px) saturate(1.25);
+        backdrop-filter: blur(18px) saturate(1.25);
+    }
+
+    /* layered warm elevation + top inner highlight for real depth */
+    .elevate {
+        box-shadow:
+            0 1px 0 0 oklch(1 0 0 / 0.04) inset,
+            0 1px 1px -0.5px oklch(0.05 0.02 260 / 0.4),
+            0 3px 6px -2px oklch(0.05 0.02 260 / 0.35),
+            0 12px 28px -8px oklch(0.04 0.02 260 / 0.55);
+    }
+    .elevate-lg {
+        box-shadow:
+            0 1px 0 0 oklch(1 0 0 / 0.05) inset,
+            0 2px 4px -1px oklch(0.05 0.02 260 / 0.4),
+            0 18px 40px -12px oklch(0.03 0.02 260 / 0.7);
+    }
+    /* coral glow — only on the primary emotional CTA */
+    .glow-coral {
+        box-shadow:
+            0 1px 0 0 oklch(1 0 0 / 0.22) inset,
+            0 8px 24px -8px oklch(0.71 0.155 41 / 0.45);
+    }
+
+    /* Atlas layer — discreet cartographic texture */
+    .atlas-grid {
+        background-image: radial-gradient(
+            oklch(0.92 0.03 80 / 0.05) 1px,
+            transparent 1.4px
+        );
+        background-size: 30px 30px;
+    }
+    .bg-grain {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Atlas route — dotted line whose dashes flow continuously (journey motif).
+       Duration is overridden per-path inline. Frozen by the reduced-motion query. */
+    .atlas-flow {
+        stroke-linecap: round;
+        stroke-dasharray: 2 11;
+        animation: viazio-flow 8s linear infinite;
+    }
+
+    .mask-fade-b {
+        -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+        mask-image: linear-gradient(to bottom, black 55%, transparent 100%);
+    }
+    .mask-fade-edges {
+        -webkit-mask-image: radial-gradient(ellipse at center, black 45%, transparent 78%);
+        mask-image: radial-gradient(ellipse at center, black 45%, transparent 78%);
+    }
+
+    /* skeleton loading — gold shimmer sweep */
+    .skeleton {
+        position: relative;
+        overflow: hidden;
+        background: var(--surface-2);
+    }
+    .skeleton::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(
+            90deg,
+            transparent,
+            oklch(0.92 0.03 80 / 0.07),
+            transparent
+        );
+        animation: viazio-shimmer 1.6s infinite;
+    }
+}
+
+@keyframes viazio-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+    }
 }

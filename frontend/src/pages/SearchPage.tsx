@@ -1,15 +1,18 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { MapPin, Wallet, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { useMeta } from '@/api/queries'
 import type { CriterionKey, ProfileKey, Region } from '@/api/types'
 import { criteriaToSearchParams, type SearchCriteria } from '@/lib/search-params'
+import { formatBrl, formatDateRange } from '@/lib/format'
 import { SearchSection } from '@/components/search/SearchSection'
 import { DestinationPicker } from '@/components/search/DestinationPicker'
 import { ProfilePicker } from '@/components/search/ProfilePicker'
 import { WeightSliders } from '@/components/search/WeightSliders'
 import { TravelersStepper } from '@/components/search/TravelersStepper'
+import { PlanSummary } from '@/components/search/PlanSummary'
+import { Flag } from '@/components/shared/Flag'
+import { Reveal } from '@/components/shared/Reveal'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -81,146 +84,195 @@ export function SearchPage() {
     navigate(`/resultados?${criteriaToSearchParams(criteria).toString()}`)
   }
 
+  // ── Live summary labels ──
+  const budgetNum = maxBudget ? Number(maxBudget) : NaN
+  const summary = {
+    originCode: originCountry,
+    originLabel: originCountryOption?.name ?? originCountry,
+    destinationLabel: region
+      ? (meta?.regions.find((r) => r.key === region)?.label ?? region)
+      : countries.length > 0
+        ? `${countries.length} ${countries.length === 1 ? 'país' : 'países'}`
+        : null,
+    dateRangeLabel: formatDateRange(from, to),
+    profileLabel: customWeights
+      ? 'Personalizado'
+      : (meta?.profiles.find((p) => p.key === profile)?.label ?? '—'),
+    budgetLabel: Number.isFinite(budgetNum) && budgetNum > 0 ? formatBrl(budgetNum) : undefined,
+  }
+
   if (isLoading || !meta) {
     return (
-      <div className="mx-auto max-w-2xl space-y-6 px-4 py-10">
-        <Skeleton className="h-8 w-2/3" />
-        <Skeleton className="h-40 w-full rounded-2xl" />
-        <Skeleton className="h-40 w-full rounded-2xl" />
+      <div className="mx-auto max-w-6xl px-4 py-10 lg:py-14">
+        <Skeleton className="h-9 w-64" />
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-12">
+          <div className="space-y-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 w-full rounded-2xl" />
+            ))}
+          </div>
+          <Skeleton className="hidden h-80 w-full rounded-2xl lg:block" />
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
-      <motion.h1
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 font-display text-3xl font-semibold tracking-tight sm:text-4xl"
-      >
-        Monte seu próximo <span className="text-primary">feriadão</span>
-      </motion.h1>
+    <div className="mx-auto max-w-6xl px-4 py-10 lg:py-14">
+      <Reveal className="max-w-2xl">
+        <p className="mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold/80">
+          Planejar
+        </p>
+        <h1 className="font-display text-3xl tracking-tight sm:text-4xl">
+          Monte seu próximo <span className="text-gold-gradient">feriadão</span>
+        </h1>
+        <p className="mt-3 text-muted-foreground">
+          Cinco passos rápidos — e a Viazio cruza os dados pra explicar cada destino.
+        </p>
+      </Reveal>
 
-      <div className="space-y-10">
-        <SearchSection step={1} title="De onde você parte?" description="Usamos isso para calcular distância e câmbio.">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>País de origem</Label>
-              <Select
-                value={originCountry}
-                onValueChange={(v) => {
-                  setOriginCountry(v)
-                  setOriginCity(undefined)
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="País" />
-                </SelectTrigger>
-                <SelectContent>
-                  {meta.countries.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>
-                      {c.flagEmoji} {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-12">
+        {/* ── Form column ── */}
+        <div className="space-y-12">
+          <SearchSection step={1} title="De onde você parte?" description="Para calcular distância e câmbio.">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>País de origem</Label>
+                <Select
+                  value={originCountry}
+                  onValueChange={(v) => {
+                    setOriginCountry(v)
+                    setOriginCity(undefined)
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="País" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {meta.countries.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        <Flag code={c.code} className="h-3.5 w-5" /> {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Cidade</Label>
+                <Select value={originCity ?? originCountryOption?.defaultCity} onValueChange={setOriginCity}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Cidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {originCountryOption?.cities.map((city) => (
+                      <SelectItem key={city.name} value={city.name}>
+                        {city.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>Cidade</Label>
-              <Select value={originCity ?? originCountryOption?.defaultCity} onValueChange={setOriginCity}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Cidade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {originCountryOption?.cities.map((city) => (
-                    <SelectItem key={city.name} value={city.name}>
-                      {city.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </SearchSection>
+          </SearchSection>
 
-        <SearchSection step={2} title="Quando você quer viajar?" description={`${dayCount} dia${dayCount === 1 ? '' : 's'} de viagem`}>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Ida</Label>
-              <Input type="date" value={from} min={todayIso()} onChange={(e) => setFrom(e.target.value)} />
+          <SearchSection
+            step={2}
+            title="Quando você quer viajar?"
+            description={`${dayCount} dia${dayCount === 1 ? '' : 's'} de viagem`}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Ida</Label>
+                <Input type="date" value={from} min={todayIso()} onChange={(e) => setFrom(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Volta</Label>
+                <Input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label>Volta</Label>
-              <Input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} />
-            </div>
-          </div>
-        </SearchSection>
+          </SearchSection>
 
-        <SearchSection step={3} title="Para onde?" description="Escolha uma região inteira ou países específicos.">
-          <DestinationPicker
-            regions={meta.regions}
-            countries={meta.countries}
-            region={region}
-            selectedCountries={countries}
-            onRegionChange={setRegion}
-            onCountriesChange={setCountries}
-          />
-        </SearchSection>
-
-        <SearchSection step={4} title="O que mais importa pra você?" description="Escolha um perfil ou personalize os pesos.">
-          <div className="space-y-5">
-            <ProfilePicker
-              profiles={meta.profiles}
-              value={profile}
-              custom={customWeights}
-              onSelect={handleProfileSelect}
-              onCustom={handleCustom}
+          <SearchSection step={3} title="Para onde?" description="Uma região inteira ou países específicos.">
+            <DestinationPicker
+              regions={meta.regions}
+              countries={meta.countries}
+              region={region}
+              selectedCountries={countries}
+              onRegionChange={setRegion}
+              onCountriesChange={setCountries}
             />
-            {customWeights && (
-              <WeightSliders
-                criteria={meta.criteria}
-                weights={weights}
-                onChange={(criterion, value) => setWeights((w) => ({ ...w, [criterion]: value }))}
-              />
-            )}
-          </div>
-        </SearchSection>
+          </SearchSection>
 
-        <SearchSection step={5} title="Detalhes finais" description="Opcional, mas ajuda a refinar os resultados.">
-          <div className="space-y-3">
-            <TravelersStepper value={travelers} max={meta.limits.maximumTravelers} onChange={setTravelers} />
-            <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3">
-              <Wallet className="size-4 shrink-0 text-muted-foreground" />
-              <Input
-                type="number"
-                placeholder="Orçamento terrestre máximo (BRL, opcional)"
-                value={maxBudget}
-                onChange={(e) => setMaxBudget(e.target.value)}
-                className="border-0 p-0 shadow-none focus-visible:ring-0"
-                min={0}
+          <SearchSection step={4} title="O que mais importa pra você?" description="Um perfil pronto ou pesos sob medida.">
+            <div className="space-y-5">
+              <ProfilePicker
+                profiles={meta.profiles}
+                criteria={meta.criteria}
+                value={profile}
+                custom={customWeights}
+                onSelect={handleProfileSelect}
+                onCustom={handleCustom}
               />
+              {customWeights && (
+                <WeightSliders
+                  criteria={meta.criteria}
+                  weights={weights}
+                  onChange={(criterion, value) => setWeights((w) => ({ ...w, [criterion]: value }))}
+                />
+              )}
             </div>
+          </SearchSection>
+
+          <SearchSection step={5} title="Detalhes finais" description="Opcional, mas ajuda a refinar.">
+            <div className="space-y-3">
+              <TravelersStepper value={travelers} max={meta.limits.maximumTravelers} onChange={setTravelers} />
+              <div className="relative">
+                <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  R$
+                </span>
+                <Input
+                  type="number"
+                  placeholder="Orçamento terrestre máximo (opcional)"
+                  value={maxBudget}
+                  onChange={(e) => setMaxBudget(e.target.value)}
+                  className="pl-10"
+                  min={0}
+                />
+              </div>
+            </div>
+          </SearchSection>
+        </div>
+
+        {/* ── Sticky summary rail (desktop) ── */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-24">
+            <PlanSummary {...summary} dayCount={dayCount} travelers={travelers} canSubmit={canSubmit} onSubmit={handleSubmit} />
           </div>
-        </SearchSection>
+        </aside>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="sticky bottom-20 mt-10 md:bottom-6"
-      >
-        <Button
-          size="lg"
-          className="w-full gap-2 rounded-full text-base shadow-lg shadow-primary/20"
-          disabled={!canSubmit}
-          onClick={handleSubmit}
-        >
-          <MapPin className="size-4" />
-          Encontrar meus destinos
-          <ArrowRight className="size-4" />
-        </Button>
-      </motion.div>
+      {/* ── Sticky CTA (mobile) ── */}
+      <div className="sticky bottom-20 z-30 mt-10 lg:hidden">
+        <div className="rounded-2xl border border-hairline glass p-3 elevate-lg">
+          <div className="mb-2 flex items-center justify-between px-1 text-xs text-muted-foreground">
+            <span className="truncate">
+              {summary.destinationLabel
+                ? `${summary.destinationLabel} · ${dayCount} dias`
+                : 'Escolha um destino'}
+            </span>
+            <span className="shrink-0">{summary.profileLabel}</span>
+          </div>
+          <Button
+            size="lg"
+            className="w-full rounded-full glow-coral"
+            disabled={!canSubmit}
+            onClick={handleSubmit}
+          >
+            Encontrar meus destinos
+            <ArrowRight className="size-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

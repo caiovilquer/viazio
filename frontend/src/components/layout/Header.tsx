@@ -1,40 +1,52 @@
 import { NavLink, Link } from 'react-router-dom'
-import { Plane } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { navItems } from './nav-items'
 import { useFavorites } from '@/lib/favorites'
+import { spring } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
 export function Header() {
   const favoritesCount = useFavorites().length
 
   return (
-    <header className="sticky top-0 z-50 hidden border-b border-border/60 bg-background/80 backdrop-blur-xl md:block">
+    <header className="sticky top-0 z-50 hidden border-b border-hairline glass md:block">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-semibold tracking-tight">
-          <span className="flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-            <Plane className="size-4" strokeWidth={2.4} />
+        <Link
+          to="/"
+          aria-label="Viazio — início"
+          className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-90"
+        >
+          <img src="/icon.svg" alt="" className="size-7" />
+          <span className="font-display text-[1.35rem] leading-none tracking-[-0.02em] text-foreground">
+            Viazio
           </span>
-          feriad<span className="text-primary">ão</span>
         </Link>
+
         <nav className="flex items-center gap-1">
           {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
-                )
-              }
-            >
-              {item.label}
-              {item.to === '/salvos' && favoritesCount > 0 && (
-                <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {favoritesCount > 9 ? '9+' : favoritesCount}
+            <NavLink key={item.to} to={item.to} end={item.end} className="group px-3.5 py-2">
+              {({ isActive }) => (
+                <span
+                  className={cn(
+                    'relative flex items-center gap-1.5 text-[0.9rem] font-medium tracking-tight transition-colors',
+                    isActive
+                      ? 'text-foreground'
+                      : 'text-muted-foreground group-hover:text-foreground',
+                  )}
+                >
+                  {item.label}
+                  {item.to === '/salvos' && favoritesCount > 0 && (
+                    <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-gold/15 px-1 text-[10px] font-semibold text-gold">
+                      {favoritesCount > 9 ? '9+' : favoritesCount}
+                    </span>
+                  )}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-underline"
+                      transition={spring.snappy}
+                      className="absolute -bottom-2 left-0 right-0 h-px bg-gold"
+                    />
+                  )}
                 </span>
               )}
             </NavLink>
