@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with Linearity Curve (http://linearity.io/curve) -->
+<svg height="1080.0px" stroke-miterlimit="10" style="fill-rule:nonzero;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;" version="1.1" viewBox="0 0 1080 1080" width="1080.0px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs/>
+<clipPath id="ArtboardFrame">
+<rect height="1080" width="1080" x="0" y="0"/>
+</clipPath>
+<g clip-path="url(#ArtboardFrame)" id="Layer-1">
+<path d="M-5.36035 233.082C-5.36035 101.684 101.159-4.83485 232.556-4.83485L839.912-4.83485C971.309-4.83485 1077.83 101.684 1077.83 233.082L1077.83 842.339C1077.83 973.737 971.309 1080.26 839.912 1080.26L232.556 1080.26C101.159 1080.26-5.36035 973.737-5.36035 842.339L-5.36035 233.082Z" fill="#06101f" fill-rule="nonzero" opacity="1" stroke="#000000" stroke-linecap="butt" stroke-linejoin="round" stroke-width="1.08864"/>
+<g opacity="1">
+<path d="M712.562 207.226C712.562 207.226 752.382 208.135 772.178 187.792C791.974 167.448 791.745 125.852 791.745 125.852C791.745 125.852 795.052 165.185 814.416 185.4C833.78 205.615 869.203 206.712 869.203 206.712C869.203 206.712 831.13 206.51 811.831 226.529C792.532 246.548 792.787 286.63 792.787 286.63C792.787 286.63 793.054 249.599 773.193 229.709C753.331 209.819 712.562 207.226 712.562 207.226Z" fill="#dfae62" fill-rule="nonzero" opacity="1" stroke="none"/>
+<path d="M474.056 486.36C343.368 186.472 99.9714 182.341 99.9714 182.341C99.9714 182.341 217.155 256.947 322.964 605.573C322.964 605.573 419.782 913.569 643.459 913.569C643.459 913.569 622.488 906.286 574.801 787.842C549.303 724.512 519.896 628.895 474.056 486.36Z" fill="#dfae62" fill-rule="nonzero" opacity="1" stroke="none"/>
+<path d="M661.084 781.296C661.084 781.296 601.535 641.72 620.339 595.561C639.143 549.402 703.935 480.148 703.935 480.148C703.935 480.148 845.684 346.509 980.052 356.131C873.39 422.154 661.084 781.296 661.084 781.296Z" fill="#dfae62" fill-rule="nonzero" opacity="1" stroke="none"/>
+</g>
+</g>
+</svg>

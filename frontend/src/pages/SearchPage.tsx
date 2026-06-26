@@ -157,7 +157,7 @@ export function SearchPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label>Cidade</Label>
                 <Select value={originCity ?? originCountryOption?.defaultCity} onValueChange={setOriginCity}>
                   <SelectTrigger className="w-full">
@@ -171,7 +171,7 @@ export function SearchPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
             </div>
           </SearchSection>
 

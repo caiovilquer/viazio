@@ -430,6 +430,16 @@ A aplicação pode ser executada e observada de forma previsível fora da máqui
 | **Facade** | `TravelService` | Agrega país, feriados e câmbio para a visão individual |
 | **Facade** | `DestinationProfileService` | Agrega população (Banco Mundial) e resumo/imagem da Wikipédia em um `DestinationProfile` |
 
+#### Entrega 7 — Frontend Viazio (React)
+
+A camada de apresentação ganhou uma aplicação própria em `frontend/`, batizada **Viazio**, consumindo somente o contrato público (`/api/v1`) e sem duplicar regras de negócio do backend.
+
+1. **Stack:** Vite + React 19 + TypeScript, Tailwind CSS v4 (tokens via CSS, sem `tailwind.config.js`), componentes shadcn/ui customizados, Framer Motion para microinterações, React Router v7 para rotas e TanStack Query para cache e sincronização com a API.
+2. **Identidade visual:** tema único *dark-first* (azul-marinho profundo, marfim como texto, dourado como acento raro e coral reservado a momentos de destaque), marca própria (monograma "V" + estrela) e tipografia editorial (Fraunces + Geist), evitando clichês visuais de turismo (avião, mala, pin de mapa).
+3. **Telas:** Landing, Buscar (formulário com resumo ao vivo do plano), Resultados (ranking com reordenação instantânea no cliente ao ajustar pesos/perfil, sem nova chamada ao backend), Destino, Comparar (síntese em linguagem natural de quem vence cada critério, além das métricas lado a lado) e Janelas/Salvos (favoritos persistidos em `localStorage`, com o período de busca original preservado para permitir recomparações coerentes).
+4. **Reaproveitamento do contrato:** o catálogo de `GET /api/v1/meta` alimenta filtros, perfis e pesos diretamente; um motor de pontuação no cliente espelha a fórmula de scoring do backend para reordenar resultados sem round-trip à API.
+5. **Acessibilidade e responsividade:** contraste mínimo AA, foco visível por teclado, suporte a `prefers-reduced-motion` e layout adaptado a partir de telas de ~360px.
+
 ## Escopo e limites da versão atual
 
 - O ranking apoia a decisão; ele não reserva nem vende viagens.

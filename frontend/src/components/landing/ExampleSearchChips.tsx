@@ -9,8 +9,9 @@ export function ExampleSearchChips() {
         ou comece com um toque
       </p>
       {/* shrink-0 must sit on the DIRECT flex child (the motion.div), not the
-          nested <Link>, or pills collapse on mobile (see frontend-react-stack memory). */}
-      <div className="flex max-w-full gap-2 overflow-x-auto px-4 pb-1 no-scrollbar sm:flex-wrap sm:justify-center sm:overflow-visible">
+          nested <Link>, or pills collapse on mobile (see frontend-react-stack memory).
+          mask-fade-x hints the row is swipeable on mobile; cleared on sm: where it wraps instead. */}
+      <div className="flex max-w-full gap-2 overflow-x-auto px-4 pb-1 no-scrollbar mask-fade-x sm:flex-wrap sm:justify-center sm:overflow-visible sm:[mask-image:none] sm:[-webkit-mask-image:none]">
         {exampleSearches.map((example, i) => (
           <motion.div
             key={example.key}

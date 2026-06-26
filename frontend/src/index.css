@@ -279,6 +279,11 @@
         -webkit-mask-image: radial-gradient(ellipse at center, black 45%, transparent 78%);
         mask-image: radial-gradient(ellipse at center, black 45%, transparent 78%);
     }
+    /* signals "scroll for more" on horizontal lists — edges dissolve into the bg */
+    .mask-fade-x {
+        -webkit-mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+        mask-image: linear-gradient(to right, transparent, black 20px, black calc(100% - 20px), transparent);
+    }
 
     /* skeleton loading — gold shimmer sweep */
     .skeleton {

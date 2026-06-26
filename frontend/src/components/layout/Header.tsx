@@ -9,17 +9,10 @@ export function Header() {
   const favoritesCount = useFavorites().length
 
   return (
-    <header className="sticky top-0 z-50 hidden border-b border-hairline glass md:block">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link
-          to="/"
-          aria-label="Viazio — início"
-          className="inline-flex items-center gap-2.5 transition-opacity hover:opacity-90"
-        >
-          <img src="/icon.svg" alt="" className="size-7" />
-          <span className="font-display text-[1.35rem] leading-none tracking-[-0.02em] text-foreground">
-            Viazio
-          </span>
+    <header className="sticky top-0 z-50 hidden border-b border-hairline bg-[#06101f] md:block">
+      <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
+        <Link to="/" aria-label="Viazio — início" className="flex items-center transition-opacity hover:opacity-90">
+          <img src="/logo-horizontal.svg" alt="Viazio" className="h-20 w-auto" />
         </Link>
 
         <nav className="flex items-center gap-1">
