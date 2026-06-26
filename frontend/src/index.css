@@ -307,6 +307,13 @@
     }
 }
 
+/* Flows the dotted Atlas routes (dash pattern 2+11=13 · -130 = 10 cycles → seamless). */
+@keyframes viazio-flow {
+    to {
+        stroke-dashoffset: -130;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
