@@ -50,4 +50,19 @@ class CostOfLivingServiceTest {
 
         assertTrue(service.getPriceLevel("XX").isEmpty());
     }
+
+    @Test
+    void emptyWhenOnlyCommonYearIsStale() {
+        // Reproduz o caso real da Venezuela: PPP "congelado" num ano de antes da
+        // redenominação do bolívar, câmbio oficial seguindo atualizado na moeda nova —
+        // o único ano em comum é antigo demais para a razão fazer sentido.
+        CostOfLivingService service = new CostOfLivingService(client);
+        when(client.getIndicatorSeries(eq("VE"), eq("PA.NUS.PRVT.PP"))).thenReturn(List.of(
+                new WorldBankIndicatorPoint("2011", 0.0000000000294362664222717)));
+        when(client.getIndicatorSeries(eq("VE"), eq("PA.NUS.FCRF"))).thenReturn(List.of(
+                new WorldBankIndicatorPoint("2011", 4.29),
+                new WorldBankIndicatorPoint("2024", 36.0)));
+
+        assertTrue(service.getPriceLevel("VE").isEmpty());
+    }
 }
