@@ -198,12 +198,21 @@ A distribuição é reproduzível por:
 
 ## 8. Padrões de projeto
 
-| Padrão | Aplicação | Benefício |
-|---|---|---|
-| Strategy | `ScoringStrategy` e quatro critérios | Permite evoluir critérios sem alterar o motor |
-| Decorator | `Caching*Client` | Adiciona cache sem contaminar clients ou serviços |
-| Chain of Responsibility | `CandidateFilterChain` | Compõe restrições obrigatórias com motivos explícitos |
-| Facade | `TravelService` e `DestinationProfileService` | Oculta a coordenação de múltiplas fontes |
+### Padrões GoF
+
+| Padrão | Aplicação | Problema que resolve | Por quê adotamos |
+|---|---|---|---|
+| Strategy | `ScoringStrategy` e quatro critérios | Critérios de score evoluem de forma independente | Novo critério = nova classe; o motor permanece genérico |
+| Decorator | `Caching*Client` | Comparar N destinos repete consultas idênticas | Cache transparente sem contaminar clients ou serviços |
+| Chain of Responsibility | `CandidateFilterChain` | Restrições obrigatórias não devem virar `if/else` no motor | Cada filtro com motivo explícito; nova regra = nova classe de filtro na cadeia |
+| Facade | `TravelService` e `DestinationProfileService` | Visão de destino exige agregar fontes distintas | Uma operação para interfaces sem orquestração espalhada |
+
+### Integração (técnicas complementares, não GoF)
+
+| Técnica | Aplicação | Problema que resolve | Por quê adotamos |
+|---|---|---|---|
+| Ports & adapters | `*Client` concretos (`AwesomeApiClient`, `NagerDateClient`, etc.) | Cada API externa tem contrato e formato próprios | Portas de domínio + adapters secundários substituíveis; distinto do Adapter GoF clássico |
+| Simple factory | `RestClientFactory` | Vários clients precisam da mesma configuração de rede | Timeouts e User-Agent consistentes; distinto de Factory Method/Abstract Factory |
 
 `TravelRecommendationEngine` atua como orquestrador do caso de uso. Ele não é tratado como uma regra de domínio isolada: coordena serviços, paralelismo, degradação, scoring e enriquecimento.
 
