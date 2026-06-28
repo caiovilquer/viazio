@@ -1,0 +1,17 @@
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: native
+
+app:
+  cors:
+    # URLs do frontend na Vercel, separadas por vírgula (obrigatório em produção).
+    # Ex.: https://viazio.vercel.app,https://viazio-git-main-equipe.vercel.app
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:}
+  rate-limit:
+    trust-forwarded-headers: true
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true

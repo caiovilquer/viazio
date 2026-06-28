@@ -20,7 +20,7 @@ public class SecurityHeadersFilter extends OncePerRequestFilter {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
     "font-src 'self' https://fonts.gstatic.com;",
     "img-src 'self' https: data:;",
-    "connect-src 'self'"
+    "connect-src 'self' https://*.wikipedia.org;"
   );
 
   @Override
