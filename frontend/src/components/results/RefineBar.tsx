@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { PiggyBank, RotateCcw, Sparkles, Sun, Mountain, Landmark, SlidersHorizontal } from 'lucide-react'
+import { PiggyBank, RotateCcw, Sparkles, Sun, Mountain, Landmark, SlidersHorizontal, Info } from 'lucide-react'
 import type { CriterionKey, CriterionOption, ProfileKey, ProfileOption } from '@/api/types'
 import { WeightSliders } from '@/components/search/WeightSliders'
 import {
@@ -114,7 +114,8 @@ export function RefineBar({
                 Personalizar prioridades
               </SheetTitle>
               <SheetDescription>
-                Ajuste os pesos e veja o ranking se reorganizar instantaneamente.
+                Ajuste os pesos e veja o ranking dos destinos desta busca se reorganizar
+                instantaneamente. Para incluir outros países, ajuste a busca.
               </SheetDescription>
             </SheetHeader>
             <div className="px-4 pb-6">
@@ -123,6 +124,14 @@ export function RefineBar({
           </SheetContent>
         </Sheet>
       </div>
+
+      <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
+        <Info className="mt-0.5 size-3.5 shrink-0" />
+        <span>
+          Perfis e pesos apenas reordenam os destinos já encontrados nesta busca. Para incluir
+          outros países, use <span className="font-medium text-foreground/80">Ajustar busca</span>.
+        </span>
+      </p>
     </div>
   )
 }

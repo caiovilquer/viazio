@@ -2,9 +2,10 @@ import { useRef, useState, type ReactNode } from 'react'
 import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { AlertTriangle, ArrowLeft, Clock, Coins, ExternalLink, Wallet } from 'lucide-react'
-import { useCountry, useHolidays, useTravelOverview } from '@/api/queries'
+import { useCountry, useHolidays, useRecommendations, useTravelOverview } from '@/api/queries'
 import { useDestinationImage } from '@/api/images'
 import type { Region, TravelRecommendation } from '@/api/types'
+import { criteriaToRequest, searchParamsToCriteria } from '@/lib/search-params'
 import { ScoreRing } from '@/components/shared/ScoreRing'
 import { FavoriteButton } from '@/components/shared/FavoriteButton'
 import { Flag } from '@/components/shared/Flag'
@@ -12,6 +13,7 @@ import { RouteGlyph } from '@/components/shared/Glyphs'
 import { Reveal } from '@/components/shared/Reveal'
 import { favoriteContextFromParams, type FavoriteContext } from '@/lib/favorites'
 import { CriterionBreakdown } from '@/components/results/CriterionBreakdown'
+import { ClimateChart } from '@/components/shared/ClimateChart'
 import { Skeleton } from '@/components/ui/skeleton'
 import { exchangeUnit, formatBrl, formatDateLong, formatExchange } from '@/lib/format'
 import { heroItem, staggerContainer } from '@/lib/motion'
@@ -48,12 +50,29 @@ export function DestinationPage() {
   const { countryCode = '' } = useParams()
   const location = useLocation()
   const [params] = useSearchParams()
-  const recommendation = (location.state as { recommendation?: TravelRecommendation } | null)?.recommendation
+  const stateRecommendation = (location.state as { recommendation?: TravelRecommendation } | null)
+    ?.recommendation
+
+  // `location.state` only survives client-side navigation (clicking a card). Opening a
+  // link in a new tab, reloading, or sharing the URL gives a fresh tab with no state —
+  // but the search itself (dates, origin, profile/weights) is still in the query string,
+  // so re-run it scoped to just this country instead of falling back to the bare,
+  // score-less overview below.
+  const criteria = searchParamsToCriteria(params)
+  const fallbackRequest =
+    !stateRecommendation && criteria
+      ? criteriaToRequest({ ...criteria, region: null, countries: [countryCode] })
+      : null
+  const { data: fallbackData, isLoading: loadingFallback } = useRecommendations(fallbackRequest)
+  const fallbackRecommendation = fallbackData?.recommendations.find(
+    (r) => r.countryCode.toLowerCase() === countryCode.toLowerCase(),
+  )
+  const recommendation = stateRecommendation ?? fallbackRecommendation
 
   const { data: country, isLoading: loadingCountry } = useCountry(countryCode)
   const { data: holidays } = useHolidays(countryCode)
   const { data: overview, isLoading: loadingOverview } = useTravelOverview(
-    recommendation ? undefined : countryCode,
+    recommendation || fallbackRequest ? undefined : countryCode,
   )
 
   const profile = recommendation?.profile ?? overview?.profile
@@ -66,7 +85,7 @@ export function DestinationPage() {
   const backendPhoto = profile && !isLikelyFlag(profile.imageUrl) ? profile.imageUrl : null
   const photoUrl = cityPhoto ?? backendPhoto ?? null
 
-  const isLoading = loadingCountry || (!recommendation && loadingOverview)
+  const isLoading = loadingCountry || (!recommendation && (loadingFallback || loadingOverview))
   const backHref = params.toString() ? `/resultados?${params.toString()}` : '/buscar'
   const savedContext = favoriteContextFromParams(params)
 
@@ -136,6 +155,15 @@ export function DestinationPage() {
               sub={exUnit ? `por ${exUnit.unitLabel} ${exUnit.currency}` : 'Sem cotação'}
             />
           </div>
+          {feasibility.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0 && (
+            <p className="mt-2.5 px-1 text-xs leading-relaxed text-muted-foreground">
+              <span className="font-medium text-foreground/70">Custo/dia</span> e{' '}
+              <span className="font-medium text-foreground/70">câmbio</span> são estimativas
+              independentes: o custo/dia compara o nível de preços local com o do Brasil
+              (paridade de poder de compra, dados do Banco Mundial), enquanto o câmbio é uma
+              cotação de mercado em tempo real. Um pode estar disponível sem o outro.
+            </p>
+          )}
         </Reveal>
       )}
 
@@ -192,6 +220,13 @@ export function DestinationPage() {
               Baseado em {recommendation.dataQuality.availableCriteria} de{' '}
               {recommendation.dataQuality.totalCriteria} critérios com dados.
             </p>
+          </Reveal>
+        )}
+
+        {recommendation?.climate && (
+          <Reveal className="space-y-5">
+            <SectionTitle eyebrow="Janela da viagem">Clima esperado</SectionTitle>
+            <ClimateChart climate={recommendation.climate} />
           </Reveal>
         )}
 

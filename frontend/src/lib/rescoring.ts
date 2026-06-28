@@ -10,6 +10,14 @@ function round1(value: number) {
   return Math.round(value * 10) / 10
 }
 
+// round1 is 1 decimal place — fine for 0–100 scores, far too coarse for 0–1 weights:
+// 0.25 would round to 0.3 (round-half-up at the 0.05 boundary), and four criteria at
+// 0.25 each would all individually round up, displaying "peso 30%" four times and
+// summing to a nonsensical 120%. 3 decimals gives 0.1-percentage-point display precision.
+function roundWeight(value: number) {
+  return Math.round(value * 1000) / 1000
+}
+
 function normalizeWeights(raw: Record<CriterionKey, number>): Record<CriterionKey, number> {
   const keys = Object.keys(raw) as CriterionKey[]
   const clamped = Object.fromEntries(keys.map((k) => [k, Math.max(0, raw[k] ?? 0)])) as Record<CriterionKey, number>
@@ -35,7 +43,7 @@ export function rescoreRecommendation(
     const effectiveWeight = entry.available && availableWeight > 0 ? (weights[entry.criterion] ?? 0) / availableWeight : 0
     const contribution = effectiveWeight * entry.score
     destinationScore += contribution
-    return { ...entry, weight: round1(effectiveWeight), contribution: round1(contribution) }
+    return { ...entry, weight: roundWeight(effectiveWeight), contribution: round1(contribution) }
   })
   breakdown.sort((a, b) => b.contribution - a.contribution)
 
