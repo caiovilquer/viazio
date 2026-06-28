@@ -1,8 +1,10 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 import type { WindowSuggestion } from "@/api/types";
 import { ScoreRing } from "@/components/shared/ScoreRing";
 import { Flag } from "@/components/shared/Flag";
+import { Button } from "@/components/ui/button";
 import { formatDateRange, pluralize } from "@/lib/format";
 import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -91,6 +93,19 @@ export function WindowCard({
             </span>
           )}
         </div>
+      </div>
+
+      <div className="mt-5">
+        <Button
+          asChild
+          size="sm"
+          className="w-full gap-2 rounded-full sm:w-auto"
+        >
+          <Link to={`/resultados?${searchQuery}`}>
+            Ver ranking desta janela
+            <ArrowRight className="size-3.5" />
+          </Link>
+        </Button>
       </div>
 
       {window.topDestinations.length > 0 && (

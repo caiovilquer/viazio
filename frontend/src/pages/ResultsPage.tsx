@@ -2,8 +2,11 @@ import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   CalendarDays,
+  ChevronDown,
   Columns3,
   Frown,
+  Link2,
+  Map,
   SlidersHorizontal,
   X,
 } from "lucide-react";
@@ -74,6 +77,7 @@ export function ResultsPage() {
   const [compareMode, setCompareMode] = useState(false);
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
   const [hoveredCode, setHoveredCode] = useState<string | null>(null);
+  const [mapOpen, setMapOpen] = useState(true);
 
   useEffect(() => {
     // Aguarda os dois: resolver perfil nomeado vs. pesos customizados exige a lista
@@ -178,6 +182,16 @@ export function ResultsPage() {
     });
   }
 
+  async function handleCopyLink() {
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copiado — compartilhe esta busca.");
+    } catch {
+      toast.error("Não foi possível copiar o link.");
+    }
+  }
+
   if (!criteria) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
@@ -207,7 +221,16 @@ export function ResultsPage() {
             {formatDateRange(criteria.from, criteria.to)}
           </p>
         </div>
-        <div className="flex gap-2 self-start">
+        <div className="flex flex-wrap gap-2 self-start">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 rounded-full"
+            onClick={() => void handleCopyLink()}
+          >
+            <Link2 className="size-3.5" />
+            Copiar link
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -270,24 +293,58 @@ export function ResultsPage() {
         />
       )}
 
-      {/* Mapa — acima dos cards no mobile; fixo no md+ para ficar visível ao rolar os cards */}
       {data && displayed.length > 0 && (
-        <div className="mb-6 md:sticky md:top-20 md:z-20">
-          <Suspense
-            fallback={
-              <Skeleton className="h-56 w-full rounded-2xl sm:h-72 lg:h-80" />
-            }
+        <section className="mb-6 overflow-hidden rounded-2xl border border-hairline bg-surface/40">
+          <button
+            type="button"
+            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface/60"
+            aria-expanded={mapOpen}
+            aria-controls="results-map-panel"
+            onClick={() => setMapOpen((open) => !open)}
           >
-            <CandidatesMap
-              recommendations={displayed}
-              origin={data.origin}
-              originExchangeToBrl={data.originExchangeToBrl}
-              hoveredCode={hoveredCode}
-              onHoverChange={setHoveredCode}
-              onSelect={handleMapSelect}
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-surface/80 text-gold">
+                <Map className="size-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Mapa de destinos</p>
+                <p className="text-xs text-muted-foreground">
+                  {pluralize(
+                    displayed.length,
+                    "candidato no mapa",
+                    "candidatos no mapa",
+                  )}
+                  {mapOpen ? " · clique para recolher" : " · clique para expandir"}
+                </p>
+              </div>
+            </div>
+            <ChevronDown
+              className={cn(
+                "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                mapOpen && "rotate-180",
+              )}
             />
-          </Suspense>
-        </div>
+          </button>
+          {mapOpen && (
+            <div id="results-map-panel" className="border-t border-hairline">
+              <Suspense
+                fallback={
+                  <Skeleton className="h-56 w-full rounded-none sm:h-72 lg:h-80" />
+                }
+              >
+                <CandidatesMap
+                  className="rounded-none border-0"
+                  recommendations={displayed}
+                  origin={data.origin}
+                  originExchangeToBrl={data.originExchangeToBrl}
+                  hoveredCode={hoveredCode}
+                  onHoverChange={setHoveredCode}
+                  onSelect={handleMapSelect}
+                />
+              </Suspense>
+            </div>
+          )}
+        </section>
       )}
 
       {isLoading && (

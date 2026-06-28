@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { CalendarSearch, Frown } from "lucide-react";
 import { useBestWindows, useMeta } from "@/api/queries";
 import type {
@@ -6,6 +6,7 @@ import type {
   CriterionKey,
   ProfileKey,
   Region,
+  WindowSuggestion,
 } from "@/api/types";
 import { SearchSection } from "@/components/search/SearchSection";
 import { DestinationPicker } from "@/components/search/DestinationPicker";
@@ -19,6 +20,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { todayIso } from "@/lib/dates";
 import { formatDateRange, pluralize } from "@/lib/format";
+import { criteriaToSearchParams } from "@/lib/search-params";
 
 export function BestWindowsPage() {
   const { data: meta, isLoading: loadingMeta } = useMeta();
@@ -39,6 +41,21 @@ export function BestWindowsPage() {
 
   const [query, setQuery] = useState<BestWindowsQuery | null>(null);
   const { data, isLoading, isError } = useBestWindows(query);
+
+  const buildResultsQuery = useCallback(
+    (window: Pick<WindowSuggestion, "start" | "end">) =>
+      criteriaToSearchParams({
+        from: window.start,
+        to: window.end,
+        countries: region ? [] : countries,
+        region,
+        profile: customWeights ? null : profile,
+        weights: customWeights ? weights : {},
+        travelers: 1,
+        origin: { countryCode: "BR" },
+      }).toString(),
+    [region, countries, profile, customWeights, weights],
+  );
 
   function handleProfileSelect(key: ProfileKey) {
     setProfile(key);
@@ -229,7 +246,7 @@ export function BestWindowsPage() {
                 key={`${window.start}-${window.end}`}
                 window={window}
                 index={i}
-                searchQuery=""
+                searchQuery={buildResultsQuery(window)}
               />
             ))}
           </>

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useCountUp } from "./useCountUp";
 import { ease } from "@/lib/motion";
-import { scoreTierColor, scoreTone } from "@/lib/format";
+import { scoreTierColor, scoreTone } from "@/lib/score-visual";
 import { cn } from "@/lib/utils";
 
 const tierColor = scoreTierColor;

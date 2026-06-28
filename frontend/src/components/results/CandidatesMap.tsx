@@ -15,8 +15,8 @@ import type {
   TravelRecommendation,
 } from "@/api/types";
 import { useWorldLand } from "@/api/worldLand";
-import { scoreTierColor } from "@/lib/format";
-import { scoreTone, formatInOriginCurrency } from "@/lib/format";
+import { scoreTierColor, scoreTone } from "@/lib/score-visual";
+import { formatInOriginCurrency } from "@/lib/format";
 import { Flag } from "@/components/shared/Flag";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Maximize } from "lucide-react";
@@ -87,6 +87,7 @@ export function CandidatesMap({
   onHoverChange,
   onSelect,
   svgClassName,
+  className,
 }: {
   recommendations: TravelRecommendation[];
   origin: OriginReference;
@@ -95,6 +96,7 @@ export function CandidatesMap({
   onHoverChange: (code: string | null) => void;
   onSelect: (recommendation: TravelRecommendation) => void;
   svgClassName?: string;
+  className?: string;
 }) {
   const { data: land } = useWorldLand();
   const [focused, setFocused] = useState<string | null>(null);
@@ -231,7 +233,12 @@ export function CandidatesMap({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-hairline bg-[radial-gradient(120%_140%_at_50%_0%,var(--surface-2),var(--surface-1))]">
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-2xl border border-hairline bg-[radial-gradient(120%_140%_at_50%_0%,var(--surface-2),var(--surface-1))]",
+        className,
+      )}
+    >
       <div className="absolute inset-0 atlas-grid opacity-40 mask-fade-edges" />
       <svg
         ref={svgRef}
