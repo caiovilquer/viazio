@@ -48,8 +48,9 @@ app:
     read-timeout: 5s
   recommendation:
     estimates:
-      # Base transparente para a estimativa terrestre por PPP. Não inclui passagem,
-      # seguro, visto ou taxas aeroportuárias.
+      # Base transparente para a estimativa terrestre por PPP: custo de um dia no Brasil,
+      # em BRL. O destino é escalado por (preço_destino / preço_BR), independente da
+      # origem da viagem. Não inclui passagem, seguro, visto ou taxas aeroportuárias.
       baseline-daily-ground-cost-brl: 350
     # Pesos padrão (somam 1) usados quando nenhum perfil é escolhido.
     default-weights:
@@ -115,6 +116,26 @@ resilience4j:
         failure-rate-threshold: 50
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 3
+        # Nenhuma dessas exceções indica que a API upstream está inativa, então nenhuma
+        # deveria fazer abrir o circuit breaker:
+        # - BulkheadFullException: uma requisição se expande para dezenas de candidatos
+        #   em paralelo, então o bulkhead rejeita o overflow mesmo quando a API está
+        #   saudável — essa é nossa concorrência, não deles.
+        # - HttpClientErrorException (4xx, principalmente 404): ex. várias moedas
+        #   africanas (XOF, BIF, BWP, AOA...) simplesmente não são suportadas pela API
+        #   de câmbio gratuita — uma resposta "não encontrado" legítima, não uma falha.
+        #   O breaker envolve a chamada HTTP bruta, então vê o 404 diretamente, antes da
+        #   camada de serviço acima traduzir para ResourceNotFoundException — uma busca
+        #   regional com alguns desses candidatos na mesma janela de 10 chamadas era
+        #   suficiente para abrir o breaker por si só, e uma vez aberto, as chamadas
+        #   trial do half-open continuavam caindo nos mesmos erros legítimos e reabrindo,
+        #   nunca recuperando.
+        # Qualquer uma dessas exceções abrindo o breaker bloqueava todos os *outros*
+        # candidatos avaliados nessa janela também, incluindo dados bons — a verdadeira
+        # causa do mesmo país ter ou não cotação em buscas diferentes.
+        ignore-exceptions:
+          - io.github.resilience4j.bulkhead.BulkheadFullException
+          - org.springframework.web.client.HttpClientErrorException
     instances:
       holidayApi:
         base-config: default
@@ -126,23 +147,28 @@ resilience4j:
         base-config: default
       wikipediaApi:
         base-config: default
+  # max-wait-duration era 100ms para cada instância — muito menor que uma chamada HTTP
+  # real, então em buscas grandes (até 60 candidatos em paralelo) a maioria do overflow
+  # era rejeitada imediatamente em vez de ficar na fila. Agora realmente enfileira
+  # esperando por um slot livre, e os limites de concorrência foram aumentados para
+  # acompanhar a contagem de candidatos de uma região completa.
   bulkhead:
     instances:
       holidayApi:
-        max-concurrent-calls: 20
-        max-wait-duration: 100ms
+        max-concurrent-calls: 30
+        max-wait-duration: 2s
       exchangeApi:
-        max-concurrent-calls: 10
-        max-wait-duration: 100ms
+        max-concurrent-calls: 30
+        max-wait-duration: 2s
       weatherApi:
-        max-concurrent-calls: 20
-        max-wait-duration: 100ms
+        max-concurrent-calls: 30
+        max-wait-duration: 2s
       worldBankApi:
-        max-concurrent-calls: 10
-        max-wait-duration: 100ms
+        max-concurrent-calls: 30
+        max-wait-duration: 2s
       wikipediaApi:
         max-concurrent-calls: 10
-        max-wait-duration: 100ms
+        max-wait-duration: 2s
 
 management:
   endpoints:
