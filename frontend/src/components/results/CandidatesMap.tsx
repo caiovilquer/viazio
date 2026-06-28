@@ -83,8 +83,6 @@ export function CandidatesMap({
   recommendations,
   origin,
   originExchangeToBrl,
-  hoveredCode,
-  onHoverChange,
   onSelect,
   svgClassName,
   className,
@@ -92,8 +90,6 @@ export function CandidatesMap({
   recommendations: TravelRecommendation[];
   origin: OriginReference;
   originExchangeToBrl?: Exchange | null;
-  hoveredCode: string | null;
-  onHoverChange: (code: string | null) => void;
   onSelect: (recommendation: TravelRecommendation) => void;
   svgClassName?: string;
   className?: string;
@@ -215,7 +211,7 @@ export function CandidatesMap({
       .call(behavior.transform, zoomIdentity);
   }
 
-  const activeCode = hoveredCode ?? focused;
+  const activeCode = focused;
   const active = points.find(
     (p) => p.recommendation.countryCode === activeCode,
   );
@@ -229,7 +225,6 @@ export function CandidatesMap({
 
   function setActive(code: string | null) {
     setFocused(code);
-    onHoverChange(code);
   }
 
   return (

@@ -76,10 +76,7 @@ export function RecommendationCard({
   selected = false,
   selectDisabled = false,
   showRank = true,
-  emphasized = false,
   onToggleSelect,
-  onHoverStart,
-  onHoverEnd,
   originExchangeToBrl,
   originCountryCode,
 }: {
@@ -92,11 +89,7 @@ export function RecommendationCard({
   selected?: boolean;
   selectDisabled?: boolean;
   showRank?: boolean;
-  /** Destacado de fora (ex.: passar o mouse no pin correspondente no CandidatesMap). */
-  emphasized?: boolean;
   onToggleSelect?: () => void;
-  onHoverStart?: () => void;
-  onHoverEnd?: () => void;
 }) {
   const {
     exchangeToBrl,
@@ -199,15 +192,11 @@ export function RecommendationCard({
         ease: ease.out,
       }}
       whileHover={{ y: -4 }}
-      onMouseEnter={onHoverStart}
-      onMouseLeave={onHoverEnd}
       className={cn(
         "group relative overflow-hidden rounded-2xl border bg-surface/70 transition-[box-shadow,border-color]",
         selected
           ? "border-gold/50 ring-1 ring-gold/30 elevate-lg"
-          : emphasized
-            ? "border-gold/35 ring-1 ring-gold/20 elevate-lg"
-            : "border-hairline elevate hover:border-foreground/15 hover:elevate-lg",
+          : "border-hairline elevate hover:border-foreground/15 hover:elevate-lg",
         selectable && selectDisabled && !selected && "opacity-50",
       )}
     >

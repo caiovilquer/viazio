@@ -76,7 +76,6 @@ export function ResultsPage() {
 
   const [compareMode, setCompareMode] = useState(false);
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
-  const [hoveredCode, setHoveredCode] = useState<string | null>(null);
   const [mapOpen, setMapOpen] = useState(true);
 
   useEffect(() => {
@@ -294,13 +293,7 @@ export function ResultsPage() {
       )}
 
       {data && displayed.length > 0 && (
-        <div
-          className={cn(
-            "mb-6",
-            mapOpen &&
-              "md:sticky md:top-20 md:z-20 md:bg-background md:pb-1 md:shadow-[0_16px_48px_-16px_rgba(0,0,0,0.65)]",
-          )}
-        >
+        <div className="mb-6">
           <section className="overflow-hidden rounded-2xl border border-hairline bg-background">
             <button
               type="button"
@@ -349,8 +342,6 @@ export function ResultsPage() {
                     recommendations={displayed}
                     origin={data.origin}
                     originExchangeToBrl={data.originExchangeToBrl}
-                    hoveredCode={hoveredCode}
-                    onHoverChange={setHoveredCode}
                     onSelect={handleMapSelect}
                   />
                 </Suspense>
@@ -405,10 +396,7 @@ export function ResultsPage() {
                 selectedCodes.length >= MAX_COMPARE &&
                 !selectedCodes.includes(rec.countryCode)
               }
-              emphasized={hoveredCode === rec.countryCode}
               onToggleSelect={() => toggleSelect(rec.countryCode)}
-              onHoverStart={() => setHoveredCode(rec.countryCode)}
-              onHoverEnd={() => setHoveredCode(null)}
             />
           ))}
         </div>
