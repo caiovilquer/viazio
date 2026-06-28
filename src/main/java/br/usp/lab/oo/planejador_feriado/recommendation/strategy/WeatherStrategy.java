@@ -34,9 +34,13 @@ public class WeatherStrategy implements ScoringStrategy {
         double tempScore = temperatureScore(weather.avgTempC());
         double rainAmountScore = Math.max(0.0, 100.0 - weather.avgDailyPrecipMm() * 10.0);
         double rainyDaysScore = Math.max(0.0, 100.0 - weather.rainyDayProbability() * 100.0);
-        double precipitationScore = 0.55 * rainAmountScore + 0.45 * rainyDaysScore;
+        // Chance de chover em algum momento do dia pesa mais que o volume: o que torna um
+        // passeio inviável é a chuva acontecer, não quantos milímetros caem.
+        double precipitationScore = 0.40 * rainAmountScore + 0.60 * rainyDaysScore;
         double stabilityScore = Math.max(0.0, 100.0 - weather.tempStdDevC() * 8.0);
-        double score = 0.65 * tempScore + 0.25 * precipitationScore + 0.10 * stabilityScore;
+        // Chuva pesa quase tanto quanto temperatura: temperatura perfeita não deveria
+        // disfarçar uma viagem com alta chance de chuva todos os dias.
+        double score = 0.40 * tempScore + 0.50 * precipitationScore + 0.10 * stabilityScore;
 
         String justification = String.format(Locale.ROOT,
                 "%s: ~%.0f°C, %s (%s, %d anos)",

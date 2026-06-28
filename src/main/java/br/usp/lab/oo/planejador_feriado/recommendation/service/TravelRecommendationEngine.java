@@ -36,6 +36,8 @@ import br.usp.lab.oo.planejador_feriado.recommendation.weight.ResolvedWeights;
 import br.usp.lab.oo.planejador_feriado.recommendation.weight.WeightResolver;
 import br.usp.lab.oo.planejador_feriado.weather.model.WeatherSummary;
 import br.usp.lab.oo.planejador_feriado.weather.service.WeatherService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -60,9 +62,21 @@ import java.util.concurrent.Future;
 @Service
 public class TravelRecommendationEngine {
 
+    private static final Logger log = LoggerFactory.getLogger(TravelRecommendationEngine.class);
+
     private static final double DESTINATION_SHARE = 0.80;
     private static final double WINDOW_SHARE = 0.20;
     private static final double MIN_CONFIDENCE_MULTIPLIER = 0.75;
+
+    /**
+     * País-âncora da estimativa de custo terrestre. Como a base ({@code
+     * baseline-daily-ground-cost-brl}) e a moeda da estimativa são em reais, o valor
+     * absoluto de um dia no destino é ancorado no nível de preços do Brasil — não no da
+     * origem. Assim o custo/dia em BRL fica correto para qualquer origem (ex.: Belize), e
+     * independe dela, como deve ser. A origem ainda afeta distância, tempo de voo e o
+     * critério relativo de custo de vida — só não o valor absoluto em BRL.
+     */
+    private static final String PRICE_ANCHOR_COUNTRY = "BR";
 
     private final CountryService countryService;
     private final HolidayService holidayService;
@@ -114,6 +128,7 @@ public class TravelRecommendationEngine {
     private RecommendationResponse doRecommend(RecommendationRequest request) {
         ResolvedWeights weights = weightResolver.resolve(request.profile(), request.weightOverrides());
         OriginData origin = loadOrigin(request);
+        CostOfLiving priceAnchorCost = resolvePriceAnchorCost(origin);
         WindowAssessment window = windowEvaluator.evaluate(origin.holidays(), request.from(), request.to());
         List<String> candidateCodes = resolveCandidateCodes(request);
 
@@ -121,7 +136,8 @@ public class TravelRecommendationEngine {
         List<SkippedCandidate> skipped = new ArrayList<>();
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             List<Future<CandidateResult>> futures = candidateCodes.stream()
-                    .map(code -> executor.submit(() -> evaluateCandidate(code, request, origin, window, weights)))
+                    .map(code -> executor.submit(
+                            () -> evaluateCandidate(code, request, origin, priceAnchorCost, window, weights)))
                     .toList();
             for (Future<CandidateResult> future : futures) {
                 CandidateResult result = future.get();
@@ -210,10 +226,23 @@ public class TravelRecommendationEngine {
                 holidays);
     }
 
+    /**
+     * Custo de vida do país-âncora ({@link #PRICE_ANCHOR_COUNTRY}), usado como base em BRL
+     * da estimativa terrestre. Quando a origem já é o Brasil, reaproveita o custo dela em
+     * vez de buscar de novo no Banco Mundial.
+     */
+    private CostOfLiving resolvePriceAnchorCost(OriginData origin) {
+        if (PRICE_ANCHOR_COUNTRY.equalsIgnoreCase(origin.reference().countryCode())) {
+            return origin.cost();
+        }
+        return resolveCost(PRICE_ANCHOR_COUNTRY);
+    }
+
     private CandidateResult evaluateCandidate(
             String code,
             RecommendationRequest request,
             OriginData origin,
+            CostOfLiving priceAnchorCost,
             WindowAssessment window,
             ResolvedWeights weights) {
         try {
@@ -239,7 +268,7 @@ public class TravelRecommendationEngine {
                     origin.city(),
                     destination,
                     distanceKm,
-                    origin.cost(),
+                    priceAnchorCost,
                     destinationCost,
                     (int) ChronoUnit.DAYS.between(request.from(), request.to()) + 1,
                     request.travelers());
@@ -299,7 +328,7 @@ public class TravelRecommendationEngine {
                     entry.criterion().icon(),
                     entry.available(),
                     round(entry.score()),
-                    round(effectiveWeight),
+                    roundWeight(effectiveWeight),
                     round(contribution),
                     entry.justification()));
         }
@@ -334,7 +363,8 @@ public class TravelRecommendationEngine {
                 summary,
                 context.exchangeToBrl(),
                 null,
-                feasibility);
+                feasibility,
+                context.weather());
     }
 
     private List<String> buildHighlights(List<ScoredCriterion> breakdown) {
@@ -396,7 +426,8 @@ public class TravelRecommendationEngine {
                     recommendation.summary(),
                     recommendation.exchangeToBrl(),
                     profile,
-                    recommendation.feasibility());
+                    recommendation.feasibility(),
+                    recommendation.climate());
         } catch (RuntimeException ignored) {
             return recommendation;
         }
@@ -409,7 +440,9 @@ public class TravelRecommendationEngine {
                     destination.longitude(),
                     request.from(),
                     request.to()).orElse(null);
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException e) {
+            log.warn("Clima indisponível para {} ({}): {}",
+                    destination.countryCode(), e.getClass().getSimpleName(), e.getMessage());
             return null;
         }
     }
@@ -417,7 +450,9 @@ public class TravelRecommendationEngine {
     private CostOfLiving resolveCost(String isoCode) {
         try {
             return costService.getPriceLevel(isoCode).orElse(null);
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException e) {
+            log.warn("Custo de vida indisponível para {} ({}): {}",
+                    isoCode, e.getClass().getSimpleName(), e.getMessage());
             return null;
         }
     }
@@ -437,7 +472,9 @@ public class TravelRecommendationEngine {
         }
         try {
             return exchangeService.getExchangeRate(currency);
-        } catch (RuntimeException ignored) {
+        } catch (RuntimeException e) {
+            log.warn("Câmbio indisponível para {} ({}): {}",
+                    country.getIsoCode(), e.getClass().getSimpleName(), e.getMessage());
             return null;
         }
     }
@@ -472,6 +509,16 @@ public class TravelRecommendationEngine {
 
     private double round(double value) {
         return Math.round(value * 10.0) / 10.0;
+    }
+
+    /**
+     * {@code round} usa 1 casa decimal — adequado para notas 0–100, mas grosseiro
+     * demais para pesos 0–1: 0.25 arredondaria para 0.3 (round-half-up no limite de
+     * 0.05), e quatro critérios com peso 0.25 cada exibiriam "peso 30%" somando 120%.
+     * Pesos usam 3 casas decimais (precisão de 0.1 ponto percentual na exibição).
+     */
+    private double roundWeight(double value) {
+        return Math.round(value * 1000.0) / 1000.0;
     }
 
     private record OriginData(

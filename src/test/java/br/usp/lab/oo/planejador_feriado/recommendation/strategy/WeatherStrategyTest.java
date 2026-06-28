@@ -35,10 +35,27 @@ class WeatherStrategyTest {
 
     @Test
     void scoresLowForHotRainyWeather() {
-        ScoreEntry entry = strategy.evaluate(context(new WeatherSummary(40.0, 10.0, 10)));
+        ScoreEntry entry = strategy.evaluate(context(
+                new WeatherSummary(40.0, 10.0, 0.9, 0.0, 10, 10,
+                        br.usp.lab.oo.planejador_feriado.weather.model.WeatherSourceType.CLIMATOLOGY, null, null)));
 
         assertTrue(entry.available());
         assertTrue(entry.score() < 40.0, "expected poor weather score, got " + entry.score());
+    }
+
+    @Test
+    void highRainProbabilityDragsDownScoreEvenWithPerfectTemperature() {
+        ScoreEntry mostlyDry = strategy.evaluate(context(
+                new WeatherSummary(23.0, 3.0, 0.1, 1.0, 10, 10,
+                        br.usp.lab.oo.planejador_feriado.weather.model.WeatherSourceType.CLIMATOLOGY, null, null)));
+        ScoreEntry mostlyRainy = strategy.evaluate(context(
+                new WeatherSummary(23.0, 3.0, 0.9, 1.0, 10, 10,
+                        br.usp.lab.oo.planejador_feriado.weather.model.WeatherSourceType.CLIMATOLOGY, null, null)));
+
+        assertTrue(mostlyDry.score() >= 80.0, "expected great score for mild dry weather, got " + mostlyDry.score());
+        assertTrue(mostlyRainy.score() < 80.0,
+                "frequent rain should keep a destination out of the 'ótimo' tier even with perfect temperature, got "
+                        + mostlyRainy.score());
     }
 
     @Test
