@@ -266,8 +266,8 @@ export function ResultsPage() {
         <div className="mb-6 flex items-center gap-4 rounded-2xl border border-hairline bg-surface/50 p-4">
           <ScoreRing
             score={data.window.score}
-            size={52}
-            strokeWidth={5}
+            size={64}
+            strokeWidth={6}
             label="janela"
           />
           <div className="min-w-0">
@@ -294,57 +294,70 @@ export function ResultsPage() {
       )}
 
       {data && displayed.length > 0 && (
-        <section className="mb-6 overflow-hidden rounded-2xl border border-hairline bg-surface/40">
-          <button
-            type="button"
-            className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-surface/60"
-            aria-expanded={mapOpen}
-            aria-controls="results-map-panel"
-            onClick={() => setMapOpen((open) => !open)}
-          >
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-surface/80 text-gold">
-                <Map className="size-4" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-medium">Mapa de destinos</p>
-                <p className="text-xs text-muted-foreground">
-                  {pluralize(
-                    displayed.length,
-                    "candidato no mapa",
-                    "candidatos no mapa",
-                  )}
-                  {mapOpen ? " · clique para recolher" : " · clique para expandir"}
-                </p>
-              </div>
-            </div>
-            <ChevronDown
-              className={cn(
-                "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
-                mapOpen && "rotate-180",
-              )}
-            />
-          </button>
-          {mapOpen && (
-            <div id="results-map-panel" className="border-t border-hairline">
-              <Suspense
-                fallback={
-                  <Skeleton className="h-56 w-full rounded-none sm:h-72 lg:h-80" />
-                }
-              >
-                <CandidatesMap
-                  className="rounded-none border-0"
-                  recommendations={displayed}
-                  origin={data.origin}
-                  originExchangeToBrl={data.originExchangeToBrl}
-                  hoveredCode={hoveredCode}
-                  onHoverChange={setHoveredCode}
-                  onSelect={handleMapSelect}
-                />
-              </Suspense>
-            </div>
+        <div
+          className={cn(
+            "mb-6",
+            mapOpen &&
+              "md:sticky md:top-20 md:z-20 md:bg-background md:pb-1 md:shadow-[0_16px_48px_-16px_rgba(0,0,0,0.65)]",
           )}
-        </section>
+        >
+          <section className="overflow-hidden rounded-2xl border border-hairline bg-background">
+            <button
+              type="button"
+              className="flex w-full items-center justify-between gap-3 bg-background px-4 py-3 text-left transition-colors hover:bg-surface-2"
+              aria-expanded={mapOpen}
+              aria-controls="results-map-panel"
+              onClick={() => setMapOpen((open) => !open)}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-hairline bg-surface-2 text-gold">
+                  <Map className="size-4" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">Mapa de destinos</p>
+                  <p className="text-xs text-muted-foreground">
+                    {pluralize(
+                      displayed.length,
+                      "candidato no mapa",
+                      "candidatos no mapa",
+                    )}
+                    {mapOpen
+                      ? " · clique para recolher"
+                      : " · clique para expandir"}
+                  </p>
+                </div>
+              </div>
+              <ChevronDown
+                className={cn(
+                  "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                  mapOpen && "rotate-180",
+                )}
+              />
+            </button>
+            {mapOpen && (
+              <div
+                id="results-map-panel"
+                className="border-t border-hairline bg-background"
+              >
+                <Suspense
+                  fallback={
+                    <Skeleton className="h-56 w-full rounded-none sm:h-72 lg:h-80" />
+                  }
+                >
+                  <CandidatesMap
+                    className="rounded-none border-0"
+                    recommendations={displayed}
+                    origin={data.origin}
+                    originExchangeToBrl={data.originExchangeToBrl}
+                    hoveredCode={hoveredCode}
+                    onHoverChange={setHoveredCode}
+                    onSelect={handleMapSelect}
+                  />
+                </Suspense>
+              </div>
+            )}
+          </section>
+        </div>
       )}
 
       {isLoading && (
