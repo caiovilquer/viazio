@@ -5,13 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record WikipediaSummaryDTO(
-        String description,
-        String extract,
-        ImageDTO thumbnail,
-        ImageDTO originalimage,
-        @JsonProperty("content_urls") ContentUrlsDTO contentUrls
+  String description,
+  String extract,
+  ImageDTO thumbnail,
+  ImageDTO originalimage,
+  @JsonProperty("content_urls") ContentUrlsDTO contentUrls
 ) {
-    public record ImageDTO(String source) {}
-    public record ContentUrlsDTO(DesktopDTO desktop) {}
-    public record DesktopDTO(String page) {}
+  public record ImageDTO(String source) {}
+
+  public record ContentUrlsDTO(DesktopDTO desktop) {}
+
+  public record DesktopDTO(String page) {}
 }

@@ -1,33 +1,41 @@
-import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowRight, CalendarRange, Sparkles, SlidersHorizontal } from 'lucide-react'
-import { useMeta } from '@/api/queries'
-import { Button } from '@/components/ui/button'
-import { Reveal } from '@/components/shared/Reveal'
-import { ExampleSearchChips } from '@/components/landing/ExampleSearchChips'
-import { heroItem, staggerContainer } from '@/lib/motion'
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ArrowRight,
+  CalendarRange,
+  Sparkles,
+  SlidersHorizontal,
+} from "lucide-react";
+import { useMeta } from "@/api/queries";
+import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/shared/Reveal";
+import { ExampleSearchChips } from "@/components/landing/ExampleSearchChips";
+import { heroItem, staggerContainer } from "@/lib/motion";
 
 const steps = [
   {
     icon: CalendarRange,
-    title: 'Diga quando você pode viajar',
-    description: 'Escolha as datas e quantos dias de férias você tem para gastar.',
+    title: "Diga quando você pode viajar",
+    description:
+      "Escolha as datas e quantos dias de férias você tem para gastar.",
   },
   {
     icon: SlidersHorizontal,
-    title: 'Conte o que importa pra você',
-    description: 'Clima, custo, distância ou festividades — um perfil pronto ou pesos sob medida.',
+    title: "Conte o que importa pra você",
+    description:
+      "Clima, custo, distância ou festividades — um perfil pronto ou pesos sob medida.",
   },
   {
     icon: Sparkles,
-    title: 'Receba um ranking explicado',
-    description: 'Cruzamos feriados, clima, câmbio e distância e mostramos o porquê de cada nota.',
+    title: "Receba um ranking explicado",
+    description:
+      "Cruzamos feriados, clima, câmbio e distância e mostramos o porquê de cada nota.",
   },
-]
+];
 
-const signals = ['Clima', 'Custo de vida', 'Distância & fuso', 'Festividades']
+const signals = ["Clima", "Custo de vida", "Distância & fuso", "Festividades"];
 
-/** Discreet "route" motif — a thin gold line that draws across, with stops. */
+/** Motivo "rota" discreto — linha dourada fina que se desenha com paradas. */
 function HeroRoute() {
   return (
     <svg
@@ -59,19 +67,24 @@ function HeroRoute() {
           fill="currentColor"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.8 }}
-          transition={{ delay: 0.6 + i * 0.45, type: 'spring', stiffness: 400, damping: 24 }}
+          transition={{
+            delay: 0.6 + i * 0.45,
+            type: "spring",
+            stiffness: 400,
+            damping: 24,
+          }}
         />
       ))}
     </svg>
-  )
+  );
 }
 
 export function LandingPage() {
-  const { data: meta } = useMeta()
+  const { data: meta } = useMeta();
 
   return (
     <div className="overflow-hidden">
-      {/* ───────── Hero ───────── */}
+      {/* ───────── Destaque principal ───────── */}
       <section className="relative px-4 pb-24 pt-20 sm:pt-28">
         <HeroRoute />
 
@@ -96,7 +109,7 @@ export function LandingPage() {
             variants={heroItem}
             className="text-balance font-display text-[2.6rem] leading-[1.03] tracking-tight sm:text-6xl lg:text-[4.5rem]"
           >
-            Transforme dias de folga em viagens{' '}
+            Transforme dias de folga em viagens{" "}
             <span className="text-gold-gradient">inesquecíveis</span>
           </motion.h1>
 
@@ -104,21 +117,31 @@ export function LandingPage() {
             variants={heroItem}
             className="mx-auto mt-6 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg"
           >
-            A Viazio cruza clima, câmbio, custo de vida e festividades — e explica, em uma nota
-            clara, qual destino vale o seu próximo feriadão.
+            A Viazio cruza clima, câmbio, custo de vida e festividades — e
+            explica, em uma nota clara, qual destino vale o seu próximo
+            feriadão.
           </motion.p>
 
           <motion.div
             variants={heroItem}
             className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
           >
-            <Button asChild size="xl" className="w-full rounded-full glow-coral sm:w-auto">
+            <Button
+              asChild
+              size="xl"
+              className="w-full rounded-full glow-coral sm:w-auto"
+            >
               <Link to="/buscar">
                 Planejar meu feriadão
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
-            <Button asChild size="xl" variant="glass" className="w-full rounded-full sm:w-auto">
+            <Button
+              asChild
+              size="xl"
+              variant="glass"
+              className="w-full rounded-full sm:w-auto"
+            >
               <Link to="/janelas">Ver melhores janelas</Link>
             </Button>
           </motion.div>
@@ -159,13 +182,15 @@ export function LandingPage() {
                 <div className="group relative h-full overflow-hidden rounded-2xl border border-hairline bg-surface/60 p-7 elevate transition-[transform,border-color] duration-300 hover:-translate-y-1 hover:border-gold/25">
                   <div className="flex items-start justify-between">
                     <span className="font-display text-4xl leading-none text-gold-gradient">
-                      {String(i + 1).padStart(2, '0')}
+                      {String(i + 1).padStart(2, "0")}
                     </span>
                     <span className="flex size-10 items-center justify-center rounded-full border border-hairline bg-surface-2 text-muted-foreground transition-colors group-hover:text-gold">
                       <step.icon className="size-4.5" strokeWidth={1.8} />
                     </span>
                   </div>
-                  <p className="mt-6 font-display text-lg tracking-tight">{step.title}</p>
+                  <p className="mt-6 font-display text-lg tracking-tight">
+                    {step.title}
+                  </p>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {step.description}
                   </p>
@@ -181,9 +206,12 @@ export function LandingPage() {
         <section className="px-4 pb-24">
           <Reveal className="mx-auto max-w-3xl">
             <div className="rounded-3xl border border-hairline bg-surface/50 p-8 text-center elevate sm:p-10">
-              <p className="font-display text-xl tracking-tight">Dados de fontes abertas e confiáveis</p>
+              <p className="font-display text-xl tracking-tight">
+                Dados de fontes abertas e confiáveis
+              </p>
               <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-                Nada de caixa-preta. Cada nota nasce de fontes públicas e auditáveis.
+                Nada de caixa-preta. Cada nota nasce de fontes públicas e
+                auditáveis.
               </p>
               <div className="mt-7 flex flex-wrap justify-center gap-2">
                 {meta.dataSources.map((source) => (
@@ -218,5 +246,5 @@ export function LandingPage() {
         </Reveal>
       </section>
     </div>
-  )
+  );
 }

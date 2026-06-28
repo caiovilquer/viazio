@@ -11,15 +11,18 @@ import org.springframework.core.Ordered;
 @Configuration
 public class RateLimitConfig {
 
-    @Bean
-    public FilterRegistrationBean<RateLimitFilter> rateLimitFilter(
-            RateLimitProperties properties,
-            ObjectMapper objectMapper) {
-        FilterRegistrationBean<RateLimitFilter> registration =
-                new FilterRegistrationBean<>(new RateLimitFilter(properties, objectMapper));
-        registration.addUrlPatterns(WebConfig.API_PREFIX + "/*");
-        registration.setName("rateLimitFilter");
-        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 20);
-        return registration;
-    }
+  @Bean
+  public FilterRegistrationBean<RateLimitFilter> rateLimitFilter(
+    RateLimitProperties properties,
+    ObjectMapper objectMapper
+  ) {
+    FilterRegistrationBean<RateLimitFilter> registration =
+      new FilterRegistrationBean<>(
+        new RateLimitFilter(properties, objectMapper)
+      );
+    registration.addUrlPatterns(WebConfig.API_PREFIX + "/*");
+    registration.setName("rateLimitFilter");
+    registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 20);
+    return registration;
+  }
 }

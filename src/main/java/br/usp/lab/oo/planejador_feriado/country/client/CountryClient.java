@@ -1,7 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.country.client;
 
 import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
-
 import java.util.List;
 
 /**
@@ -9,12 +8,11 @@ import java.util.List;
  * (ex.: com cache) sem que {@code CountryService} precise conhecer o detalhe.
  */
 public interface CountryClient {
+  List<CountryDTO> getAllCountries();
 
-    List<CountryDTO> getAllCountries();
+  List<CountryDTO> getCountryByCode(String countryCode);
 
-    List<CountryDTO> getCountryByCode(String countryCode);
+  List<CountryDTO> getCountryByName(String countryName);
 
-    List<CountryDTO> getCountryByName(String countryName);
-
-    List<CountryDTO> getCountriesByRegion(String region);
+  List<CountryDTO> getCountriesByRegion(String region);
 }

@@ -13,17 +13,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/exchange")
 public class ExchangeController {
 
-    private final ExchangeService service;
+  private final ExchangeService service;
 
-    public ExchangeController(ExchangeService service) {
-        this.service = service;
-    }
+  public ExchangeController(ExchangeService service) {
+    this.service = service;
+  }
 
-    @GetMapping("/{currency}")
-    public Exchange getExchangeRate(@PathVariable String currency) {
-        if (currency == null || currency.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Currency code is required");
-        }
-        return service.getExchangeRate(currency);
+  @GetMapping("/{currency}")
+  public Exchange getExchangeRate(@PathVariable String currency) {
+    if (currency == null || currency.trim().isEmpty()) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Currency code is required"
+      );
     }
+    return service.getExchangeRate(currency);
+  }
 }

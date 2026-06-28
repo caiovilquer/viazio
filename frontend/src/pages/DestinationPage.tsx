@@ -1,115 +1,167 @@
-import { useRef, useState, type ReactNode } from 'react'
-import { Link, useLocation, useParams, useSearchParams } from 'react-router-dom'
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { AlertTriangle, ArrowLeft, Clock, Coins, ExternalLink, Wallet } from 'lucide-react'
-import { useCountry, useHolidays, useRecommendations, useTravelOverview } from '@/api/queries'
-import { useDestinationImage } from '@/api/images'
-import type { Region, TravelRecommendation, Exchange } from '@/api/types'
-import { criteriaToRequest, searchParamsToCriteria } from '@/lib/search-params'
-import { ScoreRing } from '@/components/shared/ScoreRing'
-import { FavoriteButton } from '@/components/shared/FavoriteButton'
-import { Flag } from '@/components/shared/Flag'
-import { RouteGlyph } from '@/components/shared/Glyphs'
-import { Reveal } from '@/components/shared/Reveal'
-import { favoriteContextFromParams, type FavoriteContext } from '@/lib/favorites'
-import { CriterionBreakdown } from '@/components/results/CriterionBreakdown'
-import { ClimateChart } from '@/components/shared/ClimateChart'
-import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateLong, formatExchange, formatExchangeParts, formatInOriginCurrency } from '@/lib/format'
-import { heroItem, staggerContainer } from '@/lib/motion'
-import { cn } from '@/lib/utils'
+import { useRef, useState, type ReactNode } from "react";
+import {
+  Link,
+  useLocation,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Clock,
+  Coins,
+  ExternalLink,
+  Wallet,
+} from "lucide-react";
+import {
+  useCountry,
+  useHolidays,
+  useRecommendations,
+  useTravelOverview,
+} from "@/api/queries";
+import { useDestinationImage } from "@/api/images";
+import type { Region, TravelRecommendation, Exchange } from "@/api/types";
+import { criteriaToRequest, searchParamsToCriteria } from "@/lib/search-params";
+import { ScoreRing } from "@/components/shared/ScoreRing";
+import { FavoriteButton } from "@/components/shared/FavoriteButton";
+import { Flag } from "@/components/shared/Flag";
+import { RouteGlyph } from "@/components/shared/Glyphs";
+import { Reveal } from "@/components/shared/Reveal";
+import {
+  favoriteContextFromParams,
+  type FavoriteContext,
+} from "@/lib/favorites";
+import { CriterionBreakdown } from "@/components/results/CriterionBreakdown";
+import { ClimateChart } from "@/components/shared/ClimateChart";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  formatDateLong,
+  formatExchange,
+  formatExchangeParts,
+  formatInOriginCurrency,
+} from "@/lib/format";
+import { heroItem, staggerContainer } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 const regionPt: Record<Region, string> = {
-  Africa: 'África',
-  Americas: 'Américas',
-  Asia: 'Ásia',
-  Europe: 'Europa',
-  Oceania: 'Oceania',
-}
+  Africa: "África",
+  Americas: "Américas",
+  Asia: "Ásia",
+  Europe: "Europa",
+  Oceania: "Oceania",
+};
 
 const classLabel: Record<string, string> = {
-  short: 'Viagem curta',
-  medium: 'Distância média',
-  long: 'Viagem longa',
-}
+  short: "Viagem curta",
+  medium: "Distância média",
+  long: "Viagem longa",
+};
 
-/** Wikipedia's country `imageUrl` is often just the flag — reject those. */
+/** O `imageUrl` do país na Wikipedia costuma ser só a bandeira — rejeitar esses casos. */
 function isLikelyFlag(url?: string | null) {
-  if (!url) return true
-  const u = url.toLowerCase()
-  return u.includes('flag') || u.endsWith('.svg')
+  if (!url) return true;
+  const u = url.toLowerCase();
+  return u.includes("flag") || u.endsWith(".svg");
 }
 
 function tzLabel(hours: number | null | undefined) {
-  if (hours == null) return null
-  if (hours === 0) return 'Mesmo fuso'
-  return `${hours > 0 ? '+' : '−'}${Math.abs(hours)}h de fuso`
+  if (hours == null) return null;
+  if (hours === 0) return "Mesmo fuso";
+  return `${hours > 0 ? "+" : "−"}${Math.abs(hours)}h de fuso`;
 }
 
 export function DestinationPage() {
-  const { countryCode = '' } = useParams()
-  const location = useLocation()
-  const [params] = useSearchParams()
-  const stateRecommendation = (location.state as {
-    recommendation?: TravelRecommendation
-    originExchangeToBrl?: Exchange | null
-  } | null)?.recommendation
-  const originExchangeFromState = (location.state as { originExchangeToBrl?: Exchange | null } | null)
-    ?.originExchangeToBrl
+  const { countryCode = "" } = useParams();
+  const location = useLocation();
+  const [params] = useSearchParams();
+  const stateRecommendation = (
+    location.state as {
+      recommendation?: TravelRecommendation;
+      originExchangeToBrl?: Exchange | null;
+    } | null
+  )?.recommendation;
+  const originExchangeFromState = (
+    location.state as { originExchangeToBrl?: Exchange | null } | null
+  )?.originExchangeToBrl;
 
-  // `location.state` only survives client-side navigation (clicking a card). Opening a
-  // link in a new tab, reloading, or sharing the URL gives a fresh tab with no state —
-  // but the search itself (dates, origin, profile/weights) is still in the query string,
-  // so re-run it scoped to just this country instead of falling back to the bare,
-  // score-less overview below.
-  const criteria = searchParamsToCriteria(params)
+  // `location.state` só sobrevive à navegação no cliente (clicar num card). Abrir o
+  // link numa nova aba, recarregar ou compartilhar a URL abre aba limpa sem estado —
+  // mas a busca em si (datas, origem, perfil/pesos) ainda está na query string,
+  // então reexecutá-la escopada a este país em vez de cair na visão geral
+  // sem pontuação abaixo.
+  const criteria = searchParamsToCriteria(params);
   const fallbackRequest =
     !stateRecommendation && criteria
-      ? criteriaToRequest({ ...criteria, region: null, countries: [countryCode] })
-      : null
-  const { data: fallbackData, isLoading: loadingFallback } = useRecommendations(fallbackRequest)
+      ? criteriaToRequest({
+          ...criteria,
+          region: null,
+          countries: [countryCode],
+        })
+      : null;
+  const { data: fallbackData, isLoading: loadingFallback } =
+    useRecommendations(fallbackRequest);
   const fallbackRecommendation = fallbackData?.recommendations.find(
     (r) => r.countryCode.toLowerCase() === countryCode.toLowerCase(),
-  )
-  const recommendation = stateRecommendation ?? fallbackRecommendation
-  const originExchangeToBrl = originExchangeFromState ?? fallbackData?.originExchangeToBrl ?? null
-  const originCountryCode = fallbackData?.origin.countryCode ?? criteria?.origin.countryCode
+  );
+  const recommendation = stateRecommendation ?? fallbackRecommendation;
+  const originExchangeToBrl =
+    originExchangeFromState ?? fallbackData?.originExchangeToBrl ?? null;
+  const originCountryCode =
+    fallbackData?.origin.countryCode ?? criteria?.origin.countryCode;
 
-  const { data: country, isLoading: loadingCountry } = useCountry(countryCode)
-  const { data: holidays } = useHolidays(countryCode)
+  const { data: country, isLoading: loadingCountry } = useCountry(countryCode);
+  const { data: holidays } = useHolidays(countryCode);
   const { data: overview, isLoading: loadingOverview } = useTravelOverview(
     recommendation || fallbackRequest ? undefined : countryCode,
-  )
+  );
 
-  const profile = recommendation?.profile ?? overview?.profile
-  const exchange = recommendation?.exchangeToBrl ?? overview?.exchangeToBrl
-  const exchangeParts = formatExchangeParts(exchange, originExchangeToBrl, originCountryCode, countryCode)
-  const feasibility = recommendation?.feasibility ?? null
+  const profile = recommendation?.profile ?? overview?.profile;
+  const exchange = recommendation?.exchangeToBrl ?? overview?.exchangeToBrl;
+  const exchangeParts = formatExchangeParts(
+    exchange,
+    originExchangeToBrl,
+    originCountryCode,
+    countryCode,
+  );
+  const feasibility = recommendation?.feasibility ?? null;
   const dailyCost =
-    feasibility?.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0
+    feasibility?.groundCost &&
+    feasibility.groundCost.estimatedDailyPerPerson > 0
       ? formatInOriginCurrency(
           feasibility.groundCost.estimatedDailyPerPerson,
           originExchangeToBrl,
           originCountryCode,
         )
-      : null
+      : null;
   const totalCost =
-    feasibility?.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0
+    feasibility?.groundCost &&
+    feasibility.groundCost.estimatedDailyPerPerson > 0
       ? formatInOriginCurrency(
           feasibility.groundCost.estimatedTotal,
           originExchangeToBrl,
           originCountryCode,
         )
-      : null
+      : null;
 
-  const photoCity = feasibility?.destination.name ?? country?.capitals?.[0] ?? country?.name
-  const { data: cityPhoto } = useDestinationImage(photoCity, 1920)
-  const backendPhoto = profile && !isLikelyFlag(profile.imageUrl) ? profile.imageUrl : null
-  const photoUrl = cityPhoto ?? backendPhoto ?? null
+  const photoCity =
+    feasibility?.destination.name ?? country?.capitals?.[0] ?? country?.name;
+  const { data: cityPhoto } = useDestinationImage(photoCity, 1920);
+  const backendPhoto =
+    profile && !isLikelyFlag(profile.imageUrl) ? profile.imageUrl : null;
+  const photoUrl = cityPhoto ?? backendPhoto ?? null;
 
-  const isLoading = loadingCountry || (!recommendation && (loadingFallback || loadingOverview))
-  const backHref = params.toString() ? `/resultados?${params.toString()}` : '/buscar'
-  const savedContext = favoriteContextFromParams(params)
+  const isLoading =
+    loadingCountry || (!recommendation && (loadingFallback || loadingOverview));
+  const backHref = params.toString()
+    ? `/resultados?${params.toString()}`
+    : "/buscar";
+  const savedContext = favoriteContextFromParams(params);
 
   if (isLoading || !country) {
     return (
@@ -121,11 +173,11 @@ export function DestinationPage() {
           <Skeleton className="h-28 w-full rounded-2xl" />
         </div>
       </div>
-    )
+    );
   }
 
-  const name = country.localizedName ?? country.name
-  const eyebrow = regionPt[country.region] ?? country.region
+  const name = country.localizedName ?? country.name;
+  const eyebrow = regionPt[country.region] ?? country.region;
 
   return (
     <div className="pb-16">
@@ -145,7 +197,7 @@ export function DestinationPage() {
             <Stat
               glyph={<RouteGlyph className="size-4" />}
               label="Distância"
-              value={`${Math.round(feasibility.travelEffort.distanceKm).toLocaleString('pt-BR')} km`}
+              value={`${Math.round(feasibility.travelEffort.distanceKm).toLocaleString("pt-BR")} km`}
               sub={classLabel[feasibility.travelEffort.classification]}
             />
             <Stat
@@ -159,47 +211,52 @@ export function DestinationPage() {
             <Stat
               glyph={<Wallet className="size-4" />}
               label="Custo / dia"
-              value={dailyCost ? dailyCost.formatted : '—'}
+              value={dailyCost ? dailyCost.formatted : "—"}
               sub={
                 totalCost
                   ? `≈ ${totalCost.formatted} no total${
-                      dailyCost?.showFallbackNote ? ' · câmbio indisponível — valor em R$' : ''
+                      dailyCost?.showFallbackNote
+                        ? " · câmbio indisponível — valor em R$"
+                        : ""
                     }`
-                  : 'Sem estimativa'
+                  : "Sem estimativa"
               }
             />
             <Stat
               glyph={<Coins className="size-4" />}
               label="Câmbio"
-              value={exchangeParts?.amount ?? '—'}
+              value={exchangeParts?.amount ?? "—"}
               sub={
                 exchangeParts
                   ? `${exchangeParts.unitDescription}${
-                      exchangeParts.showFallbackNote ? ' · câmbio da origem indisponível' : ''
+                      exchangeParts.showFallbackNote
+                        ? " · câmbio da origem indisponível"
+                        : ""
                     }`
-                  : 'Sem cotação'
+                  : "Sem cotação"
               }
             />
           </div>
-          {feasibility.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0 && (
-            <p className="mt-2.5 px-1 text-xs leading-relaxed text-muted-foreground">
-              <span className="font-medium text-foreground/70">Custo/dia</span> e{' '}
-              <span className="font-medium text-foreground/70">câmbio</span> são estimativas
-              independentes: o custo/dia compara o nível de preços local com o do Brasil
-              (paridade de poder de compra, dados do Banco Mundial)
-              {originExchangeToBrl
-                ? ', convertido para a moeda de origem pela cotação ao lado'
-                : ''}
-              , enquanto o câmbio é uma cotação de mercado em tempo real. Um pode estar
-              disponível sem o outro.
-              {dailyCost?.showFallbackNote && (
-                <>
-                  {' '}
-                  Câmbio da origem indisponível — custo exibido em R$.
-                </>
-              )}
-            </p>
-          )}
+          {feasibility.groundCost &&
+            feasibility.groundCost.estimatedDailyPerPerson > 0 && (
+              <p className="mt-2.5 px-1 text-xs leading-relaxed text-muted-foreground">
+                <span className="font-medium text-foreground/70">
+                  Custo/dia
+                </span>{" "}
+                e <span className="font-medium text-foreground/70">câmbio</span>{" "}
+                são estimativas independentes: o custo/dia compara o nível de
+                preços local com o do Brasil (paridade de poder de compra, dados
+                do Banco Mundial)
+                {originExchangeToBrl
+                  ? ", convertido para a moeda de origem pela cotação ao lado"
+                  : ""}
+                , enquanto o câmbio é uma cotação de mercado em tempo real. Um
+                pode estar disponível sem o outro.
+                {dailyCost?.showFallbackNote && (
+                  <> Câmbio da origem indisponível — custo exibido em R$.</>
+                )}
+              </p>
+            )}
         </Reveal>
       )}
 
@@ -227,7 +284,8 @@ export function DestinationPage() {
           <Reveal className="space-y-5">
             <SectionTitle eyebrow="Análise">Por que esse destino</SectionTitle>
 
-            {(recommendation.highlights.length > 0 || recommendation.tradeoffs.length > 0) && (
+            {(recommendation.highlights.length > 0 ||
+              recommendation.tradeoffs.length > 0) && (
               <div className="flex flex-wrap gap-2">
                 {recommendation.highlights.map((h) => (
                   <span
@@ -253,7 +311,7 @@ export function DestinationPage() {
             <CriterionBreakdown breakdown={recommendation.breakdown} />
 
             <p className="text-xs text-muted-foreground">
-              Baseado em {recommendation.dataQuality.availableCriteria} de{' '}
+              Baseado em {recommendation.dataQuality.availableCriteria} de{" "}
               {recommendation.dataQuality.totalCriteria} critérios com dados.
             </p>
           </Reveal>
@@ -261,7 +319,9 @@ export function DestinationPage() {
 
         {recommendation?.climate && (
           <Reveal className="space-y-5">
-            <SectionTitle eyebrow="Janela da viagem">Clima esperado</SectionTitle>
+            <SectionTitle eyebrow="Janela da viagem">
+              Clima esperado
+            </SectionTitle>
             <ClimateChart climate={recommendation.climate} />
           </Reveal>
         )}
@@ -269,27 +329,55 @@ export function DestinationPage() {
         <Reveal className="space-y-5">
           <SectionTitle eyebrow="Perfil">Sobre {name}</SectionTitle>
           <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline sm:grid-cols-2">
-            <InfoRow label="Capital" value={country.capitals.join(', ') || '—'} />
-            <InfoRow label="Idiomas" value={country.languages.join(', ') || '—'} />
-            <InfoRow label="Moeda" value={country.currencies.join(', ') || '—'} />
+            <InfoRow
+              label="Capital"
+              value={country.capitals.join(", ") || "—"}
+            />
+            <InfoRow
+              label="Idiomas"
+              value={country.languages.join(", ") || "—"}
+            />
+            <InfoRow
+              label="Moeda"
+              value={country.currencies.join(", ") || "—"}
+            />
             {country.timezones.length > 0 && (
-              <InfoRow label="Fuso horário" value={country.timezones.slice(0, 3).join(', ')} />
+              <InfoRow
+                label="Fuso horário"
+                value={country.timezones.slice(0, 3).join(", ")}
+              />
             )}
             {profile?.population != null && (
               <InfoRow
                 label="População"
-                value={`${profile.population.toLocaleString('pt-BR')}${
-                  profile.populationYear ? ` (${profile.populationYear})` : ''
+                value={`${profile.population.toLocaleString("pt-BR")}${
+                  profile.populationYear ? ` (${profile.populationYear})` : ""
                 }`}
               />
             )}
-            <InfoRow label="Região" value={country.subregion || regionPt[country.region]} />
-            {!feasibility && formatExchange(exchange, originExchangeToBrl, originCountryCode, countryCode) && (
-              <InfoRow
-                label="Câmbio"
-                value={formatExchange(exchange, originExchangeToBrl, originCountryCode, countryCode) as string}
-              />
-            )}
+            <InfoRow
+              label="Região"
+              value={country.subregion || regionPt[country.region]}
+            />
+            {!feasibility &&
+              formatExchange(
+                exchange,
+                originExchangeToBrl,
+                originCountryCode,
+                countryCode,
+              ) && (
+                <InfoRow
+                  label="Câmbio"
+                  value={
+                    formatExchange(
+                      exchange,
+                      originExchangeToBrl,
+                      originCountryCode,
+                      countryCode,
+                    ) as string
+                  }
+                />
+              )}
           </dl>
         </Reveal>
 
@@ -297,9 +385,15 @@ export function DestinationPage() {
           <Reveal className="space-y-5">
             <SectionTitle eyebrow="Calendário">Próximos feriados</SectionTitle>
             <ol className="relative space-y-1">
-              <span aria-hidden className="absolute bottom-3 left-[6px] top-3 w-px bg-hairline" />
+              <span
+                aria-hidden
+                className="absolute bottom-3 left-[6px] top-3 w-px bg-hairline"
+              />
               {holidays.slice(0, 6).map((h) => (
-                <li key={`${h.date}-${h.name}`} className="relative flex items-baseline gap-4 py-2.5 pl-7">
+                <li
+                  key={`${h.date}-${h.name}`}
+                  className="relative flex items-baseline gap-4 py-2.5 pl-7"
+                >
                   <span
                     aria-hidden
                     className="absolute left-0 top-[1.1rem] size-3.5 rounded-full border-2 border-gold/70 bg-background"
@@ -320,7 +414,7 @@ export function DestinationPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function DestinationHero({
@@ -332,25 +426,31 @@ function DestinationHero({
   savedContext,
   backHref,
 }: {
-  name: string
-  eyebrow: string
-  countryCode: string
-  photoUrl: string | null
-  recommendation?: TravelRecommendation
-  savedContext?: FavoriteContext
-  backHref: string
+  name: string;
+  eyebrow: string;
+  countryCode: string;
+  photoUrl: string | null;
+  recommendation?: TravelRecommendation;
+  savedContext?: FavoriteContext;
+  backHref: string;
 }) {
-  const reduce = useReducedMotion()
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const y = useTransform(scrollYProgress, [0, 1], [0, 60])
-  const scale = useTransform(scrollYProgress, [0, 1], [1.02, 1.1])
-  const [loaded, setLoaded] = useState(false)
-  const [failed, setFailed] = useState(false)
-  const showPhoto = Boolean(photoUrl) && !failed
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [0, 60]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1.02, 1.1]);
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const showPhoto = Boolean(photoUrl) && !failed;
 
   return (
-    <div ref={ref} className="relative h-[56vh] min-h-[20rem] w-full overflow-hidden sm:min-h-[26rem]">
+    <div
+      ref={ref}
+      className="relative h-[56vh] min-h-[20rem] w-full overflow-hidden sm:min-h-[26rem]"
+    >
       <motion.div
         className="absolute -inset-x-0 -top-[8%] h-[116%]"
         style={reduce ? undefined : { y, scale }}
@@ -377,14 +477,14 @@ function DestinationHero({
             onLoad={() => setLoaded(true)}
             onError={() => setFailed(true)}
             className={cn(
-              'absolute inset-0 size-full object-cover transition-opacity duration-700',
-              loaded ? 'opacity-100' : 'opacity-0',
+              "absolute inset-0 size-full object-cover transition-opacity duration-700",
+              loaded ? "opacity-100" : "opacity-0",
             )}
           />
         )}
       </motion.div>
 
-      {/* scrims for legibility */}
+      {/* scrims para legibilidade */}
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/35 to-background/5" />
       <div className="absolute inset-0 bg-gradient-to-br from-background/45 via-transparent to-transparent" />
 
@@ -396,7 +496,12 @@ function DestinationHero({
           <ArrowLeft className="size-4" />
           Voltar
         </Link>
-        {recommendation && <FavoriteButton recommendation={recommendation} context={savedContext} />}
+        {recommendation && (
+          <FavoriteButton
+            recommendation={recommendation}
+            context={savedContext}
+          />
+        )}
       </div>
 
       <div className="absolute inset-x-0 bottom-0 z-10">
@@ -444,10 +549,16 @@ function DestinationHero({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-function SectionTitle({ eyebrow, children }: { eyebrow?: string; children: ReactNode }) {
+function SectionTitle({
+  eyebrow,
+  children,
+}: {
+  eyebrow?: string;
+  children: ReactNode;
+}) {
   return (
     <div>
       {eyebrow && (
@@ -455,9 +566,11 @@ function SectionTitle({ eyebrow, children }: { eyebrow?: string; children: React
           {eyebrow}
         </p>
       )}
-      <h2 className="font-display text-xl tracking-tight sm:text-2xl">{children}</h2>
+      <h2 className="font-display text-xl tracking-tight sm:text-2xl">
+        {children}
+      </h2>
     </div>
-  )
+  );
 }
 
 function Stat({
@@ -466,10 +579,10 @@ function Stat({
   value,
   sub,
 }: {
-  glyph: ReactNode
-  label: string
-  value: ReactNode
-  sub?: string | null
+  glyph: ReactNode;
+  label: string;
+  value: ReactNode;
+  sub?: string | null;
 }) {
   return (
     <div className="bg-surface-1 p-4 transition-colors hover:bg-surface-2 sm:p-5">
@@ -477,10 +590,12 @@ function Stat({
         <span className="text-gold/85">{glyph}</span>
         {label}
       </div>
-      <p className="mt-2 font-display text-lg tabular-nums sm:text-xl">{value}</p>
+      <p className="mt-2 font-display text-lg tabular-nums sm:text-xl">
+        {value}
+      </p>
       {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
     </div>
-  )
+  );
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -491,5 +606,5 @@ function InfoRow({ label, value }: { label: string; value: string }) {
       </dt>
       <dd className="mt-1 text-pretty text-sm">{value}</dd>
     </div>
-  )
+  );
 }

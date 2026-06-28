@@ -13,16 +13,15 @@ import org.springframework.shell.command.annotation.CommandScan;
 @SpringBootApplication
 @CommandScan("br.usp.lab.oo.planejador_feriado.cli")
 @EnableConfigurationProperties({
-        ExternalApisProperties.class,
-        CorsProperties.class,
-        RateLimitProperties.class,
-        ScoringProperties.class,
-        TravelEstimateProperties.class
+  ExternalApisProperties.class,
+  CorsProperties.class,
+  RateLimitProperties.class,
+  ScoringProperties.class,
+  TravelEstimateProperties.class,
 })
 public class PlanejadorFeriadoApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(PlanejadorFeriadoApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(PlanejadorFeriadoApplication.class, args);
+  }
 }

@@ -1,75 +1,85 @@
 export function formatBrl(value: number) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
 }
 
 export function formatDate(iso: string) {
-  const date = new Date(`${iso}T00:00:00`)
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(date)
+  const date = new Date(`${iso}T00:00:00`);
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  }).format(date);
 }
 
 export function formatDateLong(iso: string) {
-  const date = new Date(`${iso}T00:00:00`)
-  return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(date)
+  const date = new Date(`${iso}T00:00:00`);
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(date);
 }
 
 export function formatDateRange(fromIso: string, toIso: string) {
-  return `${formatDate(fromIso)} – ${formatDate(toIso)}`
+  return `${formatDate(fromIso)} – ${formatDate(toIso)}`;
 }
 
 export function formatScore(score: number) {
-  return Math.round(score)
+  return Math.round(score);
 }
 
-/** Real pt-BR pluralization — replaces backend "dia(s)" style placeholders. */
+/** Pluralização real em pt-BR — substitui placeholders do backend no estilo "dia(s)". */
 export function pluralize(count: number, singular: string, plural: string) {
-  return `${count} ${count === 1 ? singular : plural}`
+  return `${count} ${count === 1 ? singular : plural}`;
 }
 
-/** Human window summary from structured fields (no semicolons / "(s)"). */
+/** Resumo humano da janela a partir de campos estruturados (sem ponto e vírgula / "(s)"). */
 export function describeWindow(window: {
-  totalDays: number
-  freeDays: number
-  requiredLeaveDays: number
+  totalDays: number;
+  freeDays: number;
+  requiredLeaveDays: number;
 }) {
-  const { totalDays, freeDays, requiredLeaveDays } = window
+  const { totalDays, freeDays, requiredLeaveDays } = window;
   if (requiredLeaveDays <= 0) {
-    return `Os ${totalDays} dias já são livres — sem gastar férias.`
+    return `Os ${totalDays} dias já são livres — sem gastar férias.`;
   }
   return `${freeDays} de ${totalDays} dias já são livres · requer ${pluralize(
     requiredLeaveDays,
-    'dia',
-    'dias',
-  )} de férias.`
+    "dia",
+    "dias",
+  )} de férias.`;
 }
 
 export function scoreTone(score: number) {
-  if (score >= 80) return 'excellent'
-  if (score >= 60) return 'good'
-  if (score >= 40) return 'fair'
-  return 'poor'
+  if (score >= 80) return "excellent";
+  if (score >= 60) return "good";
+  if (score >= 40) return "fair";
+  return "poor";
 }
 
 interface ExchangeLike {
-  currency: string
-  valueInReais: number
+  currency: string;
+  valueInReais: number;
 }
 
 /**
- * Pick a quote unit (1 / 100 / 1.000) so the BRL amount stays readable for both
- * strong currencies (1 EUR = R$ 5,92) and tiny ones (1.000 COP = R$ 1,52) —
- * quoting per 1 unit would round small currencies to R$ 0,00. Returns null when
- * there's no usable rate (missing or zero).
+ * Escolhe unidade de cotação (1 / 100 / 1.000) para o valor em BRL ficar legível tanto
+ * para moedas fortes (1 EUR = R$ 5,92) quanto fracas (1.000 COP = R$ 1,52) —
+ * cotar por 1 unidade arredondaria moedas pequenas para R$ 0,00. Retorna null quando
+ * não há taxa utilizável (ausente ou zero).
  */
 export function exchangeUnit(exchange?: ExchangeLike | null) {
-  if (!exchange || !(exchange.valueInReais > 0)) return null
-  const v = exchange.valueInReais
-  const unit = v >= 0.1 ? 1 : v >= 0.01 ? 100 : 1000
+  if (!exchange || !(exchange.valueInReais > 0)) return null;
+  const v = exchange.valueInReais;
+  const unit = v >= 0.1 ? 1 : v >= 0.01 ? 100 : 1000;
   return {
     unit,
-    unitLabel: unit.toLocaleString('pt-BR'),
+    unitLabel: unit.toLocaleString("pt-BR"),
     amount: v * unit,
     currency: exchange.currency,
-  }
+  };
 }
 
 function resolveExchangeQuote(
@@ -82,84 +92,97 @@ function resolveExchangeQuote(
   // Nesse caso, cotar o real na moeda de origem quando a origem não é BR.
   if (
     !exchange &&
-    destinationCountryCode === 'BR' &&
+    destinationCountryCode === "BR" &&
     originExchange &&
     originExchange.valueInReais > 0 &&
     originCountryCode &&
-    originCountryCode !== 'BR'
+    originCountryCode !== "BR"
   ) {
-    const converted = 1 / originExchange.valueInReais
-    const amountFormatted = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
+    const converted = 1 / originExchange.valueInReais;
+    const amountFormatted = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
       currency: originExchange.currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 4,
-    }).format(converted)
+    }).format(converted);
     return {
-      unitLabel: '1',
-      currency: 'BRL',
+      unitLabel: "1",
+      currency: "BRL",
       amountFormatted,
       showFallbackNote: false,
       quote: `1 BRL = ${amountFormatted}`,
-    }
+    };
   }
 
-  const e = exchangeUnit(exchange)
-  if (!e) return null
+  const e = exchangeUnit(exchange);
+  if (!e) return null;
 
   if (originExchange && originExchange.valueInReais > 0) {
-    const converted = e.amount / originExchange.valueInReais
-    const amountFormatted = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
+    const converted = e.amount / originExchange.valueInReais;
+    const amountFormatted = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
       currency: originExchange.currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(converted)
+    }).format(converted);
     return {
       unitLabel: e.unitLabel,
       currency: e.currency,
       amountFormatted,
       showFallbackNote: false,
       quote: `${e.unitLabel} ${e.currency} = ${amountFormatted}`,
-    }
+    };
   }
 
-  const amountFormatted = formatBrl(e.amount)
-  const showFallbackNote = originCountryCode != null && originCountryCode !== 'BR'
-  const suffix = showFallbackNote ? ' (câmbio da origem indisponível)' : ''
+  const amountFormatted = formatBrl(e.amount);
+  const showFallbackNote =
+    originCountryCode != null && originCountryCode !== "BR";
+  const suffix = showFallbackNote ? " (câmbio da origem indisponível)" : "";
   return {
     unitLabel: e.unitLabel,
     currency: e.currency,
     amountFormatted,
     showFallbackNote,
     quote: `${e.unitLabel} ${e.currency} = ${amountFormatted}${suffix}`,
-  }
+  };
 }
 
-/** One-line exchange quote, e.g. "1 EUR = R$ 5,92" or "1 USD = CA$ 1,36". */
+/** Cotação de câmbio em uma linha, ex.: "1 EUR = R$ 5,92" ou "1 USD = CA$ 1,36". */
 export function formatExchange(
   exchange?: ExchangeLike | null,
   originExchange?: ExchangeLike | null,
   originCountryCode?: string,
   destinationCountryCode?: string,
 ): string | null {
-  return resolveExchangeQuote(exchange, originExchange, originCountryCode, destinationCountryCode)?.quote ?? null
+  return (
+    resolveExchangeQuote(
+      exchange,
+      originExchange,
+      originCountryCode,
+      destinationCountryCode,
+    )?.quote ?? null
+  );
 }
 
-/** Split exchange quote for stat cards: amount in origin currency + unit label. */
+/** Divide a cotação para cards de estatística: valor na moeda de origem + rótulo da unidade. */
 export function formatExchangeParts(
   exchange?: ExchangeLike | null,
   originExchange?: ExchangeLike | null,
   originCountryCode?: string,
   destinationCountryCode?: string,
 ) {
-  const q = resolveExchangeQuote(exchange, originExchange, originCountryCode, destinationCountryCode)
-  if (!q) return null
+  const q = resolveExchangeQuote(
+    exchange,
+    originExchange,
+    originCountryCode,
+    destinationCountryCode,
+  );
+  if (!q) return null;
   return {
     amount: q.amountFormatted,
     unitDescription: `por ${q.unitLabel} ${q.currency}`,
     showFallbackNote: q.showFallbackNote,
-  }
+  };
 }
 
 export function formatInOriginCurrency(
@@ -168,17 +191,17 @@ export function formatInOriginCurrency(
   originCountryCode?: string,
 ): { formatted: string; isFallback: boolean; showFallbackNote: boolean } {
   if (originExchange && originExchange.valueInReais > 0) {
-    const converted = brlValue / originExchange.valueInReais
-    const formatted = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
+    const converted = brlValue / originExchange.valueInReais;
+    const formatted = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
       currency: originExchange.currency,
       maximumFractionDigits: 0,
-    }).format(converted)
-    return { formatted, isFallback: false, showFallbackNote: false }
+    }).format(converted);
+    return { formatted, isFallback: false, showFallbackNote: false };
   }
   return {
     formatted: formatBrl(brlValue),
     isFallback: true,
-    showFallbackNote: originCountryCode != null && originCountryCode !== 'BR',
-  }
+    showFallbackNote: originCountryCode != null && originCountryCode !== "BR",
+  };
 }

@@ -7,10 +7,9 @@ import java.util.List;
  * Impede que um destino com pouca evidência pareça tão confiável quanto um completo.
  */
 public record DataQuality(
-        double coverage,
-        double confidenceScore,
-        int availableCriteria,
-        int totalCriteria,
-        List<String> missingCriteria
-) {
-}
+  double coverage,
+  double confidenceScore,
+  int availableCriteria,
+  int totalCriteria,
+  List<String> missingCriteria
+) {}

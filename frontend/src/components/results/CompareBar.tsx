@@ -1,9 +1,9 @@
-import { AnimatePresence, motion } from 'framer-motion'
-import { Columns3, X } from 'lucide-react'
-import type { TravelRecommendation } from '@/api/types'
-import { Button } from '@/components/ui/button'
-import { Flag } from '@/components/shared/Flag'
-import { spring } from '@/lib/motion'
+import { AnimatePresence, motion } from "framer-motion";
+import { Columns3, X } from "lucide-react";
+import type { TravelRecommendation } from "@/api/types";
+import { Button } from "@/components/ui/button";
+import { Flag } from "@/components/shared/Flag";
+import { spring } from "@/lib/motion";
 
 export function CompareBar({
   recommendations,
@@ -12,11 +12,11 @@ export function CompareBar({
   onRemove,
   onCompare,
 }: {
-  recommendations: TravelRecommendation[]
-  visible: boolean
-  maxCompare: number
-  onRemove: (countryCode: string) => void
-  onCompare: () => void
+  recommendations: TravelRecommendation[];
+  visible: boolean;
+  maxCompare: number;
+  onRemove: (countryCode: string) => void;
+  onCompare: () => void;
 }) {
   return (
     <AnimatePresence>
@@ -41,8 +41,13 @@ export function CompareBar({
                       exit={{ opacity: 0, scale: 0.8 }}
                       className="flex shrink-0 items-center gap-1.5 rounded-full border border-hairline bg-surface-2/70 py-1 pl-2 pr-1 text-xs font-medium"
                     >
-                      <Flag code={rec.countryCode} className="h-3 w-4 shrink-0" />
-                      <span className="max-w-[9rem] truncate">{rec.countryName}</span>
+                      <Flag
+                        code={rec.countryCode}
+                        className="h-3 w-4 shrink-0"
+                      />
+                      <span className="max-w-[9rem] truncate">
+                        {rec.countryName}
+                      </span>
                       <button
                         type="button"
                         onClick={() => onRemove(rec.countryCode)}
@@ -57,7 +62,7 @@ export function CompareBar({
                 {recommendations.length < maxCompare && (
                   <span className="px-1 text-xs text-muted-foreground">
                     {recommendations.length < 2
-                      ? 'escolha +1 para comparar'
+                      ? "escolha +1 para comparar"
                       : `+${maxCompare - recommendations.length} possível`}
                   </span>
                 )}
@@ -76,5 +81,5 @@ export function CompareBar({
         </motion.div>
       )}
     </AnimatePresence>
-  )
+  );
 }

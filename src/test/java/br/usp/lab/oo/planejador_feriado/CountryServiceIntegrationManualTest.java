@@ -3,30 +3,29 @@
 
 package br.usp.lab.oo.planejador_feriado;
 
+import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import br.usp.lab.oo.planejador_feriado.country.service.CountryService;
-
-// @SpringBootApplication 
+// @SpringBootApplication
 public class CountryServiceIntegrationManualTest implements CommandLineRunner {
 
-    private final CountryService service;
+  private final CountryService service;
 
-    public CountryServiceIntegrationManualTest(CountryService service) {
-        this.service = service;
-    }
+  public CountryServiceIntegrationManualTest(CountryService service) {
+    this.service = service;
+  }
 
-    public static void main(String[] args) {
-        SpringApplication.run(CountryServiceIntegrationManualTest.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(CountryServiceIntegrationManualTest.class, args);
+  }
 
-    @Override
-    public void run(String... args) {
-        var country = service.getCountryByName("brazil");
-        System.out.println(country);
-        country = service.getCountryByCode("BR");
-        System.out.println(country);
-    }
+  @Override
+  public void run(String... args) {
+    var country = service.getCountryByName("brazil");
+    System.out.println(country);
+    country = service.getCountryByCode("BR");
+    System.out.println(country);
+  }
 }

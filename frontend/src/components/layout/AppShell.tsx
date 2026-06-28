@@ -1,15 +1,15 @@
-import { AnimatePresence } from 'framer-motion'
-import { Outlet, useLocation } from 'react-router-dom'
-import { Header } from './Header'
-import { BottomNav } from './BottomNav'
-import { Footer } from './Footer'
-import { PageTransition } from './PageTransition'
-import { Backdrop } from '@/components/shared/Backdrop'
-import { LandingBackdrop } from '@/components/landing/LandingBackdrop'
+import { AnimatePresence } from "framer-motion";
+import { Outlet, useLocation } from "react-router-dom";
+import { Header } from "./Header";
+import { BottomNav } from "./BottomNav";
+import { Footer } from "./Footer";
+import { PageTransition } from "./PageTransition";
+import { Backdrop } from "@/components/shared/Backdrop";
+import { LandingBackdrop } from "@/components/landing/LandingBackdrop";
 
 export function AppShell() {
-  const location = useLocation()
-  const isLanding = location.pathname === '/'
+  const location = useLocation();
+  const isLanding = location.pathname === "/";
 
   return (
     <div className="relative flex min-h-svh flex-col">
@@ -25,5 +25,5 @@ export function AppShell() {
       <Footer />
       <BottomNav />
     </div>
-  )
+  );
 }

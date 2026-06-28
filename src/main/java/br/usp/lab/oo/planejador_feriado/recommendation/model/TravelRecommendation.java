@@ -3,7 +3,6 @@ package br.usp.lab.oo.planejador_feriado.recommendation.model;
 import br.usp.lab.oo.planejador_feriado.enrichment.model.DestinationProfile;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 import br.usp.lab.oo.planejador_feriado.weather.model.WeatherSummary;
-
 import java.util.List;
 
 /**
@@ -14,53 +13,83 @@ import java.util.List;
  * gráfico, independente do peso dado ao critério de clima.
  */
 public record TravelRecommendation(
-        String countryCode,
-        String countryName,
-        double destinationScore,
-        double windowScore,
-        double tripScore,
-        DataQuality dataQuality,
-        List<ScoredCriterion> breakdown,
-        List<String> highlights,
-        List<String> tradeoffs,
-        String summary,
-        Exchange exchangeToBrl,
-        DestinationProfile profile,
-        TripFeasibility feasibility,
-        WeatherSummary climate
+  String countryCode,
+  String countryName,
+  double destinationScore,
+  double windowScore,
+  double tripScore,
+  DataQuality dataQuality,
+  List<ScoredCriterion> breakdown,
+  List<String> highlights,
+  List<String> tradeoffs,
+  String summary,
+  Exchange exchangeToBrl,
+  DestinationProfile profile,
+  TripFeasibility feasibility,
+  WeatherSummary climate
 ) {
-    public TravelRecommendation(
-            String countryCode,
-            String countryName,
-            double destinationScore,
-            double windowScore,
-            double tripScore,
-            DataQuality dataQuality,
-            List<ScoredCriterion> breakdown,
-            List<String> highlights,
-            List<String> tradeoffs,
-            String summary,
-            Exchange exchangeToBrl,
-            DestinationProfile profile) {
-        this(countryCode, countryName, destinationScore, windowScore, tripScore, dataQuality,
-                breakdown, highlights, tradeoffs, summary, exchangeToBrl, profile, null, null);
-    }
+  public TravelRecommendation(
+    String countryCode,
+    String countryName,
+    double destinationScore,
+    double windowScore,
+    double tripScore,
+    DataQuality dataQuality,
+    List<ScoredCriterion> breakdown,
+    List<String> highlights,
+    List<String> tradeoffs,
+    String summary,
+    Exchange exchangeToBrl,
+    DestinationProfile profile
+  ) {
+    this(
+      countryCode,
+      countryName,
+      destinationScore,
+      windowScore,
+      tripScore,
+      dataQuality,
+      breakdown,
+      highlights,
+      tradeoffs,
+      summary,
+      exchangeToBrl,
+      profile,
+      null,
+      null
+    );
+  }
 
-    public TravelRecommendation(
-            String countryCode,
-            String countryName,
-            double destinationScore,
-            double windowScore,
-            double tripScore,
-            DataQuality dataQuality,
-            List<ScoredCriterion> breakdown,
-            List<String> highlights,
-            List<String> tradeoffs,
-            String summary,
-            Exchange exchangeToBrl,
-            DestinationProfile profile,
-            TripFeasibility feasibility) {
-        this(countryCode, countryName, destinationScore, windowScore, tripScore, dataQuality,
-                breakdown, highlights, tradeoffs, summary, exchangeToBrl, profile, feasibility, null);
-    }
+  public TravelRecommendation(
+    String countryCode,
+    String countryName,
+    double destinationScore,
+    double windowScore,
+    double tripScore,
+    DataQuality dataQuality,
+    List<ScoredCriterion> breakdown,
+    List<String> highlights,
+    List<String> tradeoffs,
+    String summary,
+    Exchange exchangeToBrl,
+    DestinationProfile profile,
+    TripFeasibility feasibility
+  ) {
+    this(
+      countryCode,
+      countryName,
+      destinationScore,
+      windowScore,
+      tripScore,
+      dataQuality,
+      breakdown,
+      highlights,
+      tradeoffs,
+      summary,
+      exchangeToBrl,
+      profile,
+      feasibility,
+      null
+    );
+  }
 }

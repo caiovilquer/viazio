@@ -1,38 +1,38 @@
-import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
-import { Link } from 'react-router-dom'
-import { Check, AlertTriangle } from 'lucide-react'
-import type { Exchange, TravelRecommendation } from '@/api/types'
-import { useDestinationImage } from '@/api/images'
-import { ScoreRing } from '@/components/shared/ScoreRing'
-import { ScoreComposition } from '@/components/shared/ScoreComposition'
-import { FavoriteButton } from '@/components/shared/FavoriteButton'
-import { Flag } from '@/components/shared/Flag'
-import { favoriteContextFromParams } from '@/lib/favorites'
-import { formatExchange } from '@/lib/format'
-import { ease } from '@/lib/motion'
-import { cn } from '@/lib/utils'
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Check, AlertTriangle } from "lucide-react";
+import type { Exchange, TravelRecommendation } from "@/api/types";
+import { useDestinationImage } from "@/api/images";
+import { ScoreRing } from "@/components/shared/ScoreRing";
+import { ScoreComposition } from "@/components/shared/ScoreComposition";
+import { FavoriteButton } from "@/components/shared/FavoriteButton";
+import { Flag } from "@/components/shared/Flag";
+import { favoriteContextFromParams } from "@/lib/favorites";
+import { formatExchange } from "@/lib/format";
+import { ease } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
-/** Wikipedia's country `imageUrl` is often just the flag — reject those. */
+/** O `imageUrl` do país na Wikipedia costuma ser só a bandeira — rejeitar esses casos. */
 function isLikelyFlag(url?: string | null) {
-  if (!url) return true
-  const u = url.toLowerCase()
-  return u.includes('flag') || u.endsWith('.svg')
+  if (!url) return true;
+  const u = url.toLowerCase();
+  return u.includes("flag") || u.endsWith(".svg");
 }
 
 function CardBanner({
   recommendation,
   photoUrl,
 }: {
-  recommendation: TravelRecommendation
-  photoUrl: string | null
+  recommendation: TravelRecommendation;
+  photoUrl: string | null;
 }) {
-  const { countryName, countryCode } = recommendation
-  const [loaded, setLoaded] = useState(false)
+  const { countryName, countryCode } = recommendation;
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <div className="relative h-40 w-full overflow-hidden sm:h-44">
-      {/* Base layer — flag color wash + framed flag (placeholder + graceful fallback) */}
+      {/* Camada base — lavagem da cor da bandeira + bandeira emoldurada (espaço reservado + alternativa graciosa) */}
       <div className="absolute inset-0 bg-[linear-gradient(140deg,var(--surface-3),var(--surface-1))]">
         <Flag
           code={countryCode}
@@ -48,7 +48,7 @@ function CardBanner({
         )}
       </div>
 
-      {/* Real destination photo on top, fading in */}
+      {/* Foto real do destino por cima, entrando com esmaecimento */}
       {photoUrl && (
         <img
           src={photoUrl}
@@ -56,8 +56,8 @@ function CardBanner({
           loading="lazy"
           onLoad={() => setLoaded(true)}
           className={cn(
-            'absolute inset-0 size-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.05]',
-            loaded ? 'opacity-100' : 'opacity-0',
+            "absolute inset-0 size-full object-cover transition-[opacity,transform] duration-700 ease-out group-hover:scale-[1.05]",
+            loaded ? "opacity-100" : "opacity-0",
           )}
         />
       )}
@@ -71,7 +71,7 @@ function CardBanner({
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 export function RecommendationCard({
@@ -89,32 +89,51 @@ export function RecommendationCard({
   originExchangeToBrl,
   originCountryCode,
 }: {
-  recommendation: TravelRecommendation
-  rank: number
-  searchQuery: string
-  originExchangeToBrl?: Exchange | null
-  originCountryCode?: string
-  selectable?: boolean
-  selected?: boolean
-  selectDisabled?: boolean
-  showRank?: boolean
-  /** Highlighted from outside (e.g. hovering the matching pin on CandidatesMap). */
-  emphasized?: boolean
-  onToggleSelect?: () => void
-  onHoverStart?: () => void
-  onHoverEnd?: () => void
+  recommendation: TravelRecommendation;
+  rank: number;
+  searchQuery: string;
+  originExchangeToBrl?: Exchange | null;
+  originCountryCode?: string;
+  selectable?: boolean;
+  selected?: boolean;
+  selectDisabled?: boolean;
+  showRank?: boolean;
+  /** Destacado de fora (ex.: passar o mouse no pin correspondente no CandidatesMap). */
+  emphasized?: boolean;
+  onToggleSelect?: () => void;
+  onHoverStart?: () => void;
+  onHoverEnd?: () => void;
 }) {
-  const { exchangeToBrl, feasibility, profile, countryCode: destinationCountryCode } = recommendation
-  const exchangeLabel = formatExchange(exchangeToBrl, originExchangeToBrl, originCountryCode, destinationCountryCode)
+  const {
+    exchangeToBrl,
+    feasibility,
+    profile,
+    countryCode: destinationCountryCode,
+  } = recommendation;
+  const exchangeLabel = formatExchange(
+    exchangeToBrl,
+    originExchangeToBrl,
+    originCountryCode,
+    destinationCountryCode,
+  );
   const savedContext = useMemo(
-    () => (searchQuery ? favoriteContextFromParams(new URLSearchParams(searchQuery)) : undefined),
+    () =>
+      searchQuery
+        ? favoriteContextFromParams(new URLSearchParams(searchQuery))
+        : undefined,
     [searchQuery],
-  )
-  const { data: cityPhoto } = useDestinationImage(feasibility?.destination.name)
-  const backendPhoto = !isLikelyFlag(profile.imageUrl) ? profile.imageUrl : null
-  const photoUrl = cityPhoto ?? backendPhoto ?? null
-  // Distance already surfaces in the "Viagem longa: ~X km" tradeoff — don't repeat it in the meta row.
-  const distanceInTradeoff = recommendation.tradeoffs.some((t) => t.includes('km'))
+  );
+  const { data: cityPhoto } = useDestinationImage(
+    feasibility?.destination.name,
+  );
+  const backendPhoto = !isLikelyFlag(profile.imageUrl)
+    ? profile.imageUrl
+    : null;
+  const photoUrl = cityPhoto ?? backendPhoto ?? null;
+  // Distância já aparece no contraponto "Viagem longa: ~X km" — não repetir na linha de metadados.
+  const distanceInTradeoff = recommendation.tradeoffs.some((t) =>
+    t.includes("km"),
+  );
 
   const body = (
     <>
@@ -141,13 +160,18 @@ export function RecommendationCard({
                 {t}
               </span>
             ))}
-            {recommendation.highlights.length === 0 && recommendation.tradeoffs.length === 0 && (
-              <span className="text-sm text-muted-foreground">
-                Destino tranquilo, sem grandes destaques.
-              </span>
-            )}
+            {recommendation.highlights.length === 0 &&
+              recommendation.tradeoffs.length === 0 && (
+                <span className="text-sm text-muted-foreground">
+                  Destino tranquilo, sem grandes destaques.
+                </span>
+              )}
           </div>
-          <ScoreRing score={recommendation.tripScore} size={48} strokeWidth={5} />
+          <ScoreRing
+            score={recommendation.tripScore}
+            size={48}
+            strokeWidth={5}
+          />
         </div>
 
         <ScoreComposition breakdown={recommendation.breakdown} size="sm" />
@@ -160,32 +184,39 @@ export function RecommendationCard({
             )}
             {feasibility && !distanceInTradeoff && (
               <span className="tabular-nums">
-                {Math.round(feasibility.travelEffort.distanceKm).toLocaleString('pt-BR')} km
+                {Math.round(feasibility.travelEffort.distanceKm).toLocaleString(
+                  "pt-BR",
+                )}{" "}
+                km
               </span>
             )}
           </div>
         )}
       </div>
     </>
-  )
+  );
 
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: Math.min(rank * 0.05, 0.4), ease: ease.out }}
+      transition={{
+        duration: 0.4,
+        delay: Math.min(rank * 0.05, 0.4),
+        ease: ease.out,
+      }}
       whileHover={{ y: -4 }}
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border bg-surface/70 transition-[box-shadow,border-color]',
+        "group relative overflow-hidden rounded-2xl border bg-surface/70 transition-[box-shadow,border-color]",
         selected
-          ? 'border-gold/50 ring-1 ring-gold/30 elevate-lg'
+          ? "border-gold/50 ring-1 ring-gold/30 elevate-lg"
           : emphasized
-            ? 'border-gold/35 ring-1 ring-gold/20 elevate-lg'
-            : 'border-hairline elevate hover:border-foreground/15 hover:elevate-lg',
-        selectable && selectDisabled && !selected && 'opacity-50',
+            ? "border-gold/35 ring-1 ring-gold/20 elevate-lg"
+            : "border-hairline elevate hover:border-foreground/15 hover:elevate-lg",
+        selectable && selectDisabled && !selected && "opacity-50",
       )}
     >
       {showRank && (
@@ -202,12 +233,14 @@ export function RecommendationCard({
           onClick={onToggleSelect}
           disabled={selectDisabled && !selected}
           aria-pressed={selected}
-          aria-label={selected ? 'Remover da comparação' : 'Selecionar para comparar'}
+          aria-label={
+            selected ? "Remover da comparação" : "Selecionar para comparar"
+          }
           className={cn(
-            'absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full border backdrop-blur transition-colors',
+            "absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-full border backdrop-blur transition-colors",
             selected
-              ? 'border-gold bg-gold text-gold-foreground'
-              : 'border-hairline bg-background/50 text-transparent hover:border-gold/50',
+              ? "border-gold bg-gold text-gold-foreground"
+              : "border-hairline bg-background/50 text-transparent hover:border-gold/50",
           )}
         >
           <Check className="size-4" strokeWidth={3} />
@@ -232,12 +265,15 @@ export function RecommendationCard({
       ) : (
         <Link
           to={`/destino/${recommendation.countryCode}?${searchQuery}`}
-          state={{ recommendation, originExchangeToBrl: originExchangeToBrl ?? null }}
+          state={{
+            recommendation,
+            originExchangeToBrl: originExchangeToBrl ?? null,
+          }}
           className="block"
         >
           {body}
         </Link>
       )}
     </motion.div>
-  )
+  );
 }

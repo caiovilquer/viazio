@@ -1,7 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.holiday.client;
 
 import br.usp.lab.oo.planejador_feriado.holiday.dto.HolidayDTO;
-
 import java.util.List;
 
 /**
@@ -9,6 +8,5 @@ import java.util.List;
  * (ex.: com cache) sem que {@code HolidayService} precise conhecer o detalhe.
  */
 public interface HolidayClient {
-
-    List<HolidayDTO> getPublicHolidays(int year, String countryCode);
+  List<HolidayDTO> getPublicHolidays(int year, String countryCode);
 }

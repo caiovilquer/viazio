@@ -16,13 +16,12 @@ package br.usp.lab.oo.planejador_feriado.recommendation.model;
  * @param justification explicação legível da nota
  */
 public record ScoredCriterion(
-        String criterion,
-        String label,
-        String icon,
-        boolean available,
-        double score,
-        double weight,
-        double contribution,
-        String justification
-) {
-}
+  String criterion,
+  String label,
+  String icon,
+  boolean available,
+  double score,
+  double weight,
+  double contribution,
+  String justification
+) {}

@@ -9,18 +9,21 @@ package br.usp.lab.oo.planejador_feriado.recommendation.model;
  * da média ponderada — em vez de penalizar o destino com nota zero.</p>
  */
 public record ScoreEntry(
-        Criterion criterion,
-        boolean available,
-        double score,
-        String justification
+  Criterion criterion,
+  boolean available,
+  double score,
+  String justification
 ) {
+  public static ScoreEntry of(
+    Criterion criterion,
+    double score,
+    String justification
+  ) {
+    double clamped = Math.max(0.0, Math.min(100.0, score));
+    return new ScoreEntry(criterion, true, clamped, justification);
+  }
 
-    public static ScoreEntry of(Criterion criterion, double score, String justification) {
-        double clamped = Math.max(0.0, Math.min(100.0, score));
-        return new ScoreEntry(criterion, true, clamped, justification);
-    }
-
-    public static ScoreEntry unavailable(Criterion criterion, String reason) {
-        return new ScoreEntry(criterion, false, 0.0, reason);
-    }
+  public static ScoreEntry unavailable(Criterion criterion, String reason) {
+    return new ScoreEntry(criterion, false, 0.0, reason);
+  }
 }

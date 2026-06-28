@@ -9,39 +9,60 @@ import java.util.Map;
  * retornada; a região inteira é avaliada antes do corte do ranking.
  */
 public record RecommendationRequest(
-        LocalDate from,
-        LocalDate to,
-        List<String> countryCodes,
-        String region,
-        int limit,
-        String profile,
-        Map<Criterion, Double> weightOverrides,
-        List<String> excludedCountryCodes,
-        String originCountryCode,
-        String originSubdivisionCode,
-        Double originLatitude,
-        Double originLongitude,
-        String originCityName,
-        int travelers,
-        Double maxGroundBudgetBrl
+  LocalDate from,
+  LocalDate to,
+  List<String> countryCodes,
+  String region,
+  int limit,
+  String profile,
+  Map<Criterion, Double> weightOverrides,
+  List<String> excludedCountryCodes,
+  String originCountryCode,
+  String originSubdivisionCode,
+  Double originLatitude,
+  Double originLongitude,
+  String originCityName,
+  int travelers,
+  Double maxGroundBudgetBrl
 ) {
-    public RecommendationRequest {
-        countryCodes = countryCodes != null ? List.copyOf(countryCodes) : List.of();
-        weightOverrides = weightOverrides != null ? Map.copyOf(weightOverrides) : Map.of();
-        excludedCountryCodes = excludedCountryCodes != null ? List.copyOf(excludedCountryCodes) : List.of();
-        originCountryCode = originCountryCode == null || originCountryCode.isBlank()
-                ? "BR"
-                : originCountryCode;
-        travelers = travelers > 0 ? travelers : 1;
-    }
+  public RecommendationRequest {
+    countryCodes = countryCodes != null ? List.copyOf(countryCodes) : List.of();
+    weightOverrides =
+      weightOverrides != null ? Map.copyOf(weightOverrides) : Map.of();
+    excludedCountryCodes =
+      excludedCountryCodes != null
+        ? List.copyOf(excludedCountryCodes)
+        : List.of();
+    originCountryCode =
+      originCountryCode == null || originCountryCode.isBlank()
+        ? "BR"
+        : originCountryCode;
+    travelers = travelers > 0 ? travelers : 1;
+  }
 
-    public RecommendationRequest(
-            LocalDate from,
-            LocalDate to,
-            List<String> countryCodes,
-            String region,
-            int limit) {
-        this(from, to, countryCodes, region, limit, null, Map.of(), List.of(),
-                "BR", null, null, null, null, 1, null);
-    }
+  public RecommendationRequest(
+    LocalDate from,
+    LocalDate to,
+    List<String> countryCodes,
+    String region,
+    int limit
+  ) {
+    this(
+      from,
+      to,
+      countryCodes,
+      region,
+      limit,
+      null,
+      Map.of(),
+      List.of(),
+      "BR",
+      null,
+      null,
+      null,
+      null,
+      1,
+      null
+    );
+  }
 }

@@ -1,65 +1,73 @@
 package br.usp.lab.oo.planejador_feriado.country.client;
 
-import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import br.usp.lab.oo.planejador_feriado.country.dto.CountryDTO;
+import java.util.List;
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 @ExtendWith(MockitoExtension.class)
 class CachingCountryClientTest {
 
-    @Mock
-    private StaticCountryClient delegate;
+  @Mock
+  private StaticCountryClient delegate;
 
-    @Test
-    void cachesRepeatedCallsByCode() {
-        List<CountryDTO> brazil = List.of(new CountryDTO(
-                new CountryDTO.NameDTO("Brazil", null), "BR", "Americas", "South America",
-                List.of("Brasília"), Map.of("por", "Portuguese"), Map.of(), List.of("UTC-03:00"),
-                List.of(-10.0, -55.0)));
-        when(delegate.getCountryByCode("BR")).thenReturn(brazil);
+  @Test
+  void cachesRepeatedCallsByCode() {
+    List<CountryDTO> brazil = List.of(
+      new CountryDTO(
+        new CountryDTO.NameDTO("Brazil", null),
+        "BR",
+        "Americas",
+        "South America",
+        List.of("Brasília"),
+        Map.of("por", "Portuguese"),
+        Map.of(),
+        List.of("UTC-03:00"),
+        List.of(-10.0, -55.0)
+      )
+    );
+    when(delegate.getCountryByCode("BR")).thenReturn(brazil);
 
-        CachingCountryClient client = new CachingCountryClient(delegate);
+    CachingCountryClient client = new CachingCountryClient(delegate);
 
-        List<CountryDTO> first = client.getCountryByCode("BR");
-        List<CountryDTO> second = client.getCountryByCode("br");
+    List<CountryDTO> first = client.getCountryByCode("BR");
+    List<CountryDTO> second = client.getCountryByCode("br");
 
-        assertSame(brazil, first);
-        assertSame(brazil, second);
-        verify(delegate, times(1)).getCountryByCode("BR");
-    }
+    assertSame(brazil, first);
+    assertSame(brazil, second);
+    verify(delegate, times(1)).getCountryByCode("BR");
+  }
 
-    @Test
-    void doesNotMixCacheKeysAcrossOperations() {
-        when(delegate.getCountryByName("Brazil")).thenReturn(List.of());
-        when(delegate.getCountriesByRegion("Americas")).thenReturn(List.of());
+  @Test
+  void doesNotMixCacheKeysAcrossOperations() {
+    when(delegate.getCountryByName("Brazil")).thenReturn(List.of());
+    when(delegate.getCountriesByRegion("Americas")).thenReturn(List.of());
 
-        CachingCountryClient client = new CachingCountryClient(delegate);
-        client.getCountryByName("Brazil");
-        client.getCountriesByRegion("Americas");
+    CachingCountryClient client = new CachingCountryClient(delegate);
+    client.getCountryByName("Brazil");
+    client.getCountriesByRegion("Americas");
 
-        verify(delegate, times(1)).getCountryByName("Brazil");
-        verify(delegate, times(1)).getCountriesByRegion("Americas");
-    }
+    verify(delegate, times(1)).getCountryByName("Brazil");
+    verify(delegate, times(1)).getCountriesByRegion("Americas");
+  }
 
-    @Test
-    void cachesCompleteCatalog() {
-        List<CountryDTO> countries = List.of();
-        when(delegate.getAllCountries()).thenReturn(countries);
+  @Test
+  void cachesCompleteCatalog() {
+    List<CountryDTO> countries = List.of();
+    when(delegate.getAllCountries()).thenReturn(countries);
 
-        CachingCountryClient client = new CachingCountryClient(delegate);
+    CachingCountryClient client = new CachingCountryClient(delegate);
 
-        assertSame(countries, client.getAllCountries());
-        assertSame(countries, client.getAllCountries());
-        verify(delegate, times(1)).getAllCountries();
-    }
+    assertSame(countries, client.getAllCountries());
+    assertSame(countries, client.getAllCountries());
+    verify(delegate, times(1)).getAllCountries();
+  }
 }

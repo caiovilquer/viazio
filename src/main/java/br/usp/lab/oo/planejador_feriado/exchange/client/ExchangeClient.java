@@ -1,7 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.exchange.client;
 
 import br.usp.lab.oo.planejador_feriado.exchange.dto.ExchangeDTO;
-
 import java.util.Map;
 
 /**
@@ -9,6 +8,5 @@ import java.util.Map;
  * (ex.: com cache) sem que {@code ExchangeService} precise conhecer o detalhe.
  */
 public interface ExchangeClient {
-
-    Map<String, ExchangeDTO> getExchangeRate(String currencyCode);
+  Map<String, ExchangeDTO> getExchangeRate(String currencyCode);
 }

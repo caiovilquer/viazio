@@ -1,7 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.recommendation.dto;
 
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,13 +13,12 @@ import java.util.List;
  * @param topDestinations melhores destinos avaliados para esta janela (pode ser vazio)
  */
 public record WindowSuggestion(
-        LocalDate start,
-        LocalDate end,
-        int totalDays,
-        int bridgeDaysUsed,
-        int requiredLeaveDays,
-        String label,
-        double timingScore,
-        List<TravelRecommendation> topDestinations
-) {
-}
+  LocalDate start,
+  LocalDate end,
+  int totalDays,
+  int bridgeDaysUsed,
+  int requiredLeaveDays,
+  String label,
+  double timingScore,
+  List<TravelRecommendation> topDestinations
+) {}

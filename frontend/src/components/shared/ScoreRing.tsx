@@ -1,19 +1,19 @@
-import { motion } from 'framer-motion'
-import { useCountUp } from './CountUp'
-import { ease } from '@/lib/motion'
-import { scoreTone } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import { motion } from "framer-motion";
+import { useCountUp } from "./CountUp";
+import { ease } from "@/lib/motion";
+import { scoreTone } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
-// Warm tiers — never grey. Shared with other score-driven dataviz (e.g. ClimateChart).
+// Faixas quentes — nunca cinza. Compartilhado com outras visualizações de nota (ex.: ClimateChart).
 export const scoreTierColor: Record<string, string> = {
-  excellent: 'var(--gold)',
-  good: 'var(--primary)',
-  fair: 'var(--chart-3)',
-  poor: 'var(--chart-5)',
-}
+  excellent: "var(--gold)",
+  good: "var(--primary)",
+  fair: "var(--chart-3)",
+  poor: "var(--chart-5)",
+};
 
-const tierColor = scoreTierColor
-const tierOf = scoreTone
+const tierColor = scoreTierColor;
+const tierOf = scoreTone;
 
 export function ScoreRing({
   score,
@@ -23,24 +23,27 @@ export function ScoreRing({
   animate = false,
   className,
 }: {
-  score: number
-  size?: number
-  strokeWidth?: number
-  label?: string
-  /** Draw the arc + count the number on mount. Use for a single prominent ring. */
-  animate?: boolean
-  className?: string
+  score: number;
+  size?: number;
+  strokeWidth?: number;
+  label?: string;
+  /** Desenha o arco + anima o número na montagem. Usar para um anel único em destaque. */
+  animate?: boolean;
+  className?: string;
 }) {
-  const radius = (size - strokeWidth) / 2
-  const circumference = 2 * Math.PI * radius
-  const clamped = Math.max(0, Math.min(100, score))
-  const tier = tierOf(clamped)
-  const targetOffset = circumference - (clamped / 100) * circumference
-  const display = useCountUp(Math.round(clamped), 1.1, animate)
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const clamped = Math.max(0, Math.min(100, score));
+  const tier = tierOf(clamped);
+  const targetOffset = circumference - (clamped / 100) * circumference;
+  const display = useCountUp(Math.round(clamped), 1.1, animate);
 
   return (
     <div
-      className={cn('relative flex shrink-0 items-center justify-center', className)}
+      className={cn(
+        "relative flex shrink-0 items-center justify-center",
+        className,
+      )}
       style={{ width: size, height: size }}
     >
       <svg width={size} height={size} className="-rotate-90">
@@ -97,5 +100,5 @@ export function ScoreRing({
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-import { motion, useReducedMotion } from 'framer-motion'
-import type { ReactNode } from 'react'
-import { ease } from '@/lib/motion'
+import { motion, useReducedMotion } from "framer-motion";
+import type { ReactNode } from "react";
+import { ease } from "@/lib/motion";
 
 export function PageTransition({ children }: { children: ReactNode }) {
-  const reduce = useReducedMotion()
+  const reduce = useReducedMotion();
 
-  if (reduce) return <div>{children}</div>
+  if (reduce) return <div>{children}</div>;
 
   return (
     <motion.div
@@ -16,5 +16,5 @@ export function PageTransition({ children }: { children: ReactNode }) {
     >
       {children}
     </motion.div>
-  )
+  );
 }

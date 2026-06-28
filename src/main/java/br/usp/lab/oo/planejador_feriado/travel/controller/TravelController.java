@@ -13,17 +13,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/travel")
 public class TravelController {
 
-    private final TravelService travelService;
+  private final TravelService travelService;
 
-    public TravelController(TravelService travelService) {
-        this.travelService = travelService;
-    }
+  public TravelController(TravelService travelService) {
+    this.travelService = travelService;
+  }
 
-    @GetMapping("/{countryCode}")
-    public TravelOverview getOverview(@PathVariable String countryCode) {
-        if (countryCode == null || countryCode.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Country code is required");
-        }
-        return travelService.getOverviewByCountryCode(countryCode);
+  @GetMapping("/{countryCode}")
+  public TravelOverview getOverview(@PathVariable String countryCode) {
+    if (countryCode == null || countryCode.trim().isEmpty()) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Country code is required"
+      );
     }
+    return travelService.getOverviewByCountryCode(countryCode);
+  }
 }

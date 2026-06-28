@@ -9,9 +9,8 @@ import br.usp.lab.oo.planejador_feriado.recommendation.model.RecommendationReque
  * descartado antes do scoring.
  */
 public record FilterContext(
-        String countryCode,
-        Country country,
-        GroundCostEstimate groundCost,
-        RecommendationRequest request
-) {
-}
+  String countryCode,
+  Country country,
+  GroundCostEstimate groundCost,
+  RecommendationRequest request
+) {}

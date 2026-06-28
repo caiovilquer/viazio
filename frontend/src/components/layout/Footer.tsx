@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
-import { navItems } from './nav-items'
+import { Link } from "react-router-dom";
+import { navItems } from "./nav-items";
 
 export function Footer() {
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
 
   return (
     <footer className="relative mt-auto border-t border-hairline bg-[#06101f] pb-20 md:pb-0">
@@ -13,11 +13,16 @@ export function Footer() {
             aria-label="Viazio — início"
             className="inline-flex transition-opacity hover:opacity-90"
           >
-            <img src="/logo-horizontal.svg" alt="Viazio" className="h-30 w-auto" />
+            <img
+              src="/logo-horizontal.svg"
+              alt="Viazio"
+              className="h-30 w-auto"
+            />
           </Link>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Feriadões que rendem mais. A Viazio cruza clima, câmbio, custo de vida e festividades —
-            e explica, em uma nota clara, qual destino vale a viagem.
+            Feriadões que rendem mais. A Viazio cruza clima, câmbio, custo de
+            vida e festividades — e explica, em uma nota clara, qual destino
+            vale a viagem.
           </p>
           <p className="mt-5 flex items-center gap-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-gold/80">
             <span>Planeje</span>
@@ -54,5 +59,5 @@ export function Footer() {
         </div>
       </div>
     </footer>
-  )
+  );
 }

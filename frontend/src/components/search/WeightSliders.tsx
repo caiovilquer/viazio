@@ -1,17 +1,17 @@
-import { motion } from 'framer-motion'
-import { Slider } from '@/components/ui/slider'
-import type { CriterionKey, CriterionOption } from '@/api/types'
+import { motion } from "framer-motion";
+import { Slider } from "@/components/ui/slider";
+import type { CriterionKey, CriterionOption } from "@/api/types";
 
 export function WeightSliders({
   criteria,
   weights,
   onChange,
 }: {
-  criteria: CriterionOption[]
-  weights: Record<CriterionKey, number>
-  onChange: (criterion: CriterionKey, value: number) => void
+  criteria: CriterionOption[];
+  weights: Record<CriterionKey, number>;
+  onChange: (criterion: CriterionKey, value: number) => void;
 }) {
-  const total = Object.values(weights).reduce((sum, v) => sum + v, 0) || 1
+  const total = Object.values(weights).reduce((sum, v) => sum + v, 0) || 1;
 
   return (
     <motion.div
@@ -20,7 +20,7 @@ export function WeightSliders({
       className="space-y-5 rounded-xl border border-hairline bg-surface/40 p-5"
     >
       {criteria.map((criterion) => {
-        const pct = Math.round((weights[criterion.key] / total) * 100)
+        const pct = Math.round((weights[criterion.key] / total) * 100);
         return (
           <div key={criterion.key} className="space-y-2.5">
             <div className="flex items-center justify-between text-sm">
@@ -28,7 +28,9 @@ export function WeightSliders({
                 <span aria-hidden>{criterion.icon}</span>
                 {criterion.label}
               </span>
-              <span className="tabular-nums font-semibold text-gold">{pct}%</span>
+              <span className="tabular-nums font-semibold text-gold">
+                {pct}%
+              </span>
             </div>
             <Slider
               value={[weights[criterion.key]]}
@@ -38,8 +40,8 @@ export function WeightSliders({
               onValueChange={([v]) => onChange(criterion.key, v)}
             />
           </div>
-        )
+        );
       })}
     </motion.div>
-  )
+  );
 }

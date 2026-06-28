@@ -1,5 +1,10 @@
 package br.usp.lab.oo.planejador_feriado.exchange.controller;
 
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import br.usp.lab.oo.planejador_feriado.common.exception.ExternalApiException;
 import br.usp.lab.oo.planejador_feriado.common.exception.ResourceNotFoundException;
 import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
@@ -10,48 +15,51 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @WebMvcTest(ExchangeController.class)
 class ExchangeControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private ExchangeService service;
+  @MockitoBean
+  private ExchangeService service;
 
-    @Test
-    void shouldReturnExchangeRate() throws Exception {
-        when(service.getExchangeRate("USD")).thenReturn(new Exchange("USD", 5.12));
+  @Test
+  void shouldReturnExchangeRate() throws Exception {
+    when(service.getExchangeRate("USD")).thenReturn(new Exchange("USD", 5.12));
 
-        mockMvc.perform(get("/api/v1/exchange/USD"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.currency").value("USD"))
-                .andExpect(jsonPath("$.valueInReais").value(5.12));
-    }
+    mockMvc
+      .perform(get("/api/v1/exchange/USD"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.currency").value("USD"))
+      .andExpect(jsonPath("$.valueInReais").value(5.12));
+  }
 
-    @Test
-    void shouldReturn404WhenCurrencyUnavailable() throws Exception {
-        when(service.getExchangeRate("ZZZ"))
-                .thenThrow(new ResourceNotFoundException("Câmbio não encontrado: ZZZ"));
+  @Test
+  void shouldReturn404WhenCurrencyUnavailable() throws Exception {
+    when(service.getExchangeRate("ZZZ")).thenThrow(
+      new ResourceNotFoundException("Câmbio não encontrado: ZZZ")
+    );
 
-        mockMvc.perform(get("/api/v1/exchange/ZZZ"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message").value("Câmbio não encontrado: ZZZ"));
-    }
+    mockMvc
+      .perform(get("/api/v1/exchange/ZZZ"))
+      .andExpect(status().isNotFound())
+      .andExpect(jsonPath("$.status").value(404))
+      .andExpect(jsonPath("$.message").value("Câmbio não encontrado: ZZZ"));
+  }
 
-    @Test
-    void shouldReturn502WhenUpstreamFails() throws Exception {
-        when(service.getExchangeRate("USD"))
-                .thenThrow(new ExternalApiException("Falha ao consultar serviço de câmbio", new RuntimeException()));
+  @Test
+  void shouldReturn502WhenUpstreamFails() throws Exception {
+    when(service.getExchangeRate("USD")).thenThrow(
+      new ExternalApiException(
+        "Falha ao consultar serviço de câmbio",
+        new RuntimeException()
+      )
+    );
 
-        mockMvc.perform(get("/api/v1/exchange/USD"))
-                .andExpect(status().isBadGateway())
-                .andExpect(jsonPath("$.status").value(502));
-    }
+    mockMvc
+      .perform(get("/api/v1/exchange/USD"))
+      .andExpect(status().isBadGateway())
+      .andExpect(jsonPath("$.status").value(502));
+  }
 }

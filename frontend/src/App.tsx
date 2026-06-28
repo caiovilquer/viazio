@@ -1,12 +1,12 @@
-import { Route, Routes } from 'react-router-dom'
-import { AppShell } from '@/components/layout/AppShell'
-import { LandingPage } from '@/pages/LandingPage'
-import { SearchPage } from '@/pages/SearchPage'
-import { ResultsPage } from '@/pages/ResultsPage'
-import { DestinationPage } from '@/pages/DestinationPage'
-import { ComparePage } from '@/pages/ComparePage'
-import { FavoritesPage } from '@/pages/FavoritesPage'
-import { BestWindowsPage } from '@/pages/BestWindowsPage'
+import { Route, Routes } from "react-router-dom";
+import { AppShell } from "@/components/layout/AppShell";
+import { LandingPage } from "@/pages/LandingPage";
+import { SearchPage } from "@/pages/SearchPage";
+import { ResultsPage } from "@/pages/ResultsPage";
+import { DestinationPage } from "@/pages/DestinationPage";
+import { ComparePage } from "@/pages/ComparePage";
+import { FavoritesPage } from "@/pages/FavoritesPage";
+import { BestWindowsPage } from "@/pages/BestWindowsPage";
 
 export default function App() {
   return (
@@ -21,5 +21,5 @@ export default function App() {
         <Route path="salvos" element={<FavoritesPage />} />
       </Route>
     </Routes>
-  )
+  );
 }

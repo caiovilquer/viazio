@@ -11,18 +11,31 @@ import java.time.LocalDate;
  * @param sampledDays       número de dias com dados usados na média
  */
 public record WeatherSummary(
-        double avgTempC,
-        double avgDailyPrecipMm,
-        double rainyDayProbability,
-        double tempStdDevC,
-        int sampledDays,
-        int sampledYears,
-        WeatherSourceType sourceType,
-        LocalDate referenceFrom,
-        LocalDate referenceTo
+  double avgTempC,
+  double avgDailyPrecipMm,
+  double rainyDayProbability,
+  double tempStdDevC,
+  int sampledDays,
+  int sampledYears,
+  WeatherSourceType sourceType,
+  LocalDate referenceFrom,
+  LocalDate referenceTo
 ) {
-    public WeatherSummary(double avgTempC, double avgDailyPrecipMm, int sampledDays) {
-        this(avgTempC, avgDailyPrecipMm, 0.0, 0.0, sampledDays, 1,
-                WeatherSourceType.CLIMATOLOGY, null, null);
-    }
+  public WeatherSummary(
+    double avgTempC,
+    double avgDailyPrecipMm,
+    int sampledDays
+  ) {
+    this(
+      avgTempC,
+      avgDailyPrecipMm,
+      0.0,
+      0.0,
+      sampledDays,
+      1,
+      WeatherSourceType.CLIMATOLOGY,
+      null,
+      null
+    );
+  }
 }

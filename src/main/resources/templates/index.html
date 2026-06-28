@@ -1,355 +1,399 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Feriadões — Planeje viagens nos feriados</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/style.css}">
-</head>
-<body>
-
-<header class="site-header">
-    <div class="site-header-inner">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
         <a href="/" class="site-logo">Planejador de Feriadões</a>
         <nav class="site-nav">
-            <a href="/">Início</a>
+          <a href="/">Início</a>
         </nav>
-    </div>
-</header>
+      </div>
+    </header>
 
-<main>
-
-    <div class="hero">
+    <main>
+      <div class="hero">
         <h1 class="hero-headline">Descubra quando e para onde viajar</h1>
-        <p class="hero-sub">Compare calendário, clima, custo local e esforço de viagem — tudo em um só lugar.</p>
-    </div>
+        <p class="hero-sub">
+          Compare calendário, clima, custo local e esforço de viagem — tudo em
+          um só lugar.
+        </p>
+      </div>
 
-    <div class="card">
+      <div class="card">
         <h2 class="secao-titulo-card">Explorar um destino</h2>
-        <p class="secao-desc-card">Consulte feriados, câmbio e informações gerais de um país.</p>
+        <p class="secao-desc-card">
+          Consulte feriados, câmbio e informações gerais de um país.
+        </p>
 
         <form class="form-busca" action="/viagem" method="get">
-            <div>
-                <label class="field-label" for="destino">
-                    País de destino
-                    <span class="field-hint">Código ISO de duas letras (ex.: JP, FR) ou nome em inglês (ex.: japan, france)</span>
-                </label>
-                <div class="input-row">
-                    <input
-                        type="text"
-                        id="destino"
-                        name="destino"
-                        class="input-codigo"
-                        placeholder="Ex.: JP ou japan"
-                        autocomplete="off"
-                        autofocus
-                        aria-label="País de destino (código ou nome)"
-                    >
-                    <button type="submit" class="btn-primary">Buscar</button>
-                </div>
+          <div>
+            <label class="field-label" for="destino">
+              País de destino
+              <span class="field-hint"
+                >Código ISO de duas letras (ex.: JP, FR) ou nome em inglês (ex.:
+                japan, france)</span
+              >
+            </label>
+            <div class="input-row">
+              <input
+                type="text"
+                id="destino"
+                name="destino"
+                class="input-codigo"
+                placeholder="Ex.: JP ou japan"
+                autocomplete="off"
+                autofocus
+                aria-label="País de destino (código ou nome)"
+              />
+              <button type="submit" class="btn-primary">Buscar</button>
             </div>
+          </div>
         </form>
 
-        <div style="margin-top: var(--sp-5);">
-            <p class="atalhos-label">Destinos populares</p>
-            <ul class="chips-lista">
-                <li><a href="/viagem?codigo=JP" class="chip">Japão</a></li>
-                <li><a href="/viagem?codigo=FR" class="chip">França</a></li>
-                <li><a href="/viagem?codigo=IT" class="chip">Itália</a></li>
-                <li><a href="/viagem?codigo=US" class="chip">Estados Unidos</a></li>
-                <li><a href="/viagem?codigo=DE" class="chip">Alemanha</a></li>
-                <li><a href="/viagem?codigo=PT" class="chip">Portugal</a></li>
-                <li><a href="/viagem?codigo=AR" class="chip">Argentina</a></li>
-                <li><a href="/viagem?codigo=MX" class="chip">México</a></li>
-                <li><a href="/viagem?codigo=AU" class="chip">Austrália</a></li>
-                <li><a href="/viagem?codigo=BR" class="chip">Brasil</a></li>
-            </ul>
+        <div style="margin-top: var(--sp-5)">
+          <p class="atalhos-label">Destinos populares</p>
+          <ul class="chips-lista">
+            <li><a href="/viagem?codigo=JP" class="chip">Japão</a></li>
+            <li><a href="/viagem?codigo=FR" class="chip">França</a></li>
+            <li><a href="/viagem?codigo=IT" class="chip">Itália</a></li>
+            <li><a href="/viagem?codigo=US" class="chip">Estados Unidos</a></li>
+            <li><a href="/viagem?codigo=DE" class="chip">Alemanha</a></li>
+            <li><a href="/viagem?codigo=PT" class="chip">Portugal</a></li>
+            <li><a href="/viagem?codigo=AR" class="chip">Argentina</a></li>
+            <li><a href="/viagem?codigo=MX" class="chip">México</a></li>
+            <li><a href="/viagem?codigo=AU" class="chip">Austrália</a></li>
+            <li><a href="/viagem?codigo=BR" class="chip">Brasil</a></li>
+          </ul>
         </div>
-    </div>
+      </div>
 
-    <div class="card">
+      <div class="card">
         <h2 class="secao-titulo-card">Comparar destinos</h2>
-        <p class="secao-desc-card">Ranqueie países pela qualidade do destino, da janela e pela confiança dos dados.</p>
+        <p class="secao-desc-card">
+          Ranqueie países pela qualidade do destino, da janela e pela confiança
+          dos dados.
+        </p>
 
-        <form class="form-comparacao" action="/recomendacoes" method="get"
-              th:with="primeiroDia=${#temporals.createToday().plusMonths(1).withDayOfMonth(1)},
+        <form
+          class="form-comparacao"
+          action="/recomendacoes"
+          method="get"
+          th:with="primeiroDia=${#temporals.createToday().plusMonths(1).withDayOfMonth(1)},
                        proximoMes=${#temporals.createToday().plusMonths(1)},
-                       ultimoDia=${proximoMes.withDayOfMonth(proximoMes.lengthOfMonth())}">
+                       ultimoDia=${proximoMes.withDayOfMonth(proximoMes.lengthOfMonth())}"
+        >
+          <div class="form-grid">
+            <div class="form-campo">
+              <label for="from">Data inicial</label>
+              <input
+                type="date"
+                id="from"
+                name="from"
+                required
+                th:value="${#temporals.format(primeiroDia, 'yyyy-MM-dd')}"
+              />
+            </div>
+            <div class="form-campo">
+              <label for="to">Data final</label>
+              <input
+                type="date"
+                id="to"
+                name="to"
+                required
+                th:value="${#temporals.format(ultimoDia, 'yyyy-MM-dd')}"
+              />
+            </div>
+          </div>
 
+          <fieldset class="modo-candidatos">
+            <legend>Como escolher destinos</legend>
+            <div class="modo-opcoes">
+              <label class="modo-radio">
+                <input type="radio" name="modo" value="countries" checked />
+                Escolher países específicos
+              </label>
+              <label class="modo-radio">
+                <input type="radio" name="modo" value="region" />
+                Explorar por região
+              </label>
+            </div>
+
+            <div class="modo-painel modo-painel-countries">
+              <label for="countries" class="field-label">
+                Países para comparar
+                <span class="field-hint"
+                  >Códigos de duas letras, separados por vírgula (ex.: JP, FR,
+                  US)</span
+                >
+              </label>
+              <input
+                type="text"
+                id="countries"
+                name="countries"
+                class="input-texto"
+                placeholder="JP, FR, US"
+                value="JP,FR,US"
+              />
+            </div>
+
+            <div class="modo-painel modo-painel-region">
+              <label for="region" class="field-label">Região do mundo</label>
+              <select id="region" name="region" class="input-select">
+                <option value="">Selecione uma região…</option>
+                <option value="Europe">Europa</option>
+                <option value="Americas">Américas</option>
+                <option value="Asia">Ásia</option>
+                <option value="Africa">África</option>
+                <option value="Oceania">Oceania</option>
+              </select>
+            </div>
+          </fieldset>
+
+          <details class="opcoes-avancadas">
+            <summary>Opções avançadas</summary>
+            <div class="form-campo">
+              <label for="profile">
+                O que mais importa para você?
+                <span class="dica"
+                  >Ajusta o peso dos critérios na nota final</span
+                >
+              </label>
+              <select id="profile" name="profile" class="input-select">
+                <option value="">Equilibrado (padrão)</option>
+                <option value="economico">
+                  Econômico — custo local e proximidade
+                </option>
+                <option value="clima-perfeito">
+                  Clima perfeito — tempo agradável
+                </option>
+                <option value="aventura">
+                  Aventura — acesso e festividades
+                </option>
+                <option value="cultural">
+                  Cultural — festividades no destino
+                </option>
+                <option value="equilibrado">
+                  Equilibrado — todos os critérios
+                </option>
+              </select>
+            </div>
             <div class="form-grid">
-                <div class="form-campo">
-                    <label for="from">Data inicial</label>
-                    <input
-                        type="date"
-                        id="from"
-                        name="from"
-                        required
-                        th:value="${#temporals.format(primeiroDia, 'yyyy-MM-dd')}"
-                    >
-                </div>
-                <div class="form-campo">
-                    <label for="to">Data final</label>
-                    <input
-                        type="date"
-                        id="to"
-                        name="to"
-                        required
-                        th:value="${#temporals.format(ultimoDia, 'yyyy-MM-dd')}"
-                    >
-                </div>
+              <div class="form-campo">
+                <label for="originCity">
+                  Cidade de origem
+                  <span class="dica"
+                    >Capital brasileira usada como referência quando vazio</span
+                  >
+                </label>
+                <input
+                  type="text"
+                  id="originCity"
+                  name="originCity"
+                  class="input-texto"
+                  placeholder="Ex.: Brasília"
+                />
+              </div>
+              <div class="form-campo">
+                <label for="travelers">
+                  Viajantes
+                  <span class="dica">De 1 a 10 pessoas</span>
+                </label>
+                <input
+                  type="number"
+                  id="travelers"
+                  name="travelers"
+                  class="input-texto"
+                  value="1"
+                  min="1"
+                  max="10"
+                />
+              </div>
             </div>
-
-            <fieldset class="modo-candidatos">
-                <legend>Como escolher destinos</legend>
-                <div class="modo-opcoes">
-                    <label class="modo-radio">
-                        <input type="radio" name="modo" value="countries" checked>
-                        Escolher países específicos
-                    </label>
-                    <label class="modo-radio">
-                        <input type="radio" name="modo" value="region">
-                        Explorar por região
-                    </label>
-                </div>
-
-                <div class="modo-painel modo-painel-countries">
-                    <label for="countries" class="field-label">
-                        Países para comparar
-                        <span class="field-hint">Códigos de duas letras, separados por vírgula (ex.: JP, FR, US)</span>
-                    </label>
-                    <input
-                        type="text"
-                        id="countries"
-                        name="countries"
-                        class="input-texto"
-                        placeholder="JP, FR, US"
-                        value="JP,FR,US"
-                    >
-                </div>
-
-                <div class="modo-painel modo-painel-region">
-                    <label for="region" class="field-label">Região do mundo</label>
-                    <select id="region" name="region" class="input-select">
-                        <option value="">Selecione uma região…</option>
-                        <option value="Europe">Europa</option>
-                        <option value="Americas">Américas</option>
-                        <option value="Asia">Ásia</option>
-                        <option value="Africa">África</option>
-                        <option value="Oceania">Oceania</option>
-                    </select>
-                </div>
-            </fieldset>
-
-            <details class="opcoes-avancadas">
-                <summary>Opções avançadas</summary>
-                <div class="form-campo">
-                    <label for="profile">
-                        O que mais importa para você?
-                        <span class="dica">Ajusta o peso dos critérios na nota final</span>
-                    </label>
-                    <select id="profile" name="profile" class="input-select">
-                        <option value="">Equilibrado (padrão)</option>
-                        <option value="economico">Econômico — custo local e proximidade</option>
-                        <option value="clima-perfeito">Clima perfeito — tempo agradável</option>
-                        <option value="aventura">Aventura — acesso e festividades</option>
-                        <option value="cultural">Cultural — festividades no destino</option>
-                        <option value="equilibrado">Equilibrado — todos os critérios</option>
-                    </select>
-                </div>
-                <div class="form-grid">
-                    <div class="form-campo">
-                        <label for="originCity">
-                            Cidade de origem
-                            <span class="dica">Capital brasileira usada como referência quando vazio</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="originCity"
-                            name="originCity"
-                            class="input-texto"
-                            placeholder="Ex.: Brasília"
-                        >
-                    </div>
-                    <div class="form-campo">
-                        <label for="travelers">
-                            Viajantes
-                            <span class="dica">De 1 a 10 pessoas</span>
-                        </label>
-                        <input
-                            type="number"
-                            id="travelers"
-                            name="travelers"
-                            class="input-texto"
-                            value="1"
-                            min="1"
-                            max="10"
-                        >
-                    </div>
-                </div>
-                <div class="form-grid">
-                    <div class="form-campo">
-                        <label for="limit">
-                            Quantidade de destinos no ranking
-                            <span class="dica">De 1 a 15 (padrão: 10)</span>
-                        </label>
-                        <input
-                            type="number"
-                            id="limit"
-                            name="limit"
-                            class="input-texto"
-                            value="10"
-                            min="1"
-                            max="15"
-                        >
-                    </div>
-                    <div class="form-campo">
-                        <label for="maxGroundBudget">
-                            Orçamento terrestre máximo
-                            <span class="dica">Opcional, em reais; não inclui passagens</span>
-                        </label>
-                        <input
-                            type="number"
-                            id="maxGroundBudget"
-                            name="maxGroundBudget"
-                            class="input-texto"
-                            min="1"
-                            step="0.01"
-                            placeholder="Ex.: 5000"
-                        >
-                    </div>
-                </div>
-                <div class="opcoes-avancadas-acoes">
-                    <button type="button" class="btn-secondary btn-limpar-filtros">Limpar filtros</button>
-                </div>
-            </details>
-
-            <div class="form-acoes-ranking">
-                <button type="submit" class="btn-primary btn-ranking-submit">
-                    <span class="btn-spinner" aria-hidden="true"></span>
-                    <span class="btn-label">Ver ranking de destinos</span>
-                </button>
-                <p class="form-acoes-dica" aria-live="polite">A consulta pode levar alguns segundos enquanto buscamos dados de vários destinos.</p>
+            <div class="form-grid">
+              <div class="form-campo">
+                <label for="limit">
+                  Quantidade de destinos no ranking
+                  <span class="dica">De 1 a 15 (padrão: 10)</span>
+                </label>
+                <input
+                  type="number"
+                  id="limit"
+                  name="limit"
+                  class="input-texto"
+                  value="10"
+                  min="1"
+                  max="15"
+                />
+              </div>
+              <div class="form-campo">
+                <label for="maxGroundBudget">
+                  Orçamento terrestre máximo
+                  <span class="dica"
+                    >Opcional, em reais; não inclui passagens</span
+                  >
+                </label>
+                <input
+                  type="number"
+                  id="maxGroundBudget"
+                  name="maxGroundBudget"
+                  class="input-texto"
+                  min="1"
+                  step="0.01"
+                  placeholder="Ex.: 5000"
+                />
+              </div>
             </div>
+            <div class="opcoes-avancadas-acoes">
+              <button type="button" class="btn-secondary btn-limpar-filtros">
+                Limpar filtros
+              </button>
+            </div>
+          </details>
+
+          <div class="form-acoes-ranking">
+            <button type="submit" class="btn-primary btn-ranking-submit">
+              <span class="btn-spinner" aria-hidden="true"></span>
+              <span class="btn-label">Ver ranking de destinos</span>
+            </button>
+            <p class="form-acoes-dica" aria-live="polite">
+              A consulta pode levar alguns segundos enquanto buscamos dados de
+              vários destinos.
+            </p>
+          </div>
         </form>
-    </div>
+      </div>
+    </main>
 
-</main>
-
-<div id="ranking-loading" class="loading-overlay" hidden aria-hidden="true">
-    <div class="loading-panel" role="status" aria-live="polite" aria-busy="true">
+    <div id="ranking-loading" class="loading-overlay" hidden aria-hidden="true">
+      <div
+        class="loading-panel"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
         <div class="loading-spinner" aria-hidden="true"></div>
         <p class="loading-title">Gerando ranking de destinos</p>
-        <p class="loading-desc">Consultando feriados, câmbio e dias livres nos destinos selecionados…</p>
+        <p class="loading-desc">
+          Consultando feriados, câmbio e dias livres nos destinos selecionados…
+        </p>
+      </div>
     </div>
-</div>
 
-<script>
-    (function () {
-        var form = document.querySelector('.form-comparacao');
+    <script>
+      (function () {
+        var form = document.querySelector(".form-comparacao");
         if (!form) return;
 
         var radios = form.querySelectorAll('input[name="modo"]');
-        var countriesInput = form.querySelector('#countries');
-        var regionSelect = form.querySelector('#region');
-        var limitInput = form.querySelector('#limit');
-        var travelersInput = form.querySelector('#travelers');
-        var maxGroundBudgetInput = form.querySelector('#maxGroundBudget');
-        var originCityInput = form.querySelector('#originCity');
-        var limparFiltrosBtn = form.querySelector('.btn-limpar-filtros');
-        var submitBtn = form.querySelector('.btn-ranking-submit');
-        var loadingOverlay = document.getElementById('ranking-loading');
-        var defaultSubmitLabel = 'Ver ranking de destinos';
+        var countriesInput = form.querySelector("#countries");
+        var regionSelect = form.querySelector("#region");
+        var limitInput = form.querySelector("#limit");
+        var travelersInput = form.querySelector("#travelers");
+        var maxGroundBudgetInput = form.querySelector("#maxGroundBudget");
+        var originCityInput = form.querySelector("#originCity");
+        var limparFiltrosBtn = form.querySelector(".btn-limpar-filtros");
+        var submitBtn = form.querySelector(".btn-ranking-submit");
+        var loadingOverlay = document.getElementById("ranking-loading");
+        var defaultSubmitLabel = "Ver ranking de destinos";
 
         function resetRankingLoading() {
-            if (loadingOverlay) {
-                loadingOverlay.hidden = true;
-                loadingOverlay.setAttribute('aria-hidden', 'true');
+          if (loadingOverlay) {
+            loadingOverlay.hidden = true;
+            loadingOverlay.setAttribute("aria-hidden", "true");
+          }
+          document.body.classList.remove("is-loading");
+          form.classList.remove("is-submitting");
+          form.removeAttribute("aria-busy");
+          if (submitBtn) {
+            submitBtn.classList.remove("is-loading");
+            submitBtn.disabled = false;
+            var label = submitBtn.querySelector(".btn-label");
+            if (label) {
+              label.textContent = defaultSubmitLabel;
             }
-            document.body.classList.remove('is-loading');
-            form.classList.remove('is-submitting');
-            form.removeAttribute('aria-busy');
-            if (submitBtn) {
-                submitBtn.classList.remove('is-loading');
-                submitBtn.disabled = false;
-                var label = submitBtn.querySelector('.btn-label');
-                if (label) {
-                    label.textContent = defaultSubmitLabel;
-                }
-            }
+          }
         }
 
         function showRankingLoading() {
-            if (loadingOverlay) {
-                loadingOverlay.hidden = false;
-                loadingOverlay.setAttribute('aria-hidden', 'false');
+          if (loadingOverlay) {
+            loadingOverlay.hidden = false;
+            loadingOverlay.setAttribute("aria-hidden", "false");
+          }
+          document.body.classList.add("is-loading");
+          form.classList.add("is-submitting");
+          form.setAttribute("aria-busy", "true");
+          if (submitBtn) {
+            submitBtn.classList.add("is-loading");
+            submitBtn.disabled = true;
+            var label = submitBtn.querySelector(".btn-label");
+            if (label) {
+              label.textContent = "Gerando ranking…";
             }
-            document.body.classList.add('is-loading');
-            form.classList.add('is-submitting');
-            form.setAttribute('aria-busy', 'true');
-            if (submitBtn) {
-                submitBtn.classList.add('is-loading');
-                submitBtn.disabled = true;
-                var label = submitBtn.querySelector('.btn-label');
-                if (label) {
-                    label.textContent = 'Gerando ranking…';
-                }
-            }
+          }
         }
 
-        window.addEventListener('pageshow', function (event) {
-            if (event.persisted) {
-                resetRankingLoading();
-            }
+        window.addEventListener("pageshow", function (event) {
+          if (event.persisted) {
+            resetRankingLoading();
+          }
         });
 
         resetRankingLoading();
 
         function updateMode() {
-            var modo = form.querySelector('input[name="modo"]:checked').value;
-            var isCountries = modo === 'countries';
-            form.classList.toggle('modo-countries-ativo', isCountries);
-            form.classList.toggle('modo-region-ativo', !isCountries);
-            countriesInput.disabled = !isCountries;
-            regionSelect.disabled = isCountries;
-            if (isCountries) {
-                regionSelect.value = '';
-            } else {
-                countriesInput.value = '';
-            }
+          var modo = form.querySelector('input[name="modo"]:checked').value;
+          var isCountries = modo === "countries";
+          form.classList.toggle("modo-countries-ativo", isCountries);
+          form.classList.toggle("modo-region-ativo", !isCountries);
+          countriesInput.disabled = !isCountries;
+          regionSelect.disabled = isCountries;
+          if (isCountries) {
+            regionSelect.value = "";
+          } else {
+            countriesInput.value = "";
+          }
         }
 
         radios.forEach(function (radio) {
-            radio.addEventListener('change', updateMode);
+          radio.addEventListener("change", updateMode);
         });
 
-        form.addEventListener('submit', function () {
-            updateMode();
-            setTimeout(showRankingLoading, 0);
+        form.addEventListener("submit", function () {
+          updateMode();
+          setTimeout(showRankingLoading, 0);
         });
 
         if (limparFiltrosBtn) {
-            limparFiltrosBtn.addEventListener('click', function () {
-                if (limitInput) {
-                    limitInput.value = '10';
-                }
-                if (travelersInput) {
-                    travelersInput.value = '1';
-                }
-                if (maxGroundBudgetInput) {
-                    maxGroundBudgetInput.value = '';
-                }
-                if (originCityInput) {
-                    originCityInput.value = '';
-                }
-            });
+          limparFiltrosBtn.addEventListener("click", function () {
+            if (limitInput) {
+              limitInput.value = "10";
+            }
+            if (travelersInput) {
+              travelersInput.value = "1";
+            }
+            if (maxGroundBudgetInput) {
+              maxGroundBudgetInput.value = "";
+            }
+            if (originCityInput) {
+              originCityInput.value = "";
+            }
+          });
         }
 
         updateMode();
-    })();
-</script>
-
-</body>
+      })();
+    </script>
+  </body>
 </html>

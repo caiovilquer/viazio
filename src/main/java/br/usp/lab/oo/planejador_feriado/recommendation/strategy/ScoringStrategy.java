@@ -11,9 +11,8 @@ import br.usp.lab.oo.planejador_feriado.recommendation.model.ScoreEntry;
  * mexer no motor nem nas demais strategies.
  */
 public interface ScoringStrategy {
+  /** Critério avaliado por esta strategy (define peso, rótulo e ícone). */
+  Criterion criterion();
 
-    /** Critério avaliado por esta strategy (define peso, rótulo e ícone). */
-    Criterion criterion();
-
-    ScoreEntry evaluate(RecommendationContext context);
+  ScoreEntry evaluate(RecommendationContext context);
 }

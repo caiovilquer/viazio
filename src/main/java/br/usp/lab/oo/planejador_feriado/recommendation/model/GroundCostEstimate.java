@@ -11,15 +11,14 @@ package br.usp.lab.oo.planejador_feriado.recommendation.model;
  * @param referenceDataYear   ano dos dados de preços do Brasil (âncora em BRL)
  */
 public record GroundCostEstimate(
-        String currency,
-        double estimatedDailyPerPerson,
-        double estimatedTotal,
-        int travelers,
-        int days,
-        double relativePriceLevel,
-        String destinationDataYear,
-        String referenceDataYear,
-        String confidence,
-        String assumption
-) {
-}
+  String currency,
+  double estimatedDailyPerPerson,
+  double estimatedTotal,
+  int travelers,
+  int days,
+  double relativePriceLevel,
+  String destinationDataYear,
+  String referenceDataYear,
+  String confidence,
+  String assumption
+) {}

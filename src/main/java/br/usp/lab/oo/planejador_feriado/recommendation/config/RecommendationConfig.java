@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RecommendationConfig {
 
-    @Bean
-    public LongWeekendDetector longWeekendDetector() {
-        return new LongWeekendDetector();
-    }
+  @Bean
+  public LongWeekendDetector longWeekendDetector() {
+    return new LongWeekendDetector();
+  }
 }

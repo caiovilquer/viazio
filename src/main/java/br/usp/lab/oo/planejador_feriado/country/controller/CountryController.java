@@ -14,25 +14,31 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/countries")
 public class CountryController {
 
-    private final CountryService countryService;
+  private final CountryService countryService;
 
-    public CountryController(CountryService countryService) {
-        this.countryService = countryService;
-    }
+  public CountryController(CountryService countryService) {
+    this.countryService = countryService;
+  }
 
-    @GetMapping("/{countryCode}")
-    public Country getByCode(@PathVariable String countryCode) {
-        if (countryCode == null || countryCode.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Country code is required");
-        }
-        return countryService.getCountryByCode(countryCode.trim());
+  @GetMapping("/{countryCode}")
+  public Country getByCode(@PathVariable String countryCode) {
+    if (countryCode == null || countryCode.trim().isEmpty()) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Country code is required"
+      );
     }
+    return countryService.getCountryByCode(countryCode.trim());
+  }
 
-    @GetMapping(value = "/search", params = "name")
-    public Country searchByName(@RequestParam String name) {
-        if (name == null || name.trim().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Country name is required");
-        }
-        return countryService.getCountryByName(name.trim());
+  @GetMapping(value = "/search", params = "name")
+  public Country searchByName(@RequestParam String name) {
+    if (name == null || name.trim().isEmpty()) {
+      throw new ResponseStatusException(
+        HttpStatus.BAD_REQUEST,
+        "Country name is required"
+      );
     }
+    return countryService.getCountryByName(name.trim());
+  }
 }

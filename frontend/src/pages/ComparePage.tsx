@@ -1,106 +1,141 @@
-import { useMemo, useState, type ReactNode } from 'react'
-import { Link, useLocation, useSearchParams } from 'react-router-dom'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { ArrowLeft, Clock, Coins, Crown, ExternalLink, Frown, Info, RefreshCw, ShieldCheck, Wallet, X } from 'lucide-react'
-import { useMeta, useRecommendations } from '@/api/queries'
-import type { CriterionOption, Exchange, ProfileKey, RecommendationSearchRequest, TravelRecommendation } from '@/api/types'
-import { criteriaToRequest, searchParamsToCriteria } from '@/lib/search-params'
-import { winnerIndices, type WinnerDirection } from '@/lib/compare'
-import { type FavoriteEntry } from '@/lib/favorites'
-import { formatDateRange, formatExchange, formatInOriginCurrency } from '@/lib/format'
-import { ScoreRing } from '@/components/shared/ScoreRing'
-import { ScoreComposition } from '@/components/shared/ScoreComposition'
-import { Flag } from '@/components/shared/Flag'
-import { RouteGlyph } from '@/components/shared/Glyphs'
-import { Reveal } from '@/components/shared/Reveal'
-import { useDestinationImage } from '@/api/images'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ease, spring } from '@/lib/motion'
-import { cn } from '@/lib/utils'
+import { useMemo, useState, type ReactNode } from "react";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  ArrowLeft,
+  Clock,
+  Coins,
+  Crown,
+  ExternalLink,
+  Frown,
+  Info,
+  RefreshCw,
+  ShieldCheck,
+  Wallet,
+  X,
+} from "lucide-react";
+import { useMeta, useRecommendations } from "@/api/queries";
+import type {
+  CriterionOption,
+  Exchange,
+  ProfileKey,
+  RecommendationSearchRequest,
+  TravelRecommendation,
+} from "@/api/types";
+import { criteriaToRequest, searchParamsToCriteria } from "@/lib/search-params";
+import { winnerIndices, type WinnerDirection } from "@/lib/compare";
+import { type FavoriteEntry } from "@/lib/favorites";
+import {
+  formatDateRange,
+  formatExchange,
+  formatInOriginCurrency,
+} from "@/lib/format";
+import { ScoreRing } from "@/components/shared/ScoreRing";
+import { ScoreComposition } from "@/components/shared/ScoreComposition";
+import { Flag } from "@/components/shared/Flag";
+import { RouteGlyph } from "@/components/shared/Glyphs";
+import { Reveal } from "@/components/shared/Reveal";
+import { useDestinationImage } from "@/api/images";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ease, spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 function todayIso(offsetDays = 0) {
-  const d = new Date()
-  d.setDate(d.getDate() + offsetDays)
-  return d.toISOString().slice(0, 10)
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
 }
 
-/** Wikipedia's country `imageUrl` is often just the flag — reject those. */
+/** O `imageUrl` do país na Wikipedia costuma ser só a bandeira — rejeitar esses casos. */
 function isLikelyFlag(url?: string | null) {
-  if (!url) return true
-  const u = url.toLowerCase()
-  return u.includes('flag') || u.endsWith('.svg')
+  if (!url) return true;
+  const u = url.toLowerCase();
+  return u.includes("flag") || u.endsWith(".svg");
 }
 
-const clamp = (n: number) => Math.max(0, Math.min(100, n))
+const clamp = (n: number) => Math.max(0, Math.min(100, n));
 
 interface MetricCell {
-  code: string
-  name: string
-  available: boolean
-  display: string
-  widthPct: number
-  isWinner: boolean
-  /** Why this destination scored what it did — surfaces the engine's own reasoning
-   *  instead of leaving a bare number unexplained. */
-  caption?: string
+  code: string;
+  name: string;
+  available: boolean;
+  display: string;
+  widthPct: number;
+  isWinner: boolean;
+  /** Por que o destino pontuou assim — expõe o raciocínio do próprio motor
+   *  em vez de deixar um número solto sem explicação. */
+  caption?: string;
 }
 
 interface Metric {
-  key: string
-  label: string
-  hint: string
-  emoji?: string
-  icon?: ReactNode
-  /** Weight (0–1) applied to this criterion in the active profile, if it's a scored one. */
-  weight?: number
-  cells: MetricCell[]
+  key: string;
+  label: string;
+  hint: string;
+  emoji?: string;
+  icon?: ReactNode;
+  /** Peso (0–1) aplicado a este critério no perfil ativo, se for um critério pontuado. */
+  weight?: number;
+  cells: MetricCell[];
 }
 
-/** Build a comparable metric row: winner via the shared engine, bar widths
- *  either absolute (0–100 scores) or relative to the best (raw magnitudes). */
+/** Monta uma linha de métrica comparável: vencedor via motor compartilhado, larguras das barras
+ *  absolutas (notas 0–100) ou relativas ao melhor (magnitudes brutas). */
 function buildMetric(
   recs: TravelRecommendation[],
   opts: {
-    key: string
-    label: string
-    hint: string
-    emoji?: string
-    icon?: ReactNode
-    direction: WinnerDirection
-    scale: 'absolute' | 'relative'
-    weight?: number
-    valueOf: (rec: TravelRecommendation) => number | null
-    displayOf: (rec: TravelRecommendation) => string
-    captionOf?: (rec: TravelRecommendation) => string | undefined
+    key: string;
+    label: string;
+    hint: string;
+    emoji?: string;
+    icon?: ReactNode;
+    direction: WinnerDirection;
+    scale: "absolute" | "relative";
+    weight?: number;
+    valueOf: (rec: TravelRecommendation) => number | null;
+    displayOf: (rec: TravelRecommendation) => string;
+    captionOf?: (rec: TravelRecommendation) => string | undefined;
   },
 ): Metric {
-  const values = recs.map(opts.valueOf)
-  const winners = winnerIndices(values, opts.direction)
-  const valid = values.filter((v): v is number => v != null && !Number.isNaN(v))
-  const best = opts.direction === 'lower' ? Math.min(...valid) : Math.max(...valid)
+  const values = recs.map(opts.valueOf);
+  const winners = winnerIndices(values, opts.direction);
+  const valid = values.filter(
+    (v): v is number => v != null && !Number.isNaN(v),
+  );
+  const best =
+    opts.direction === "lower" ? Math.min(...valid) : Math.max(...valid);
 
   const cells = recs.map((rec, i) => {
-    const v = values[i]
-    const available = v != null && !Number.isNaN(v)
-    let widthPct = 0
+    const v = values[i];
+    const available = v != null && !Number.isNaN(v);
+    let widthPct = 0;
     if (available) {
-      if (opts.scale === 'absolute') widthPct = clamp(v)
-      else if (valid.length) widthPct = opts.direction === 'lower' ? clamp((best / v) * 100) : clamp((v / best) * 100)
+      if (opts.scale === "absolute") widthPct = clamp(v);
+      else if (valid.length)
+        widthPct =
+          opts.direction === "lower"
+            ? clamp((best / v) * 100)
+            : clamp((v / best) * 100);
     }
     return {
       code: rec.countryCode,
       name: rec.countryName,
       available,
-      display: available ? opts.displayOf(rec) : '—',
+      display: available ? opts.displayOf(rec) : "—",
       widthPct,
       isWinner: winners.has(i),
       caption: available ? opts.captionOf?.(rec) : undefined,
-    }
-  })
+    };
+  });
 
   return {
     key: opts.key,
@@ -110,45 +145,69 @@ function buildMetric(
     icon: opts.icon,
     weight: opts.weight,
     cells,
-  }
+  };
 }
 
-function uniqueWinner(recs: TravelRecommendation[], values: Array<number | null>, dir: WinnerDirection) {
-  const w = winnerIndices(values, dir)
-  if (w.size !== 1) return null
-  return recs[[...w][0]]
+function uniqueWinner(
+  recs: TravelRecommendation[],
+  values: Array<number | null>,
+  dir: WinnerDirection,
+) {
+  const w = winnerIndices(values, dir);
+  if (w.size !== 1) return null;
+  return recs[[...w][0]];
 }
 
 export function ComparePage() {
-  const [params] = useSearchParams()
-  const location = useLocation()
-  const { data: meta } = useMeta()
-  const reduce = useReducedMotion()
+  const [params] = useSearchParams();
+  const location = useLocation();
+  const { data: meta } = useMeta();
+  const reduce = useReducedMotion();
 
-  const navState = location.state as
-    | { recommendations?: TravelRecommendation[]; saved?: FavoriteEntry[]; originExchangeToBrl?: Exchange | null }
-    | null
-  const stateRecommendations = navState?.recommendations
-  const saved = navState?.saved
-  const originExchangeFromState = navState?.originExchangeToBrl
-  const fromSaved = Boolean(saved && saved.length > 0)
+  const navState = location.state as {
+    recommendations?: TravelRecommendation[];
+    saved?: FavoriteEntry[];
+    originExchangeToBrl?: Exchange | null;
+  } | null;
+  const stateRecommendations = navState?.recommendations;
+  const saved = navState?.saved;
+  const originExchangeFromState = navState?.originExchangeToBrl;
+  const fromSaved = Boolean(saved && saved.length > 0);
 
-  const codes = useMemo(() => params.get('codes')?.split(',').filter(Boolean) ?? [], [params])
-  const criteria = useMemo(() => searchParamsToCriteria(params), [params])
+  const codes = useMemo(
+    () => params.get("codes")?.split(",").filter(Boolean) ?? [],
+    [params],
+  );
+  const criteria = useMemo(() => searchParamsToCriteria(params), [params]);
 
-  // Saved destinations may have been saved under different windows — detect that so
-  // we can warn and offer to re-score them all on one common window.
+  // Destinos salvos podem ter sido guardados em janelas diferentes — detectar isso para
+  // avisar e oferecer re-pontuar todos numa janela comum.
   const savedPeriods = new Set(
-    (saved ?? []).map((s) => (s.context?.from && s.context?.to ? `${s.context.from}|${s.context.to}` : 'unknown')),
-  )
-  const periodsDiffer = fromSaved && saved!.length >= 2 && (savedPeriods.size > 1 || savedPeriods.has('unknown'))
-  const firstCtx = saved?.find((s) => s.context?.from && s.context?.to)?.context
+    (saved ?? []).map((s) =>
+      s.context?.from && s.context?.to
+        ? `${s.context.from}|${s.context.to}`
+        : "unknown",
+    ),
+  );
+  const periodsDiffer =
+    fromSaved &&
+    saved!.length >= 2 &&
+    (savedPeriods.size > 1 || savedPeriods.has("unknown"));
+  const firstCtx = saved?.find(
+    (s) => s.context?.from && s.context?.to,
+  )?.context;
 
-  const [recompute, setRecompute] = useState<{ from: string; to: string; profile: ProfileKey | null } | null>(null)
-  const [panelOpen, setPanelOpen] = useState(false)
-  const [panelFrom, setPanelFrom] = useState(firstCtx?.from ?? todayIso())
-  const [panelTo, setPanelTo] = useState(firstCtx?.to ?? todayIso(7))
-  const [panelProfile, setPanelProfile] = useState<ProfileKey | null>(firstCtx?.profile ?? 'equilibrado')
+  const [recompute, setRecompute] = useState<{
+    from: string;
+    to: string;
+    profile: ProfileKey | null;
+  } | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelFrom, setPanelFrom] = useState(firstCtx?.from ?? todayIso());
+  const [panelTo, setPanelTo] = useState(firstCtx?.to ?? todayIso(7));
+  const [panelProfile, setPanelProfile] = useState<ProfileKey | null>(
+    firstCtx?.profile ?? "equilibrado",
+  );
 
   const commonRequest: RecommendationSearchRequest | null = recompute
     ? {
@@ -157,17 +216,27 @@ export function ComparePage() {
         countries: codes,
         profile: recompute.profile ?? undefined,
         travelers: firstCtx?.travelers ?? 1,
-        origin: { countryCode: firstCtx?.originCountry ?? 'BR', city: firstCtx?.originCity },
+        origin: {
+          countryCode: firstCtx?.originCountry ?? "BR",
+          city: firstCtx?.originCity,
+        },
       }
-    : null
+    : null;
 
-  const request = commonRequest ?? (!stateRecommendations && criteria ? criteriaToRequest(criteria) : null)
-  const { data, isLoading } = useRecommendations(request)
+  const request =
+    commonRequest ??
+    (!stateRecommendations && criteria ? criteriaToRequest(criteria) : null);
+  const { data, isLoading } = useRecommendations(request);
 
-  const recomputed = commonRequest && data ? data.recommendations.filter((r) => codes.includes(r.countryCode)) : null
-  const recomputeApplied = Boolean(recomputed && recomputed.length >= 2)
-  const recomputeLoading = Boolean(commonRequest && isLoading && !data)
-  const recomputeFailed = Boolean(commonRequest && data && (recomputed?.length ?? 0) < 2)
+  const recomputed =
+    commonRequest && data
+      ? data.recommendations.filter((r) => codes.includes(r.countryCode))
+      : null;
+  const recomputeApplied = Boolean(recomputed && recomputed.length >= 2);
+  const recomputeLoading = Boolean(commonRequest && isLoading && !data);
+  const recomputeFailed = Boolean(
+    commonRequest && data && (recomputed?.length ?? 0) < 2,
+  );
 
   const baseRecommendations: TravelRecommendation[] = recomputeApplied
     ? recomputed!
@@ -175,36 +244,39 @@ export function ComparePage() {
       ? stateRecommendations
       : data && !commonRequest
         ? data.recommendations.filter((r) => codes.includes(r.countryCode))
-        : []
+        : [];
 
-  const originExchangeToBrl = data?.originExchangeToBrl ?? originExchangeFromState ?? null
-  const originCountryCode = data?.origin.countryCode ?? firstCtx?.originCountry
+  const originExchangeToBrl =
+    data?.originExchangeToBrl ?? originExchangeFromState ?? null;
+  const originCountryCode = data?.origin.countryCode ?? firstCtx?.originCountry;
   const showCostFallbackNote =
     originCountryCode != null &&
-    originCountryCode !== 'BR' &&
-    !(originExchangeToBrl && originExchangeToBrl.valueInReais > 0)
+    originCountryCode !== "BR" &&
+    !(originExchangeToBrl && originExchangeToBrl.valueInReais > 0);
 
-  const [visibleCodes, setVisibleCodes] = useState(codes)
-  const [focusedCode, setFocusedCode] = useState<string | null>(null)
+  const [visibleCodes, setVisibleCodes] = useState(codes);
+  const [focusedCode, setFocusedCode] = useState<string | null>(null);
 
   const recommendations = baseRecommendations
     .filter((r) => visibleCodes.includes(r.countryCode))
-    .sort((a, b) => b.tripScore - a.tripScore)
+    .sort((a, b) => b.tripScore - a.tripScore);
 
-  const backParams = new URLSearchParams(params)
-  backParams.delete('codes')
-  const backHref = fromSaved ? '/salvos' : `/resultados?${backParams.toString()}`
-  const backLabel = fromSaved ? 'Voltar aos salvos' : 'Voltar aos resultados'
+  const backParams = new URLSearchParams(params);
+  backParams.delete("codes");
+  const backHref = fromSaved
+    ? "/salvos"
+    : `/resultados?${backParams.toString()}`;
+  const backLabel = fromSaved ? "Voltar aos salvos" : "Voltar aos resultados";
 
   function removeDestination(code: string) {
-    setVisibleCodes((current) => current.filter((c) => c !== code))
-    setFocusedCode((f) => (f === code ? null : f))
+    setVisibleCodes((current) => current.filter((c) => c !== code));
+    setFocusedCode((f) => (f === code ? null : f));
   }
   function toggleFocus(code: string) {
-    setFocusedCode((f) => (f === code ? null : code))
+    setFocusedCode((f) => (f === code ? null : code));
   }
 
-  const loading = !stateRecommendations && isLoading
+  const loading = !stateRecommendations && isLoading;
 
   if (loading) {
     return (
@@ -217,25 +289,31 @@ export function ComparePage() {
         </div>
         <Skeleton className="mt-6 h-80 w-full rounded-2xl" />
       </div>
-    )
+    );
   }
 
   if (recommendations.length < 2) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
         <Frown className="size-10 text-muted-foreground" />
-        <p className="text-muted-foreground">Selecione ao menos 2 destinos nos resultados para compará-los.</p>
+        <p className="text-muted-foreground">
+          Selecione ao menos 2 destinos nos resultados para compará-los.
+        </p>
         <Button asChild className="rounded-full">
           <Link to={backHref}>Voltar para os resultados</Link>
         </Button>
       </div>
-    )
+    );
   }
 
-  const criteriaList: CriterionOption[] = meta?.criteria ?? []
+  const criteriaList: CriterionOption[] = meta?.criteria ?? [];
 
-  // Awards (plain-language synthesis): overall + each scoring dimension's clear winner.
-  const overallWinner = uniqueWinner(recommendations, recommendations.map((r) => r.tripScore), 'higher')
+  // Prêmios (síntese em linguagem simples): vencedor geral + vencedor claro em cada dimensão de pontuação.
+  const overallWinner = uniqueWinner(
+    recommendations,
+    recommendations.map((r) => r.tripScore),
+    "higher",
+  );
   const criterionAwards = criteriaList
     .map((c) => ({
       title: `Melhor em ${c.label}`,
@@ -243,81 +321,93 @@ export function ComparePage() {
       rec: uniqueWinner(
         recommendations,
         recommendations.map((r) => {
-          const e = r.breakdown.find((b) => b.criterion === c.key)
-          return e?.available ? e.score : null
+          const e = r.breakdown.find((b) => b.criterion === c.key);
+          return e?.available ? e.score : null;
         }),
-        'higher',
+        "higher",
       ),
     }))
-    .filter((a): a is { title: string; emoji: string; rec: TravelRecommendation } => a.rec != null)
+    .filter(
+      (a): a is { title: string; emoji: string; rec: TravelRecommendation } =>
+        a.rec != null,
+    );
 
-  // Metric "race" rows, in two groups: the weighted scoring dimensions (0–100)
-  // and the raw trip numbers behind them.
+  // Linhas de "corrida" de métricas, em dois grupos: dimensões pontuadas com peso (0–100)
+  // e os números brutos da viagem por trás delas.
   const overallMetric = buildMetric(recommendations, {
-    key: 'overall',
-    label: 'Nota geral da viagem',
-    hint: 'maior é melhor',
+    key: "overall",
+    label: "Nota geral da viagem",
+    hint: "maior é melhor",
     icon: <Crown className="size-4" />,
-    direction: 'higher',
-    scale: 'absolute',
+    direction: "higher",
+    scale: "absolute",
     valueOf: (r) => r.tripScore,
     displayOf: (r) => String(Math.round(r.tripScore)),
-  })
+  });
 
   const criterionMetrics: Metric[] = criteriaList.map((c) =>
     buildMetric(recommendations, {
       key: c.key,
       label: c.label,
-      hint: '0–100 · maior é melhor',
+      hint: "0–100 · maior é melhor",
       emoji: c.icon,
-      direction: 'higher',
-      scale: 'absolute',
-      weight: recommendations.find((r) => r.breakdown.find((b) => b.criterion === c.key)?.available)
+      direction: "higher",
+      scale: "absolute",
+      weight: recommendations
+        .find((r) => r.breakdown.find((b) => b.criterion === c.key)?.available)
         ?.breakdown.find((b) => b.criterion === c.key)?.weight,
       valueOf: (r) => {
-        const e = r.breakdown.find((b) => b.criterion === c.key)
-        return e?.available ? e.score : null
+        const e = r.breakdown.find((b) => b.criterion === c.key);
+        return e?.available ? e.score : null;
       },
-      displayOf: (r) => String(Math.round(r.breakdown.find((b) => b.criterion === c.key)?.score ?? 0)),
-      captionOf: (r) => r.breakdown.find((b) => b.criterion === c.key)?.justification,
+      displayOf: (r) =>
+        String(
+          Math.round(
+            r.breakdown.find((b) => b.criterion === c.key)?.score ?? 0,
+          ),
+        ),
+      captionOf: (r) =>
+        r.breakdown.find((b) => b.criterion === c.key)?.justification,
     }),
-  )
+  );
 
   const tripMetrics: Metric[] = [
     buildMetric(recommendations, {
-      key: 'distance',
-      label: 'Distância',
-      hint: 'menor é melhor',
+      key: "distance",
+      label: "Distância",
+      hint: "menor é melhor",
       icon: <RouteGlyph className="size-4" />,
-      direction: 'lower',
-      scale: 'relative',
+      direction: "lower",
+      scale: "relative",
       valueOf: (r) => r.feasibility?.travelEffort.distanceKm ?? null,
-      displayOf: (r) => `${Math.round(r.feasibility!.travelEffort.distanceKm).toLocaleString('pt-BR')} km`,
+      displayOf: (r) =>
+        `${Math.round(r.feasibility!.travelEffort.distanceKm).toLocaleString("pt-BR")} km`,
     }),
     buildMetric(recommendations, {
-      key: 'flight',
-      label: 'Tempo de voo',
-      hint: 'menor é melhor',
+      key: "flight",
+      label: "Tempo de voo",
+      hint: "menor é melhor",
       icon: <Clock className="size-4" />,
-      direction: 'lower',
-      scale: 'relative',
-      valueOf: (r) => r.feasibility?.travelEffort.estimatedTravelHoursMin ?? null,
+      direction: "lower",
+      scale: "relative",
+      valueOf: (r) =>
+        r.feasibility?.travelEffort.estimatedTravelHoursMin ?? null,
       displayOf: (r) =>
         `${Math.round(r.feasibility!.travelEffort.estimatedTravelHoursMin)}–${Math.round(
           r.feasibility!.travelEffort.estimatedTravelHoursMax,
         )}h`,
     }),
     buildMetric(recommendations, {
-      key: 'cost',
-      label: 'Custo terrestre / dia',
-      hint: 'menor é melhor',
+      key: "cost",
+      label: "Custo terrestre / dia",
+      hint: "menor é melhor",
       icon: <Wallet className="size-4" />,
-      direction: 'lower',
-      scale: 'relative',
-      // A 0/LOW estimate (e.g. Venezuela) is missing data, not "free" — don't let it win.
+      direction: "lower",
+      scale: "relative",
+      // Estimativa 0/BAIXA (ex.: Venezuela) é dado ausente, não "de graça" — não deixar vencer.
       valueOf: (r) => {
-        const daily = r.feasibility?.groundCost?.estimatedDailyPerPerson
-        return daily && daily > 0 ? daily : null
+        const daily = r.feasibility?.groundCost?.estimatedDailyPerPerson;
+        return daily && daily > 0 ? daily : null;
       },
       displayOf: (r) =>
         formatInOriginCurrency(
@@ -327,16 +417,16 @@ export function ComparePage() {
         ).formatted,
     }),
     buildMetric(recommendations, {
-      key: 'confidence',
-      label: 'Confiança dos dados',
-      hint: 'maior é melhor',
+      key: "confidence",
+      label: "Confiança dos dados",
+      hint: "maior é melhor",
       icon: <ShieldCheck className="size-4" />,
-      direction: 'higher',
-      scale: 'absolute',
+      direction: "higher",
+      scale: "absolute",
       valueOf: (r) => r.dataQuality.confidenceScore,
       displayOf: (r) => `${Math.round(r.dataQuality.confidenceScore)}%`,
     }),
-  ]
+  ];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 pb-20 sm:px-6">
@@ -353,8 +443,8 @@ export function ComparePage() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {focusedCode
-            ? 'Destacando um destino — toque novamente para limpar.'
-            : 'Toque num destino para destacá-lo em cada métrica.'}
+            ? "Destacando um destino — toque novamente para limpar."
+            : "Toque num destino para destacá-lo em cada métrica."}
         </p>
       </div>
 
@@ -369,25 +459,32 @@ export function ComparePage() {
                 <div className="text-sm">
                   {recomputeApplied ? (
                     <p>
-                      Comparando todos na janela{' '}
+                      Comparando todos na janela{" "}
                       <span className="font-medium text-foreground">
                         {formatDateRange(recompute!.from, recompute!.to)}
-                      </span>{' '}
+                      </span>{" "}
                       — agora numa base comum.
                     </p>
                   ) : recomputeLoading ? (
-                    <p className="text-muted-foreground">Recompondo os destinos na mesma janela…</p>
+                    <p className="text-muted-foreground">
+                      Recompondo os destinos na mesma janela…
+                    </p>
                   ) : recomputeFailed ? (
                     <p className="text-muted-foreground">
-                      Não foi possível recompor todos nessa janela. Mostrando os dados salvos.
+                      Não foi possível recompor todos nessa janela. Mostrando os
+                      dados salvos.
                     </p>
                   ) : (
                     <p className="text-muted-foreground">
-                      Estes destinos foram salvos para{' '}
-                      <span className="font-medium text-foreground">datas diferentes</span>. Distância, voo e
-                      custo/dia são comparáveis, mas{' '}
-                      <span className="text-foreground">nota geral, clima e festividades</span> dependem do
-                      período de cada um.
+                      Estes destinos foram salvos para{" "}
+                      <span className="font-medium text-foreground">
+                        datas diferentes
+                      </span>
+                      . Distância, voo e custo/dia são comparáveis, mas{" "}
+                      <span className="text-foreground">
+                        nota geral, clima e festividades
+                      </span>{" "}
+                      dependem do período de cada um.
                     </p>
                   )}
                 </div>
@@ -399,8 +496,8 @@ export function ComparePage() {
                     size="sm"
                     className="rounded-full"
                     onClick={() => {
-                      setRecompute(null)
-                      setPanelOpen(false)
+                      setRecompute(null);
+                      setPanelOpen(false);
                     }}
                   >
                     Usar dados salvos
@@ -413,7 +510,12 @@ export function ComparePage() {
                     disabled={recomputeLoading}
                     onClick={() => setPanelOpen((o) => !o)}
                   >
-                    <RefreshCw className={cn('size-3.5', recomputeLoading && 'animate-spin')} />
+                    <RefreshCw
+                      className={cn(
+                        "size-3.5",
+                        recomputeLoading && "animate-spin",
+                      )}
+                    />
                     Recomparar numa janela comum
                   </Button>
                 )}
@@ -424,7 +526,11 @@ export function ComparePage() {
               <div className="mt-4 grid gap-3 border-t border-gold/20 pt-4 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
                 <div className="space-y-1.5">
                   <Label>De</Label>
-                  <Input type="date" value={panelFrom} onChange={(e) => setPanelFrom(e.target.value)} />
+                  <Input
+                    type="date"
+                    value={panelFrom}
+                    onChange={(e) => setPanelFrom(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label>Até</Label>
@@ -457,8 +563,12 @@ export function ComparePage() {
                   className="rounded-full glow-coral"
                   disabled={!panelFrom || !panelTo}
                   onClick={() => {
-                    setRecompute({ from: panelFrom, to: panelTo, profile: panelProfile })
-                    setPanelOpen(false)
+                    setRecompute({
+                      from: panelFrom,
+                      to: panelTo,
+                      profile: panelProfile,
+                    });
+                    setPanelOpen(false);
                   }}
                 >
                   Aplicar
@@ -469,7 +579,7 @@ export function ComparePage() {
         </Reveal>
       )}
 
-      {/* Synthesis — who wins what, in plain language */}
+      {/* Síntese — quem vence o quê, em linguagem simples */}
       <Reveal className="mb-7">
         <div className="rounded-2xl border border-hairline bg-surface/40 p-4 sm:p-5">
           {overallWinner && (
@@ -500,7 +610,7 @@ export function ComparePage() {
         </div>
       </Reveal>
 
-      {/* Destination cards */}
+      {/* Cards de destino */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <AnimatePresence mode="popLayout">
           {recommendations.map((rec) => (
@@ -518,24 +628,44 @@ export function ComparePage() {
         </AnimatePresence>
       </div>
 
-      {/* Metric races */}
+      {/* Corridas de métricas */}
       <div className="space-y-3">
-        <MetricRow metric={overallMetric} focusedCode={focusedCode} onFocus={toggleFocus} reduce={Boolean(reduce)} />
+        <MetricRow
+          metric={overallMetric}
+          focusedCode={focusedCode}
+          onFocus={toggleFocus}
+          reduce={Boolean(reduce)}
+        />
 
         <GroupLabel
           title="Critérios de pontuação"
           caption="Quanto cada destino pontua (0–100) em cada critério ponderado da busca."
         />
         {criterionMetrics.map((m) => (
-          <MetricRow key={m.key} metric={m} focusedCode={focusedCode} onFocus={toggleFocus} reduce={Boolean(reduce)} />
+          <MetricRow
+            key={m.key}
+            metric={m}
+            focusedCode={focusedCode}
+            onFocus={toggleFocus}
+            reduce={Boolean(reduce)}
+          />
         ))}
 
-        <GroupLabel title="Números da viagem" caption="Os valores brutos por trás da pontuação." />
+        <GroupLabel
+          title="Números da viagem"
+          caption="Os valores brutos por trás da pontuação."
+        />
         {tripMetrics.map((m) => (
-          <MetricRow key={m.key} metric={m} focusedCode={focusedCode} onFocus={toggleFocus} reduce={Boolean(reduce)} />
+          <MetricRow
+            key={m.key}
+            metric={m}
+            focusedCode={focusedCode}
+            onFocus={toggleFocus}
+            reduce={Boolean(reduce)}
+          />
         ))}
 
-        {/* Câmbio — informative only, no winner */}
+        {/* Câmbio — apenas informativo, sem vencedor */}
         <Reveal>
           <div className="rounded-2xl border border-hairline bg-surface/40 p-4 sm:p-5">
             <div className="mb-3.5 flex items-center justify-between gap-2">
@@ -545,15 +675,19 @@ export function ComparePage() {
                 </span>
                 Câmbio
               </span>
-              <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground">informativo</span>
+              <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground">
+                informativo
+              </span>
             </div>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {recommendations.map((rec) => (
                 <div
                   key={rec.countryCode}
                   className={cn(
-                    'rounded-xl border border-hairline bg-surface-2/40 px-3 py-2.5 transition-opacity',
-                    focusedCode && focusedCode !== rec.countryCode && 'opacity-40',
+                    "rounded-xl border border-hairline bg-surface-2/40 px-3 py-2.5 transition-opacity",
+                    focusedCode &&
+                      focusedCode !== rec.countryCode &&
+                      "opacity-40",
                   )}
                 >
                   <span className="flex min-w-0 items-center gap-1.5 text-sm">
@@ -566,7 +700,7 @@ export function ComparePage() {
                       originExchangeToBrl,
                       originCountryCode,
                       rec.countryCode,
-                    ) ?? 'Sem cotação'}
+                    ) ?? "Sem cotação"}
                   </span>
                 </div>
               ))}
@@ -576,10 +710,12 @@ export function ComparePage() {
       </div>
 
       <p className="mt-5 text-center text-xs text-muted-foreground">
-        Câmbio é informativo e não entra na nota — o poder de compra já está refletido no critério de custo.
+        Câmbio é informativo e não entra na nota — o poder de compra já está
+        refletido no critério de custo.
         <br />
-        Custo terrestre/dia é uma estimativa por PPP (paridade de poder de compra, Banco Mundial),
-        independente da cotação de câmbio: um pode estar disponível sem o outro.
+        Custo terrestre/dia é uma estimativa por PPP (paridade de poder de
+        compra, Banco Mundial), independente da cotação de câmbio: um pode estar
+        disponível sem o outro.
         {showCostFallbackNote && (
           <>
             <br />
@@ -588,16 +724,18 @@ export function ComparePage() {
         )}
       </p>
     </div>
-  )
+  );
 }
 
 function GroupLabel({ title, caption }: { title: string; caption: string }) {
   return (
     <div className="px-1 pb-1 pt-4">
-      <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gold/80">{title}</p>
+      <p className="text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-gold/80">
+        {title}
+      </p>
       <p className="mt-0.5 text-xs text-muted-foreground">{caption}</p>
     </div>
-  )
+  );
 }
 
 function MetricRow({
@@ -606,10 +744,10 @@ function MetricRow({
   onFocus,
   reduce,
 }: {
-  metric: Metric
-  focusedCode: string | null
-  onFocus: (code: string) => void
-  reduce: boolean
+  metric: Metric;
+  focusedCode: string | null;
+  onFocus: (code: string) => void;
+  reduce: boolean;
 }) {
   return (
     <Reveal>
@@ -630,7 +768,9 @@ function MetricRow({
               </span>
             )}
           </span>
-          <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground">{metric.hint}</span>
+          <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground">
+            {metric.hint}
+          </span>
         </div>
         <div className="space-y-3">
           {metric.cells.map((cell) => (
@@ -645,7 +785,7 @@ function MetricRow({
         </div>
       </div>
     </Reveal>
-  )
+  );
 }
 
 function BarLine({
@@ -654,19 +794,22 @@ function BarLine({
   onFocus,
   reduce,
 }: {
-  cell: MetricCell
-  dimmed: boolean
-  onFocus: () => void
-  reduce: boolean
+  cell: MetricCell;
+  dimmed: boolean;
+  onFocus: () => void;
+  reduce: boolean;
 }) {
-  const fill = cn('h-full rounded-full', cell.isWinner ? 'bg-gold' : 'bg-foreground/25')
+  const fill = cn(
+    "h-full rounded-full",
+    cell.isWinner ? "bg-gold" : "bg-foreground/25",
+  );
   return (
     <button
       type="button"
       onClick={onFocus}
       className={cn(
-        'block w-full text-left transition-opacity focus-visible:outline-none',
-        dimmed && 'opacity-40',
+        "block w-full text-left transition-opacity focus-visible:outline-none",
+        dimmed && "opacity-40",
       )}
     >
       <div className="mb-1 flex items-center justify-between gap-2 text-sm">
@@ -676,8 +819,8 @@ function BarLine({
         </span>
         <span
           className={cn(
-            'flex shrink-0 items-center gap-1 tabular-nums',
-            cell.isWinner ? 'font-semibold text-gold' : 'text-muted-foreground',
+            "flex shrink-0 items-center gap-1 tabular-nums",
+            cell.isWinner ? "font-semibold text-gold" : "text-muted-foreground",
           )}
         >
           {cell.display}
@@ -692,14 +835,18 @@ function BarLine({
             className={fill}
             initial={{ width: 0 }}
             whileInView={{ width: `${cell.widthPct}%` }}
-            viewport={{ once: true, margin: '-30px' }}
+            viewport={{ once: true, margin: "-30px" }}
             transition={{ duration: 0.7, ease: ease.out }}
           />
         )}
       </div>
-      {cell.caption && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{cell.caption}</p>}
+      {cell.caption && (
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+          {cell.caption}
+        </p>
+      )}
     </button>
-  )
+  );
 }
 
 function CompareCard({
@@ -711,21 +858,23 @@ function CompareCard({
   onFocus,
   onRemove,
 }: {
-  rec: TravelRecommendation
-  originExchangeToBrl: Exchange | null
-  isOverallWinner: boolean
-  focused: boolean
-  dimmed: boolean
-  onFocus: () => void
-  onRemove: () => void
+  rec: TravelRecommendation;
+  originExchangeToBrl: Exchange | null;
+  isOverallWinner: boolean;
+  focused: boolean;
+  dimmed: boolean;
+  onFocus: () => void;
+  onRemove: () => void;
 }) {
-  const photoCity = rec.feasibility?.destination.name ?? rec.countryName
-  const { data: cityPhoto } = useDestinationImage(photoCity, 1280)
-  const backendPhoto = !isLikelyFlag(rec.profile.imageUrl) ? rec.profile.imageUrl : null
-  const photoUrl = cityPhoto ?? backendPhoto ?? null
-  const [loaded, setLoaded] = useState(false)
-  const [failed, setFailed] = useState(false)
-  const showPhoto = Boolean(photoUrl) && !failed
+  const photoCity = rec.feasibility?.destination.name ?? rec.countryName;
+  const { data: cityPhoto } = useDestinationImage(photoCity, 1280);
+  const backendPhoto = !isLikelyFlag(rec.profile.imageUrl)
+    ? rec.profile.imageUrl
+    : null;
+  const photoUrl = cityPhoto ?? backendPhoto ?? null;
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const showPhoto = Boolean(photoUrl) && !failed;
 
   return (
     <motion.div
@@ -735,9 +884,11 @@ function CompareCard({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={spring.soft}
       className={cn(
-        'group relative overflow-hidden rounded-2xl border bg-surface/70',
-        isOverallWinner ? 'border-gold/45 elevate-lg' : 'border-hairline elevate',
-        focused && 'ring-2 ring-gold/50',
+        "group relative overflow-hidden rounded-2xl border bg-surface/70",
+        isOverallWinner
+          ? "border-gold/45 elevate-lg"
+          : "border-hairline elevate",
+        focused && "ring-2 ring-gold/50",
       )}
     >
       {isOverallWinner && (
@@ -759,7 +910,11 @@ function CompareCard({
         type="button"
         onClick={onFocus}
         aria-pressed={focused}
-        aria-label={focused ? `Parar de destacar ${rec.countryName}` : `Destacar ${rec.countryName}`}
+        aria-label={
+          focused
+            ? `Parar de destacar ${rec.countryName}`
+            : `Destacar ${rec.countryName}`
+        }
         className="block w-full text-left"
       >
         <div className="relative h-32 w-full overflow-hidden">
@@ -786,8 +941,8 @@ function CompareCard({
               onLoad={() => setLoaded(true)}
               onError={() => setFailed(true)}
               className={cn(
-                'absolute inset-0 size-full object-cover transition-[opacity,transform] duration-700 group-hover:scale-[1.04]',
-                loaded ? 'opacity-100' : 'opacity-0',
+                "absolute inset-0 size-full object-cover transition-[opacity,transform] duration-700 group-hover:scale-[1.04]",
+                loaded ? "opacity-100" : "opacity-0",
               )}
             />
           )}
@@ -804,7 +959,12 @@ function CompareCard({
       <div className="space-y-3 p-4">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <ScoreRing score={rec.tripScore} size={48} strokeWidth={5} animate />
+            <ScoreRing
+              score={rec.tripScore}
+              size={48}
+              strokeWidth={5}
+              animate
+            />
             <div className="leading-tight">
               <p className="text-sm font-medium">Nota geral</p>
               <p className="text-xs text-muted-foreground">da viagem</p>
@@ -828,5 +988,5 @@ function CompareCard({
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

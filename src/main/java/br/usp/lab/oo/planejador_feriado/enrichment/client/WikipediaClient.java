@@ -8,7 +8,6 @@ import br.usp.lab.oo.planejador_feriado.enrichment.dto.WikipediaSummaryDTO;
  * conheça o detalhe.
  */
 public interface WikipediaClient {
-
-    /** Resumo da página {@code title} na Wikipédia em {@code languageCode}, ou {@code null} se não existir. */
-    WikipediaSummaryDTO getSummary(String languageCode, String title);
+  /** Resumo da página {@code title} na Wikipédia em {@code languageCode}, ou {@code null} se não existir. */
+  WikipediaSummaryDTO getSummary(String languageCode, String title);
 }

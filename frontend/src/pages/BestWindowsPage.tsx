@@ -1,56 +1,61 @@
-import { useState } from 'react'
-import { CalendarSearch, Frown } from 'lucide-react'
-import { useBestWindows, useMeta } from '@/api/queries'
-import type { BestWindowsQuery, CriterionKey, ProfileKey, Region } from '@/api/types'
-import { SearchSection } from '@/components/search/SearchSection'
-import { DestinationPicker } from '@/components/search/DestinationPicker'
-import { ProfilePicker } from '@/components/search/ProfilePicker'
-import { WeightSliders } from '@/components/search/WeightSliders'
-import { WindowCard } from '@/components/windows/WindowCard'
-import { Reveal } from '@/components/shared/Reveal'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Skeleton } from '@/components/ui/skeleton'
-import { formatDateRange, pluralize } from '@/lib/format'
+import { useState } from "react";
+import { CalendarSearch, Frown } from "lucide-react";
+import { useBestWindows, useMeta } from "@/api/queries";
+import type {
+  BestWindowsQuery,
+  CriterionKey,
+  ProfileKey,
+  Region,
+} from "@/api/types";
+import { SearchSection } from "@/components/search/SearchSection";
+import { DestinationPicker } from "@/components/search/DestinationPicker";
+import { ProfilePicker } from "@/components/search/ProfilePicker";
+import { WeightSliders } from "@/components/search/WeightSliders";
+import { WindowCard } from "@/components/windows/WindowCard";
+import { Reveal } from "@/components/shared/Reveal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDateRange, pluralize } from "@/lib/format";
 
 function todayIso(offsetDays = 0) {
-  const d = new Date()
-  d.setDate(d.getDate() + offsetDays)
-  return d.toISOString().slice(0, 10)
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
 }
 
 export function BestWindowsPage() {
-  const { data: meta, isLoading: loadingMeta } = useMeta()
+  const { data: meta, isLoading: loadingMeta } = useMeta();
 
-  const [from, setFrom] = useState(todayIso())
-  const [to, setTo] = useState(todayIso(330))
-  const [region, setRegion] = useState<Region | null>(null)
-  const [countries, setCountries] = useState<string[]>([])
-  const [profile, setProfile] = useState<ProfileKey | null>('equilibrado')
-  const [customWeights, setCustomWeights] = useState(false)
+  const [from, setFrom] = useState(todayIso());
+  const [to, setTo] = useState(todayIso(330));
+  const [region, setRegion] = useState<Region | null>(null);
+  const [countries, setCountries] = useState<string[]>([]);
+  const [profile, setProfile] = useState<ProfileKey | null>("equilibrado");
+  const [customWeights, setCustomWeights] = useState(false);
   const [weights, setWeights] = useState<Record<CriterionKey, number>>({
     weather: 0.25,
     cost: 0.25,
     distance: 0.25,
     festivities: 0.25,
-  })
-  const [minDays, setMinDays] = useState(3)
+  });
+  const [minDays, setMinDays] = useState(3);
 
-  const [query, setQuery] = useState<BestWindowsQuery | null>(null)
-  const { data, isLoading, isError } = useBestWindows(query)
+  const [query, setQuery] = useState<BestWindowsQuery | null>(null);
+  const { data, isLoading, isError } = useBestWindows(query);
 
   function handleProfileSelect(key: ProfileKey) {
-    setProfile(key)
-    setCustomWeights(false)
-    const preset = meta?.profiles.find((p) => p.key === key)
-    if (preset) setWeights(preset.weights)
+    setProfile(key);
+    setCustomWeights(false);
+    const preset = meta?.profiles.find((p) => p.key === key);
+    if (preset) setWeights(preset.weights);
   }
 
-  const canSubmit = Boolean(from && to && (region || countries.length > 0))
+  const canSubmit = Boolean(from && to && (region || countries.length > 0));
 
   function handleSubmit() {
-    if (!canSubmit) return
+    if (!canSubmit) return;
     setQuery({
       from,
       to,
@@ -61,8 +66,8 @@ export function BestWindowsPage() {
       countries: region ? undefined : countries,
       profile: customWeights ? undefined : (profile ?? undefined),
       weights: customWeights ? weights : undefined,
-      originCountry: 'BR',
-    })
+      originCountry: "BR",
+    });
   }
 
   if (loadingMeta || !meta) {
@@ -71,7 +76,7 @@ export function BestWindowsPage() {
         <Skeleton className="h-9 w-2/3 rounded-full" />
         <Skeleton className="h-40 w-full rounded-2xl" />
       </div>
-    )
+    );
   }
 
   return (
@@ -84,21 +89,36 @@ export function BestWindowsPage() {
           As melhores <span className="text-gold-gradient">janelas</span> do ano
         </h1>
         <p className="mt-3 text-muted-foreground">
-          A Viazio cruza feriados, pontes e fins de semana pra achar quando poucos dias de férias
-          rendem muitos dias de folga — e os melhores destinos pra cada janela.
+          A Viazio cruza feriados, pontes e fins de semana pra achar quando
+          poucos dias de férias rendem muitos dias de folga — e os melhores
+          destinos pra cada janela.
         </p>
       </Reveal>
 
       <div className="mt-10 space-y-10">
-        <SearchSection step={1} title="Período de busca" description="Até 400 dias de horizonte.">
+        <SearchSection
+          step={1}
+          title="Período de busca"
+          description="Até 400 dias de horizonte."
+        >
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="space-y-2">
               <Label>De</Label>
-              <Input type="date" value={from} min={todayIso()} onChange={(e) => setFrom(e.target.value)} />
+              <Input
+                type="date"
+                value={from}
+                min={todayIso()}
+                onChange={(e) => setFrom(e.target.value)}
+              />
             </div>
             <div className="space-y-2">
               <Label>Até</Label>
-              <Input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} />
+              <Input
+                type="date"
+                value={to}
+                min={from}
+                onChange={(e) => setTo(e.target.value)}
+              />
             </div>
             <div className="col-span-2 space-y-2 sm:col-span-1">
               <Label>Mín. de dias</Label>
@@ -113,7 +133,11 @@ export function BestWindowsPage() {
           </div>
         </SearchSection>
 
-        <SearchSection step={2} title="Para onde?" description="Uma região inteira ou países específicos.">
+        <SearchSection
+          step={2}
+          title="Para onde?"
+          description="Uma região inteira ou países específicos."
+        >
           <DestinationPicker
             regions={meta.regions}
             countries={meta.countries}
@@ -124,7 +148,11 @@ export function BestWindowsPage() {
           />
         </SearchSection>
 
-        <SearchSection step={3} title="O que mais importa?" description="Um perfil pronto ou pesos sob medida.">
+        <SearchSection
+          step={3}
+          title="O que mais importa?"
+          description="Um perfil pronto ou pesos sob medida."
+        >
           <div className="space-y-5">
             <ProfilePicker
               profiles={meta.profiles}
@@ -133,15 +161,17 @@ export function BestWindowsPage() {
               custom={customWeights}
               onSelect={handleProfileSelect}
               onCustom={() => {
-                setCustomWeights(true)
-                setProfile(null)
+                setCustomWeights(true);
+                setProfile(null);
               }}
             />
             {customWeights && (
               <WeightSliders
                 criteria={meta.criteria}
                 weights={weights}
-                onChange={(criterion, value) => setWeights((w) => ({ ...w, [criterion]: value }))}
+                onChange={(criterion, value) =>
+                  setWeights((w) => ({ ...w, [criterion]: value }))
+                }
               />
             )}
           </div>
@@ -178,7 +208,10 @@ export function BestWindowsPage() {
         {data && data.windows.length === 0 && (
           <div className="flex flex-col items-center gap-3 rounded-2xl border border-hairline bg-surface/50 p-12 text-center text-muted-foreground">
             <Frown className="size-9" />
-            <p>Nenhuma janela encontrada nesse período. Tente ampliar o intervalo ou reduzir o mínimo de dias.</p>
+            <p>
+              Nenhuma janela encontrada nesse período. Tente ampliar o intervalo
+              ou reduzir o mínimo de dias.
+            </p>
           </div>
         )}
 
@@ -186,16 +219,27 @@ export function BestWindowsPage() {
           <>
             <div className="flex items-baseline justify-between gap-3 pb-1">
               <p className="text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold/80">
-                {pluralize(data.windows.length, 'janela encontrada', 'janelas encontradas')}
+                {pluralize(
+                  data.windows.length,
+                  "janela encontrada",
+                  "janelas encontradas",
+                )}
               </p>
-              <p className="text-xs text-muted-foreground">{formatDateRange(data.from, data.to)}</p>
+              <p className="text-xs text-muted-foreground">
+                {formatDateRange(data.from, data.to)}
+              </p>
             </div>
             {data.windows.map((window, i) => (
-              <WindowCard key={`${window.start}-${window.end}`} window={window} index={i} searchQuery="" />
+              <WindowCard
+                key={`${window.start}-${window.end}`}
+                window={window}
+                index={i}
+                searchQuery=""
+              />
             ))}
           </>
         )}
       </div>
     </div>
-  )
+  );
 }

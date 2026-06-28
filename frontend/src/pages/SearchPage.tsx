@@ -1,75 +1,89 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
-import { useMeta } from '@/api/queries'
-import type { CriterionKey, ProfileKey, Region } from '@/api/types'
-import { criteriaToSearchParams, type SearchCriteria } from '@/lib/search-params'
-import { formatBrl, formatDateRange } from '@/lib/format'
-import { SearchSection } from '@/components/search/SearchSection'
-import { DestinationPicker } from '@/components/search/DestinationPicker'
-import { ProfilePicker } from '@/components/search/ProfilePicker'
-import { WeightSliders } from '@/components/search/WeightSliders'
-import { TravelersStepper } from '@/components/search/TravelersStepper'
-import { PlanSummary } from '@/components/search/PlanSummary'
-import { Flag } from '@/components/shared/Flag'
-import { Reveal } from '@/components/shared/Reveal'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { useMeta } from "@/api/queries";
+import type { CriterionKey, ProfileKey, Region } from "@/api/types";
+import {
+  criteriaToSearchParams,
+  type SearchCriteria,
+} from "@/lib/search-params";
+import { formatBrl, formatDateRange } from "@/lib/format";
+import { SearchSection } from "@/components/search/SearchSection";
+import { DestinationPicker } from "@/components/search/DestinationPicker";
+import { ProfilePicker } from "@/components/search/ProfilePicker";
+import { WeightSliders } from "@/components/search/WeightSliders";
+import { TravelersStepper } from "@/components/search/TravelersStepper";
+import { PlanSummary } from "@/components/search/PlanSummary";
+import { Flag } from "@/components/shared/Flag";
+import { Reveal } from "@/components/shared/Reveal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function todayIso(offsetDays = 0) {
-  const d = new Date()
-  d.setDate(d.getDate() + offsetDays)
-  return d.toISOString().slice(0, 10)
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0, 10);
 }
 
 export function SearchPage() {
-  const { data: meta, isLoading } = useMeta()
-  const navigate = useNavigate()
+  const { data: meta, isLoading } = useMeta();
+  const navigate = useNavigate();
 
-  const [from, setFrom] = useState(todayIso(14))
-  const [to, setTo] = useState(todayIso(18))
-  const [originCountry, setOriginCountry] = useState('BR')
-  const [originCity, setOriginCity] = useState<string | undefined>(undefined)
-  const [region, setRegion] = useState<Region | null>(null)
-  const [countries, setCountries] = useState<string[]>([])
-  const [profile, setProfile] = useState<ProfileKey | null>('equilibrado')
-  const [customWeights, setCustomWeights] = useState(false)
+  const [from, setFrom] = useState(todayIso(14));
+  const [to, setTo] = useState(todayIso(18));
+  const [originCountry, setOriginCountry] = useState("BR");
+  const [originCity, setOriginCity] = useState<string | undefined>(undefined);
+  const [region, setRegion] = useState<Region | null>(null);
+  const [countries, setCountries] = useState<string[]>([]);
+  const [profile, setProfile] = useState<ProfileKey | null>("equilibrado");
+  const [customWeights, setCustomWeights] = useState(false);
   const [weights, setWeights] = useState<Record<CriterionKey, number>>({
     weather: 0.25,
     cost: 0.25,
     distance: 0.25,
     festivities: 0.25,
-  })
-  const [travelers, setTravelers] = useState(1)
-  const [maxBudget, setMaxBudget] = useState('')
+  });
+  const [travelers, setTravelers] = useState(1);
+  const [maxBudget, setMaxBudget] = useState("");
 
-  const originCountryOption = meta?.countries.find((c) => c.code === originCountry)
+  const originCountryOption = meta?.countries.find(
+    (c) => c.code === originCountry,
+  );
 
-  const canSubmit = Boolean(from && to && (region || countries.length > 0))
+  const canSubmit = Boolean(from && to && (region || countries.length > 0));
 
   const dayCount = useMemo(() => {
-    const start = new Date(`${from}T00:00:00`)
-    const end = new Date(`${to}T00:00:00`)
-    return Math.max(0, Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1)
-  }, [from, to])
+    const start = new Date(`${from}T00:00:00`);
+    const end = new Date(`${to}T00:00:00`);
+    return Math.max(
+      0,
+      Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1,
+    );
+  }, [from, to]);
 
   function handleProfileSelect(key: ProfileKey) {
-    setProfile(key)
-    setCustomWeights(false)
-    const preset = meta?.profiles.find((p) => p.key === key)
-    if (preset) setWeights(preset.weights)
+    setProfile(key);
+    setCustomWeights(false);
+    const preset = meta?.profiles.find((p) => p.key === key);
+    if (preset) setWeights(preset.weights);
   }
 
   function handleCustom() {
-    setCustomWeights(true)
-    setProfile(null)
+    setCustomWeights(true);
+    setProfile(null);
   }
 
   function handleSubmit() {
-    if (!canSubmit) return
+    if (!canSubmit) return;
     const criteria: SearchCriteria = {
       from,
       to,
@@ -80,26 +94,29 @@ export function SearchPage() {
       travelers,
       origin: { countryCode: originCountry, city: originCity },
       maxGroundBudgetBrl: maxBudget ? Number(maxBudget) : undefined,
-    }
-    navigate(`/resultados?${criteriaToSearchParams(criteria).toString()}`)
+    };
+    navigate(`/resultados?${criteriaToSearchParams(criteria).toString()}`);
   }
 
-  // ── Live summary labels ──
-  const budgetNum = maxBudget ? Number(maxBudget) : NaN
+  // ── Rótulos do resumo ao vivo ──
+  const budgetNum = maxBudget ? Number(maxBudget) : NaN;
   const summary = {
     originCode: originCountry,
     originLabel: originCountryOption?.name ?? originCountry,
     destinationLabel: region
       ? (meta?.regions.find((r) => r.key === region)?.label ?? region)
       : countries.length > 0
-        ? `${countries.length} ${countries.length === 1 ? 'país' : 'países'}`
+        ? `${countries.length} ${countries.length === 1 ? "país" : "países"}`
         : null,
     dateRangeLabel: formatDateRange(from, to),
     profileLabel: customWeights
-      ? 'Personalizado'
-      : (meta?.profiles.find((p) => p.key === profile)?.label ?? '—'),
-    budgetLabel: Number.isFinite(budgetNum) && budgetNum > 0 ? formatBrl(budgetNum) : undefined,
-  }
+      ? "Personalizado"
+      : (meta?.profiles.find((p) => p.key === profile)?.label ?? "—"),
+    budgetLabel:
+      Number.isFinite(budgetNum) && budgetNum > 0
+        ? formatBrl(budgetNum)
+        : undefined,
+  };
 
   if (isLoading || !meta) {
     return (
@@ -114,7 +131,7 @@ export function SearchPage() {
           <Skeleton className="hidden h-80 w-full rounded-2xl lg:block" />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -127,22 +144,27 @@ export function SearchPage() {
           Monte seu próximo <span className="text-gold-gradient">feriadão</span>
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Cinco passos rápidos — e a Viazio cruza os dados pra explicar cada destino.
+          Cinco passos rápidos — e a Viazio cruza os dados pra explicar cada
+          destino.
         </p>
       </Reveal>
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_21rem] lg:gap-12">
-        {/* ── Form column ── */}
+        {/* ── Coluna do formulário ── */}
         <div className="space-y-12">
-          <SearchSection step={1} title="De onde você parte?" description="Para calcular distância e câmbio.">
+          <SearchSection
+            step={1}
+            title="De onde você parte?"
+            description="Para calcular distância e câmbio."
+          >
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>País de origem</Label>
                 <Select
                   value={originCountry}
                   onValueChange={(v) => {
-                    setOriginCountry(v)
-                    setOriginCity(undefined)
+                    setOriginCountry(v);
+                    setOriginCity(undefined);
                   }}
                 >
                   <SelectTrigger className="w-full">
@@ -178,21 +200,35 @@ export function SearchPage() {
           <SearchSection
             step={2}
             title="Quando você quer viajar?"
-            description={`${dayCount} dia${dayCount === 1 ? '' : 's'} de viagem`}
+            description={`${dayCount} dia${dayCount === 1 ? "" : "s"} de viagem`}
           >
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Ida</Label>
-                <Input type="date" value={from} min={todayIso()} onChange={(e) => setFrom(e.target.value)} />
+                <Input
+                  type="date"
+                  value={from}
+                  min={todayIso()}
+                  onChange={(e) => setFrom(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Volta</Label>
-                <Input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} />
+                <Input
+                  type="date"
+                  value={to}
+                  min={from}
+                  onChange={(e) => setTo(e.target.value)}
+                />
               </div>
             </div>
           </SearchSection>
 
-          <SearchSection step={3} title="Para onde?" description="Uma região inteira ou países específicos.">
+          <SearchSection
+            step={3}
+            title="Para onde?"
+            description="Uma região inteira ou países específicos."
+          >
             <DestinationPicker
               regions={meta.regions}
               countries={meta.countries}
@@ -203,7 +239,11 @@ export function SearchPage() {
             />
           </SearchSection>
 
-          <SearchSection step={4} title="O que mais importa pra você?" description="Um perfil pronto ou pesos sob medida.">
+          <SearchSection
+            step={4}
+            title="O que mais importa pra você?"
+            description="Um perfil pronto ou pesos sob medida."
+          >
             <div className="space-y-5">
               <ProfilePicker
                 profiles={meta.profiles}
@@ -217,15 +257,25 @@ export function SearchPage() {
                 <WeightSliders
                   criteria={meta.criteria}
                   weights={weights}
-                  onChange={(criterion, value) => setWeights((w) => ({ ...w, [criterion]: value }))}
+                  onChange={(criterion, value) =>
+                    setWeights((w) => ({ ...w, [criterion]: value }))
+                  }
                 />
               )}
             </div>
           </SearchSection>
 
-          <SearchSection step={5} title="Detalhes finais" description="Opcional, mas ajuda a refinar.">
+          <SearchSection
+            step={5}
+            title="Detalhes finais"
+            description="Opcional, mas ajuda a refinar."
+          >
             <div className="space-y-3">
-              <TravelersStepper value={travelers} max={meta.limits.maximumTravelers} onChange={setTravelers} />
+              <TravelersStepper
+                value={travelers}
+                max={meta.limits.maximumTravelers}
+                onChange={setTravelers}
+              />
               <div className="relative">
                 <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                   R$
@@ -243,22 +293,28 @@ export function SearchPage() {
           </SearchSection>
         </div>
 
-        {/* ── Sticky summary rail (desktop) ── */}
+        {/* ── Trilho de resumo fixo (desktop) ── */}
         <aside className="hidden lg:block">
           <div className="sticky top-24">
-            <PlanSummary {...summary} dayCount={dayCount} travelers={travelers} canSubmit={canSubmit} onSubmit={handleSubmit} />
+            <PlanSummary
+              {...summary}
+              dayCount={dayCount}
+              travelers={travelers}
+              canSubmit={canSubmit}
+              onSubmit={handleSubmit}
+            />
           </div>
         </aside>
       </div>
 
-      {/* ── Sticky CTA (mobile) ── */}
+      {/* ── CTA fixo (mobile) ── */}
       <div className="sticky bottom-20 z-30 mt-10 lg:hidden">
         <div className="rounded-2xl border border-hairline glass p-3 elevate-lg">
           <div className="mb-2 flex items-center justify-between px-1 text-xs text-muted-foreground">
             <span className="truncate">
               {summary.destinationLabel
                 ? `${summary.destinationLabel} · ${dayCount} dias`
-                : 'Escolha um destino'}
+                : "Escolha um destino"}
             </span>
             <span className="shrink-0">{summary.profileLabel}</span>
           </div>
@@ -274,5 +330,5 @@ export function SearchPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

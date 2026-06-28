@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { exampleSearches, exampleSearchHref } from '@/lib/example-searches'
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { exampleSearches, exampleSearchHref } from "@/lib/example-searches";
 
 export function ExampleSearchChips() {
   return (
@@ -8,9 +8,9 @@ export function ExampleSearchChips() {
       <p className="text-[0.7rem] font-medium uppercase tracking-[0.2em] text-muted-foreground/80">
         ou comece com um toque
       </p>
-      {/* shrink-0 must sit on the DIRECT flex child (the motion.div), not the
-          nested <Link>, or pills collapse on mobile (see frontend-react-stack memory).
-          mask-fade-x hints the row is swipeable on mobile; cleared on sm: where it wraps instead. */}
+      {/* shrink-0 deve ficar no filho DIRETO do flex (o motion.div), não no
+          <Link> aninhado, senão os pills colapsam no mobile (ver memória frontend-react-stack).
+          mask-fade-x indica que a linha é deslizável no mobile; removido no sm: onde quebra linha. */}
       <div className="flex max-w-full gap-2 overflow-x-auto px-4 pb-1 no-scrollbar mask-fade-x sm:flex-wrap sm:justify-center sm:overflow-visible sm:[mask-image:none] sm:[-webkit-mask-image:none]">
         {exampleSearches.map((example, i) => (
           <motion.div
@@ -33,5 +33,5 @@ export function ExampleSearchChips() {
         ))}
       </div>
     </div>
-  )
+  );
 }

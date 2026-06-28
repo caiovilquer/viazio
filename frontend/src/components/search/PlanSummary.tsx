@@ -1,9 +1,17 @@
-import { ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Flag } from '@/components/shared/Flag'
-import { cn } from '@/lib/utils'
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Flag } from "@/components/shared/Flag";
+import { cn } from "@/lib/utils";
 
-function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
+function Row({
+  label,
+  value,
+  muted,
+}: {
+  label: string;
+  value: string;
+  muted?: boolean;
+}) {
   return (
     <div className="flex items-baseline justify-between gap-3">
       <dt className="shrink-0 text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
@@ -11,14 +19,14 @@ function Row({ label, value, muted }: { label: string; value: string; muted?: bo
       </dt>
       <dd
         className={cn(
-          'truncate text-right text-sm font-medium',
-          muted ? 'text-muted-foreground/60' : 'text-foreground',
+          "truncate text-right text-sm font-medium",
+          muted ? "text-muted-foreground/60" : "text-foreground",
         )}
       >
         {value}
       </dd>
     </div>
-  )
+  );
 }
 
 export function PlanSummary({
@@ -33,16 +41,16 @@ export function PlanSummary({
   canSubmit,
   onSubmit,
 }: {
-  originCode: string
-  originLabel: string
-  destinationLabel: string | null
-  dateRangeLabel: string
-  dayCount: number
-  profileLabel: string
-  travelers: number
-  budgetLabel?: string
-  canSubmit: boolean
-  onSubmit: () => void
+  originCode: string;
+  originLabel: string;
+  destinationLabel: string | null;
+  dateRangeLabel: string;
+  dayCount: number;
+  profileLabel: string;
+  travelers: number;
+  budgetLabel?: string;
+  canSubmit: boolean;
+  onSubmit: () => void;
 }) {
   return (
     <div className="rounded-2xl border border-hairline bg-surface/60 p-6 elevate">
@@ -62,13 +70,23 @@ export function PlanSummary({
         </div>
         <Row
           label="Destino"
-          value={destinationLabel ?? 'a escolher'}
+          value={destinationLabel ?? "a escolher"}
           muted={!destinationLabel}
         />
-        <Row label="Período" value={`${dateRangeLabel} · ${dayCount} ${dayCount === 1 ? 'dia' : 'dias'}`} />
+        <Row
+          label="Período"
+          value={`${dateRangeLabel} · ${dayCount} ${dayCount === 1 ? "dia" : "dias"}`}
+        />
         <Row label="Prioridade" value={profileLabel} />
-        <Row label="Viajantes" value={`${travelers} ${travelers === 1 ? 'pessoa' : 'pessoas'}`} />
-        <Row label="Orçamento" value={budgetLabel ?? 'sem limite'} muted={!budgetLabel} />
+        <Row
+          label="Viajantes"
+          value={`${travelers} ${travelers === 1 ? "pessoa" : "pessoas"}`}
+        />
+        <Row
+          label="Orçamento"
+          value={budgetLabel ?? "sem limite"}
+          muted={!budgetLabel}
+        />
       </dl>
 
       <div className="mt-6 border-t border-hairline pt-5">
@@ -88,5 +106,5 @@ export function PlanSummary({
         )}
       </div>
     </div>
-  )
+  );
 }

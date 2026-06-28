@@ -1,227 +1,372 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ranking de destinos — Feriadões</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/style.css}">
-</head>
-<body>
-
-<header class="site-header">
-    <div class="site-header-inner">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
         <a href="/" class="site-logo">Feriadões</a>
         <nav class="site-nav">
-            <a href="/">Início</a>
+          <a href="/">Início</a>
         </nav>
-    </div>
-</header>
+      </div>
+    </header>
 
-<main>
-
-    <div th:if="${erro}" class="alert-erro">
+    <main>
+      <div th:if="${erro}" class="alert-erro">
         <strong>Não foi possível gerar o ranking.</strong>
         <span th:text="${erro}"></span>
-    </div>
+      </div>
 
-    <div th:if="${resultado}" class="card">
-
+      <div th:if="${resultado}" class="card">
         <div class="ranking-header">
-            <h1 class="ranking-title"
-                th:text="'Melhores destinos de ' + ${#temporals.format(resultado.from(), 'dd/MM')} + ' a ' + ${#temporals.format(resultado.to(), 'dd/MM/yyyy')}">
-                Melhores destinos de 01/07 a 31/07/2026
-            </h1>
-            <p class="ranking-periodo">
-                De <strong th:text="${#temporals.format(resultado.from(), 'dd/MM/yyyy')}">01/07/2026</strong>
-                até <strong th:text="${#temporals.format(resultado.to(), 'dd/MM/yyyy')}">31/07/2026</strong>
-                &mdash; janela e destinos avaliados separadamente, com confiança explícita dos dados.
-            </p>
+          <h1
+            class="ranking-title"
+            th:text="'Melhores destinos de ' + ${#temporals.format(resultado.from(), 'dd/MM')} + ' a ' + ${#temporals.format(resultado.to(), 'dd/MM/yyyy')}"
+          >
+            Melhores destinos de 01/07 a 31/07/2026
+          </h1>
+          <p class="ranking-periodo">
+            De
+            <strong
+              th:text="${#temporals.format(resultado.from(), 'dd/MM/yyyy')}"
+              >01/07/2026</strong
+            >
+            até
+            <strong th:text="${#temporals.format(resultado.to(), 'dd/MM/yyyy')}"
+              >31/07/2026</strong
+            >
+            &mdash; janela e destinos avaliados separadamente, com confiança
+            explícita dos dados.
+          </p>
         </div>
 
-        <div class="secao-bloco" th:if="${not #lists.isEmpty(resultado.window().longWeekends())}">
-            <p class="secao-bloco-titulo">Feriadões na origem nesta janela</p>
-            <p th:text="${resultado.window().explanation()}">Resumo da janela</p>
-            <div class="feriadao-grid">
-                <div class="feriadao-card" th:each="lw : ${resultado.window().longWeekends()}">
-                    <p class="feriadao-datas">
-                        <span th:text="${#temporals.format(lw.start(), 'dd/MM')}">01/07</span>
-                        &ndash;
-                        <span th:text="${#temporals.format(lw.end(), 'dd/MM/yyyy')}">04/07/2026</span>
-                    </p>
-                    <p class="feriadao-nome" th:text="${lw.holidayName()}">Feriado</p>
-                    <p class="feriadao-dias"
-                       th:text="${lw.totalDays()} + (${lw.totalDays()} == 1 ? ' dia' : ' dias')">4 dias</p>
-                    <p th:if="${lw.bridgeDaysUsed() > 0}" class="feriadao-ponte"
-                       th:text="${lw.bridgeDaysUsed()} + (${lw.bridgeDaysUsed()} == 1 ? ' dia de ponte incluído' : ' dias de ponte incluídos')">
-                        1 dia de ponte incluído
-                    </p>
-                </div>
+        <div
+          class="secao-bloco"
+          th:if="${not #lists.isEmpty(resultado.window().longWeekends())}"
+        >
+          <p class="secao-bloco-titulo">Feriadões na origem nesta janela</p>
+          <p th:text="${resultado.window().explanation()}">Resumo da janela</p>
+          <div class="feriadao-grid">
+            <div
+              class="feriadao-card"
+              th:each="lw : ${resultado.window().longWeekends()}"
+            >
+              <p class="feriadao-datas">
+                <span th:text="${#temporals.format(lw.start(), 'dd/MM')}"
+                  >01/07</span
+                >
+                &ndash;
+                <span th:text="${#temporals.format(lw.end(), 'dd/MM/yyyy')}"
+                  >04/07/2026</span
+                >
+              </p>
+              <p class="feriadao-nome" th:text="${lw.holidayName()}">Feriado</p>
+              <p
+                class="feriadao-dias"
+                th:text="${lw.totalDays()} + (${lw.totalDays()} == 1 ? ' dia' : ' dias')"
+              >
+                4 dias
+              </p>
+              <p
+                th:if="${lw.bridgeDaysUsed() > 0}"
+                class="feriadao-ponte"
+                th:text="${lw.bridgeDaysUsed()} + (${lw.bridgeDaysUsed()} == 1 ? ' dia de ponte incluído' : ' dias de ponte incluídos')"
+              >
+                1 dia de ponte incluído
+              </p>
             </div>
+          </div>
         </div>
 
         <div class="secao-bloco">
-            <p class="secao-bloco-titulo">Ranking de recomendações</p>
-            <p class="ranking-perfil" th:if="${resultado.profile() != null}">
-                Critérios ponderados pelo perfil <strong th:text="${resultado.profile()}">equilibrado</strong>.
-            </p>
+          <p class="secao-bloco-titulo">Ranking de recomendações</p>
+          <p class="ranking-perfil" th:if="${resultado.profile() != null}">
+            Critérios ponderados pelo perfil
+            <strong th:text="${resultado.profile()}">equilibrado</strong>.
+          </p>
 
-            <p th:if="${#lists.isEmpty(resultado.recommendations())}" class="estado-vazio">
-                Nenhum destino ranqueado para os filtros informados. Tente ampliar a janela de datas ou alterar os países selecionados.
-            </p>
+          <p
+            th:if="${#lists.isEmpty(resultado.recommendations())}"
+            class="estado-vazio"
+          >
+            Nenhum destino ranqueado para os filtros informados. Tente ampliar a
+            janela de datas ou alterar os países selecionados.
+          </p>
 
-            <ol th:if="${not #lists.isEmpty(resultado.recommendations())}" class="ranking-lista">
-                <li class="ranking-item" th:each="rec, recStat : ${resultado.recommendations()}"
-                    th:with="summaryBruto=${rec.summary()},
+          <ol
+            th:if="${not #lists.isEmpty(resultado.recommendations())}"
+            class="ranking-lista"
+          >
+            <li
+              class="ranking-item"
+              th:each="rec, recStat : ${resultado.recommendations()}"
+              th:with="summaryBruto=${rec.summary()},
                              summaryDesc=${summaryBruto.contains(': ') ? #strings.substringAfter(summaryBruto, ': ') : summaryBruto},
                              summaryFinal=${#strings.length(summaryDesc) > 0 ? #strings.toUpperCase(#strings.substring(summaryDesc, 0, 1)) + #strings.substring(summaryDesc, 1) : summaryDesc},
-                             faixaScore=${rec.tripScore() > 70 ? 'score-alto' : (rec.tripScore() > 40 ? 'score-medio' : 'score-baixo')}">
+                             faixaScore=${rec.tripScore() > 70 ? 'score-alto' : (rec.tripScore() > 40 ? 'score-medio' : 'score-baixo')}"
+            >
+              <div class="ranking-cabecalho">
+                <span class="ranking-posicao" th:text="'#' + ${recStat.count}"
+                  >#1</span
+                >
+                <span
+                  class="ranking-flag"
+                  th:if="${rec.profile() != null and rec.profile().flagEmoji() != null}"
+                  aria-hidden="true"
+                  th:text="${rec.profile().flagEmoji()}"
+                  >🏳️</span
+                >
+                <span class="ranking-pais-nome" th:text="${rec.countryName()}"
+                  >Japan</span
+                >
+                <span class="pais-iso" th:text="${rec.countryCode()}">JP</span>
+              </div>
 
-                    <div class="ranking-cabecalho">
-                        <span class="ranking-posicao" th:text="'#' + ${recStat.count}">#1</span>
-                        <span class="ranking-flag" th:if="${rec.profile() != null and rec.profile().flagEmoji() != null}"
-                              aria-hidden="true" th:text="${rec.profile().flagEmoji()}">🏳️</span>
-                        <span class="ranking-pais-nome" th:text="${rec.countryName()}">Japan</span>
-                        <span class="pais-iso" th:text="${rec.countryCode()}">JP</span>
-                    </div>
+              <div
+                class="ranking-media"
+                th:if="${rec.profile() != null and (rec.profile().imageUrl() != null or rec.profile().description() != null)}"
+              >
+                <img
+                  th:if="${rec.profile().imageUrl() != null}"
+                  th:src="${rec.profile().imageUrl()}"
+                  alt=""
+                  class="ranking-img"
+                  loading="lazy"
+                />
+                <p
+                  th:if="${rec.profile().description() != null}"
+                  class="ranking-tagline"
+                  th:text="${rec.profile().description()}"
+                >
+                  descrição curta do destino
+                </p>
+              </div>
 
-                    <div class="ranking-media"
-                         th:if="${rec.profile() != null and (rec.profile().imageUrl() != null or rec.profile().description() != null)}">
-                        <img th:if="${rec.profile().imageUrl() != null}" th:src="${rec.profile().imageUrl()}" alt=""
-                             class="ranking-img" loading="lazy" />
-                        <p th:if="${rec.profile().description() != null}" class="ranking-tagline"
-                           th:text="${rec.profile().description()}">descrição curta do destino</p>
-                    </div>
+              <div class="score-container">
+                <div class="score-meta">
+                  <span class="score-label">Compatibilidade</span>
+                  <span
+                    class="score-pct"
+                    th:classappend="${' ' + faixaScore}"
+                    th:text="${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')} + '%'"
+                    >68%</span
+                  >
+                </div>
+                <div
+                  class="score-bar"
+                  role="progressbar"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  th:attr="aria-label='Compatibilidade: ' + ${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')} + ' por cento',aria-valuenow=${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')}"
+                >
+                  <div
+                    class="score-bar-fill"
+                    th:classappend="${' ' + faixaScore}"
+                    th:style="'width:' + ${rec.tripScore()} + '%'"
+                  ></div>
+                </div>
+                <p
+                  class="breakdown-justificativa"
+                  th:text="'Destino ' + ${#numbers.formatDecimal(rec.destinationScore(), 1, 'POINT', 0, 'COMMA')} + '/100 · janela ' + ${#numbers.formatDecimal(rec.windowScore(), 1, 'POINT', 0, 'COMMA')} + '/100 · confiança ' + ${#numbers.formatDecimal(rec.dataQuality().confidenceScore(), 1, 'POINT', 0, 'COMMA')} + '%'"
+                >
+                  Destino, janela e confiança
+                </p>
+              </div>
 
-                    <div class="score-container">
-                        <div class="score-meta">
-                            <span class="score-label">Compatibilidade</span>
-                            <span class="score-pct" th:classappend="${' ' + faixaScore}"
-                                  th:text="${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')} + '%'">68%</span>
-                        </div>
-                        <div class="score-bar"
-                             role="progressbar"
-                             aria-valuemin="0"
-                             aria-valuemax="100"
-                             th:attr="aria-label='Compatibilidade: ' + ${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')} + ' por cento',aria-valuenow=${#numbers.formatDecimal(rec.tripScore(), 1, 'POINT', 0, 'COMMA')}">
-                            <div class="score-bar-fill"
-                                 th:classappend="${' ' + faixaScore}"
-                                 th:style="'width:' + ${rec.tripScore()} + '%'"></div>
-                        </div>
-                        <p class="breakdown-justificativa"
-                           th:text="'Destino ' + ${#numbers.formatDecimal(rec.destinationScore(), 1, 'POINT', 0, 'COMMA')} + '/100 · janela ' + ${#numbers.formatDecimal(rec.windowScore(), 1, 'POINT', 0, 'COMMA')} + '/100 · confiança ' + ${#numbers.formatDecimal(rec.dataQuality().confidenceScore(), 1, 'POINT', 0, 'COMMA')} + '%'">
-                            Destino, janela e confiança
-                        </p>
-                    </div>
+              <p class="ranking-resumo" th:text="${summaryFinal}">
+                Clima ótimo, custo de vida baixo.
+              </p>
 
-                    <p class="ranking-resumo" th:text="${summaryFinal}">Clima ótimo, custo de vida baixo.</p>
-
-                    <div class="viabilidade"
-                         th:if="${rec.feasibility() != null}"
-                         th:with="effort=${rec.feasibility().travelEffort()},
+              <div
+                class="viabilidade"
+                th:if="${rec.feasibility() != null}"
+                th:with="effort=${rec.feasibility().travelEffort()},
                                   cost=${rec.feasibility().groundCost()},
-                                  destination=${rec.feasibility().destination()}">
-                        <p class="viabilidade-titulo">Viabilidade da viagem</p>
-                        <div class="viabilidade-grade">
-                            <div class="viabilidade-item">
-                                <span class="viabilidade-rotulo">Referência no destino</span>
-                                <strong th:text="${destination.name()}">Tóquio</strong>
-                            </div>
-                            <div class="viabilidade-item" th:if="${effort != null}">
-                                <span class="viabilidade-rotulo">Esforço estimado</span>
-                                <strong th:text="${#numbers.formatDecimal(effort.distanceKm(), 1, 'POINT', 0, 'COMMA')} + ' km · ' + ${#numbers.formatDecimal(effort.estimatedTravelHoursMin(), 1, 'POINT', 1, 'COMMA')} + '–' + ${#numbers.formatDecimal(effort.estimatedTravelHoursMax(), 1, 'POINT', 1, 'COMMA')} + ' h'">
-                                    10.000 km · 12–17 h
-                                </strong>
-                            </div>
-                            <div class="viabilidade-item" th:if="${cost != null}">
-                                <span class="viabilidade-rotulo">Estimativa terrestre</span>
-                                <strong th:text="'R$ ' + ${#numbers.formatDecimal(cost.estimatedTotal(), 1, 'POINT', 2, 'COMMA')}">
-                                    R$ 3.500,00
-                                </strong>
-                                <small th:text="${cost.travelers()} + (${cost.travelers()} == 1 ? ' viajante · ' : ' viajantes · ') + ${cost.days()} + ' dias'">
-                                    1 viajante · 10 dias
-                                </small>
-                            </div>
-                            <div class="viabilidade-item"
-                                 th:if="${effort != null and effort.timeZoneDifferenceHours() != null}">
-                                <span class="viabilidade-rotulo">Diferença de fuso</span>
-                                <strong th:text="${#numbers.formatDecimal(effort.timeZoneDifferenceHours(), 1, 'POINT', 1, 'COMMA')} + ' h'">
-                                    12 h
-                                </strong>
-                            </div>
-                        </div>
-                        <p class="viabilidade-premissa" th:if="${cost != null}" th:text="${cost.assumption()}">
-                            Estimativa por PPP.
-                        </p>
-                        <p class="viabilidade-premissa" th:if="${not #lists.isEmpty(rec.feasibility().notIncluded())}">
-                            Não inclui:
-                            <span th:text="${#strings.listJoin(rec.feasibility().notIncluded(), ', ')}">passagens, seguro</span>.
-                        </p>
-                    </div>
+                                  destination=${rec.feasibility().destination()}"
+              >
+                <p class="viabilidade-titulo">Viabilidade da viagem</p>
+                <div class="viabilidade-grade">
+                  <div class="viabilidade-item">
+                    <span class="viabilidade-rotulo"
+                      >Referência no destino</span
+                    >
+                    <strong th:text="${destination.name()}">Tóquio</strong>
+                  </div>
+                  <div class="viabilidade-item" th:if="${effort != null}">
+                    <span class="viabilidade-rotulo">Esforço estimado</span>
+                    <strong
+                      th:text="${#numbers.formatDecimal(effort.distanceKm(), 1, 'POINT', 0, 'COMMA')} + ' km · ' + ${#numbers.formatDecimal(effort.estimatedTravelHoursMin(), 1, 'POINT', 1, 'COMMA')} + '–' + ${#numbers.formatDecimal(effort.estimatedTravelHoursMax(), 1, 'POINT', 1, 'COMMA')} + ' h'"
+                    >
+                      10.000 km · 12–17 h
+                    </strong>
+                  </div>
+                  <div class="viabilidade-item" th:if="${cost != null}">
+                    <span class="viabilidade-rotulo">Estimativa terrestre</span>
+                    <strong
+                      th:text="'R$ ' + ${#numbers.formatDecimal(cost.estimatedTotal(), 1, 'POINT', 2, 'COMMA')}"
+                    >
+                      R$ 3.500,00
+                    </strong>
+                    <small
+                      th:text="${cost.travelers()} + (${cost.travelers()} == 1 ? ' viajante · ' : ' viajantes · ') + ${cost.days()} + ' dias'"
+                    >
+                      1 viajante · 10 dias
+                    </small>
+                  </div>
+                  <div
+                    class="viabilidade-item"
+                    th:if="${effort != null and effort.timeZoneDifferenceHours() != null}"
+                  >
+                    <span class="viabilidade-rotulo">Diferença de fuso</span>
+                    <strong
+                      th:text="${#numbers.formatDecimal(effort.timeZoneDifferenceHours(), 1, 'POINT', 1, 'COMMA')} + ' h'"
+                    >
+                      12 h
+                    </strong>
+                  </div>
+                </div>
+                <p
+                  class="viabilidade-premissa"
+                  th:if="${cost != null}"
+                  th:text="${cost.assumption()}"
+                >
+                  Estimativa por PPP.
+                </p>
+                <p
+                  class="viabilidade-premissa"
+                  th:if="${not #lists.isEmpty(rec.feasibility().notIncluded())}"
+                >
+                  Não inclui:
+                  <span
+                    th:text="${#strings.listJoin(rec.feasibility().notIncluded(), ', ')}"
+                    >passagens, seguro</span
+                  >.
+                </p>
+              </div>
 
-                    <div class="highlights" th:if="${not #lists.isEmpty(rec.highlights())}">
-                        <span class="highlight-chip" th:each="h : ${rec.highlights()}" th:text="${h}">clima ótimo</span>
-                    </div>
+              <div
+                class="highlights"
+                th:if="${not #lists.isEmpty(rec.highlights())}"
+              >
+                <span
+                  class="highlight-chip"
+                  th:each="h : ${rec.highlights()}"
+                  th:text="${h}"
+                  >clima ótimo</span
+                >
+              </div>
 
-                    <div class="skipped-bloco" th:if="${not #lists.isEmpty(rec.tradeoffs())}">
-                        <p class="skipped-titulo">Pontos de atenção</p>
-                        <ul class="skipped-lista">
-                            <li th:each="tradeoff : ${rec.tradeoffs()}" th:text="${tradeoff}">Ponto de atenção</li>
-                        </ul>
-                    </div>
-
-                    <details class="breakdown">
-                        <summary>Ver detalhes da pontuação</summary>
-                        <ul class="breakdown-lista">
-                            <li th:each="entry : ${rec.breakdown()}"
-                                th:classappend="${entry.available()} ? '' : ' breakdown-indisponivel'">
-                                <div class="breakdown-item-cabecalho">
-                                    <span class="breakdown-criterio">
-                                        <span aria-hidden="true" th:text="${entry.icon()}">☀️</span>
-                                        <span th:text="${entry.label()}">Clima</span>
-                                    </span>
-                                    <span class="breakdown-pontos" th:if="${entry.available()}">
-                                        <strong th:text="${#numbers.formatDecimal(entry.score(), 1, 'POINT', 0, 'COMMA')}">80</strong>/100
-                                        <span class="breakdown-peso"
-                                              th:text="'· peso ' + ${#numbers.formatDecimal(entry.weight() * 100, 0, 'POINT', 0, 'COMMA')} + '%'">· peso 20%</span>
-                                    </span>
-                                    <span class="breakdown-pontos breakdown-na" th:unless="${entry.available()}">indisponível</span>
-                                </div>
-                                <div class="breakdown-mini-bar" th:if="${entry.available()}">
-                                    <div class="breakdown-mini-fill" th:style="'width:' + ${entry.score()} + '%'"></div>
-                                </div>
-                                <p class="breakdown-justificativa" th:text="${entry.justification()}">ok</p>
-                            </li>
-                        </ul>
-                    </details>
-
-                    <a th:href="@{/viagem(codigo=${rec.countryCode()})}" class="btn-ver-mais">
-                        Ver informações completas de <span th:text="${rec.countryName()}">Japan</span> &rarr;
-                    </a>
-
-                </li>
-            </ol>
-        </div>
-
-        <div th:if="${not #lists.isEmpty(resultado.skipped())}" class="secao-bloco">
-            <div class="skipped-bloco">
-                <p class="skipped-titulo">Alguns destinos não puderam ser analisados</p>
+              <div
+                class="skipped-bloco"
+                th:if="${not #lists.isEmpty(rec.tradeoffs())}"
+              >
+                <p class="skipped-titulo">Pontos de atenção</p>
                 <ul class="skipped-lista">
-                    <li th:each="skip : ${resultado.skipped()}">
-                        <span class="skipped-codigo" th:text="${skip.countryCode()}">XX</span>
-                        <span th:text="${skip.reason()}">Motivo indisponível</span>
-                    </li>
+                  <li
+                    th:each="tradeoff : ${rec.tradeoffs()}"
+                    th:text="${tradeoff}"
+                  >
+                    Ponto de atenção
+                  </li>
                 </ul>
-            </div>
+              </div>
+
+              <details class="breakdown">
+                <summary>Ver detalhes da pontuação</summary>
+                <ul class="breakdown-lista">
+                  <li
+                    th:each="entry : ${rec.breakdown()}"
+                    th:classappend="${entry.available()} ? '' : ' breakdown-indisponivel'"
+                  >
+                    <div class="breakdown-item-cabecalho">
+                      <span class="breakdown-criterio">
+                        <span aria-hidden="true" th:text="${entry.icon()}"
+                          >☀️</span
+                        >
+                        <span th:text="${entry.label()}">Clima</span>
+                      </span>
+                      <span
+                        class="breakdown-pontos"
+                        th:if="${entry.available()}"
+                      >
+                        <strong
+                          th:text="${#numbers.formatDecimal(entry.score(), 1, 'POINT', 0, 'COMMA')}"
+                          >80</strong
+                        >/100
+                        <span
+                          class="breakdown-peso"
+                          th:text="'· peso ' + ${#numbers.formatDecimal(entry.weight() * 100, 0, 'POINT', 0, 'COMMA')} + '%'"
+                          >· peso 20%</span
+                        >
+                      </span>
+                      <span
+                        class="breakdown-pontos breakdown-na"
+                        th:unless="${entry.available()}"
+                        >indisponível</span
+                      >
+                    </div>
+                    <div
+                      class="breakdown-mini-bar"
+                      th:if="${entry.available()}"
+                    >
+                      <div
+                        class="breakdown-mini-fill"
+                        th:style="'width:' + ${entry.score()} + '%'"
+                      ></div>
+                    </div>
+                    <p
+                      class="breakdown-justificativa"
+                      th:text="${entry.justification()}"
+                    >
+                      ok
+                    </p>
+                  </li>
+                </ul>
+              </details>
+
+              <a
+                th:href="@{/viagem(codigo=${rec.countryCode()})}"
+                class="btn-ver-mais"
+              >
+                Ver informações completas de
+                <span th:text="${rec.countryName()}">Japan</span> &rarr;
+              </a>
+            </li>
+          </ol>
         </div>
 
-    </div>
+        <div
+          th:if="${not #lists.isEmpty(resultado.skipped())}"
+          class="secao-bloco"
+        >
+          <div class="skipped-bloco">
+            <p class="skipped-titulo">
+              Alguns destinos não puderam ser analisados
+            </p>
+            <ul class="skipped-lista">
+              <li th:each="skip : ${resultado.skipped()}">
+                <span class="skipped-codigo" th:text="${skip.countryCode()}"
+                  >XX</span
+                >
+                <span th:text="${skip.reason()}">Motivo indisponível</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <a href="/" class="btn-voltar">← Nova comparação</a>
-
-</main>
-
-</body>
+      <a href="/" class="btn-voltar">← Nova comparação</a>
+    </main>
+  </body>
 </html>

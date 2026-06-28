@@ -6,12 +6,11 @@ package br.usp.lab.oo.planejador_feriado.enrichment.model;
  * {@code null} quando a fonte correspondente não respondeu.
  */
 public record DestinationProfile(
-        String flagEmoji,
-        Long population,
-        String populationYear,
-        String description,
-        String extract,
-        String imageUrl,
-        String wikipediaUrl
-) {
-}
+  String flagEmoji,
+  Long population,
+  String populationYear,
+  String description,
+  String extract,
+  String imageUrl,
+  String wikipediaUrl
+) {}

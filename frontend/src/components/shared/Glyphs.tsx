@@ -1,9 +1,9 @@
 /**
- * Abstract editorial glyphs — on-brand replacements for banned travel clichés
- * (no airplane / globe / pin). Stroke uses currentColor.
+ * Glifos editoriais abstratos — substitutos on-brand para clichês de viagem banidos
+ * (sem avião / globo / pin). Traço usa currentColor.
  */
 
-/** A dotted arc between two points — a "route" without an airplane. */
+/** Arco pontilhado entre dois pontos — uma "rota" sem avião. */
 export function RouteGlyph({ className }: { className?: string }) {
   return (
     <svg
@@ -14,9 +14,13 @@ export function RouteGlyph({ className }: { className?: string }) {
       className={className}
       aria-hidden
     >
-      <path d="M5 18C8 8 16 8 19 18" strokeDasharray="1.5 3" strokeLinecap="round" />
+      <path
+        d="M5 18C8 8 16 8 19 18"
+        strokeDasharray="1.5 3"
+        strokeLinecap="round"
+      />
       <circle cx="5" cy="18" r="1.7" fill="currentColor" stroke="none" />
       <circle cx="19" cy="18" r="1.7" fill="currentColor" stroke="none" />
     </svg>
-  )
+  );
 }

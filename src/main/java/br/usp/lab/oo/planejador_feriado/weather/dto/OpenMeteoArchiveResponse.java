@@ -1,7 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.weather.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import java.util.List;
 
 /**
@@ -10,13 +9,11 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record OpenMeteoArchiveResponse(Daily daily) {
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Daily(
-            List<String> time,
-            List<Double> temperature_2m_max,
-            List<Double> temperature_2m_min,
-            List<Double> precipitation_sum
-    ) {
-    }
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public record Daily(
+    List<String> time,
+    List<Double> temperature_2m_max,
+    List<Double> temperature_2m_min,
+    List<Double> precipitation_sum
+  ) {}
 }

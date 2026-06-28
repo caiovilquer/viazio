@@ -1,8 +1,7 @@
 package br.usp.lab.oo.planejador_feriado.recommendation.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.util.Map;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * Pesos do motor de recomendação, externalizados em {@code application.yml}.
@@ -12,15 +11,14 @@ import java.util.Map;
  */
 @ConfigurationProperties(prefix = "app.recommendation")
 public record ScoringProperties(
-        Map<String, Double> defaultWeights,
-        Map<String, Map<String, Double>> profiles
+  Map<String, Double> defaultWeights,
+  Map<String, Map<String, Double>> profiles
 ) {
+  public Map<String, Double> defaultWeights() {
+    return defaultWeights != null ? defaultWeights : Map.of();
+  }
 
-    public Map<String, Double> defaultWeights() {
-        return defaultWeights != null ? defaultWeights : Map.of();
-    }
-
-    public Map<String, Map<String, Double>> profiles() {
-        return profiles != null ? profiles : Map.of();
-    }
+  public Map<String, Map<String, Double>> profiles() {
+    return profiles != null ? profiles : Map.of();
+  }
 }

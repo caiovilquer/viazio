@@ -1,38 +1,40 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
-import { CalendarDays, Columns3, Heart, Search } from 'lucide-react'
-import { useMeta } from '@/api/queries'
-import { useFavorites, type FavoriteEntry } from '@/lib/favorites'
-import type { ApiMetaResponse } from '@/api/types'
-import { RecommendationCard } from '@/components/results/RecommendationCard'
-import { Reveal } from '@/components/shared/Reveal'
-import { Button } from '@/components/ui/button'
-import { formatDate, formatDateRange } from '@/lib/format'
-import { spring } from '@/lib/motion'
+import { Link, useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import { CalendarDays, Columns3, Heart, Search } from "lucide-react";
+import { useMeta } from "@/api/queries";
+import { useFavorites, type FavoriteEntry } from "@/lib/favorites";
+import type { ApiMetaResponse } from "@/api/types";
+import { RecommendationCard } from "@/components/results/RecommendationCard";
+import { Reveal } from "@/components/shared/Reveal";
+import { Button } from "@/components/ui/button";
+import { formatDate, formatDateRange } from "@/lib/format";
+import { spring } from "@/lib/motion";
 
 function savedCaption(entry: FavoriteEntry, meta?: ApiMetaResponse): string {
-  const c = entry.context
+  const c = entry.context;
   if (c?.from && c?.to) {
-    const range = formatDateRange(c.from, c.to)
+    const range = formatDateRange(c.from, c.to);
     const prof = c.profile
       ? meta?.profiles.find((p) => p.key === c.profile)?.label
       : c.weights && Object.keys(c.weights).length > 0
-        ? 'Personalizado'
-        : undefined
-    return prof ? `${range} · ${prof}` : range
+        ? "Personalizado"
+        : undefined;
+    return prof ? `${range} · ${prof}` : range;
   }
-  return `Salvo em ${formatDate(entry.savedAt.slice(0, 10))}`
+  return `Salvo em ${formatDate(entry.savedAt.slice(0, 10))}`;
 }
 
 export function FavoritesPage() {
-  const favorites = useFavorites()
-  const { data: meta } = useMeta()
-  const navigate = useNavigate()
+  const favorites = useFavorites();
+  const { data: meta } = useMeta();
+  const navigate = useNavigate();
 
   function compareSaved() {
-    const recs = favorites.map((f) => f.recommendation)
-    const codes = recs.map((r) => r.countryCode).join(',')
-    navigate(`/comparar?codes=${codes}`, { state: { recommendations: recs, saved: favorites } })
+    const recs = favorites.map((f) => f.recommendation);
+    const codes = recs.map((r) => r.countryCode).join(",");
+    navigate(`/comparar?codes=${codes}`, {
+      state: { recommendations: recs, saved: favorites },
+    });
   }
 
   return (
@@ -42,15 +44,21 @@ export function FavoritesPage() {
           <p className="mb-3 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold/80">
             Salvos
           </p>
-          <h1 className="font-display text-3xl tracking-tight sm:text-4xl">Seus destinos salvos</h1>
+          <h1 className="font-display text-3xl tracking-tight sm:text-4xl">
+            Seus destinos salvos
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {favorites.length === 0
-              ? 'Toque no coração de um destino para guardá-lo aqui.'
-              : `${favorites.length} destino${favorites.length === 1 ? '' : 's'} guardado${favorites.length === 1 ? '' : 's'} para depois.`}
+              ? "Toque no coração de um destino para guardá-lo aqui."
+              : `${favorites.length} destino${favorites.length === 1 ? "" : "s"} guardado${favorites.length === 1 ? "" : "s"} para depois.`}
           </p>
         </div>
         {favorites.length >= 2 && (
-          <Button variant="outline" className="gap-2 rounded-full" onClick={compareSaved}>
+          <Button
+            variant="outline"
+            className="gap-2 rounded-full"
+            onClick={compareSaved}
+          >
             <Columns3 className="size-4" />
             Comparar salvos
           </Button>
@@ -69,8 +77,8 @@ export function FavoritesPage() {
           <div className="max-w-sm space-y-1.5">
             <p className="font-display text-lg">Nada guardado ainda</p>
             <p className="text-sm text-muted-foreground">
-              Conforme você explora, salve os destinos que te chamarem — eles ficam aqui prontos para
-              comparar depois.
+              Conforme você explora, salve os destinos que te chamarem — eles
+              ficam aqui prontos para comparar depois.
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-3">
@@ -111,5 +119,5 @@ export function FavoritesPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

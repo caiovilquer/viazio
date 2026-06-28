@@ -8,7 +8,9 @@ import java.util.List;
  * cache) sem que os serviços de domínio conheçam o detalhe.
  */
 public interface WorldBankIndicatorClient {
-
-    /** Série anual (mais novo primeiro) de um indicador para o país ISO informado. */
-    List<WorldBankIndicatorPoint> getIndicatorSeries(String isoCode, String indicatorCode);
+  /** Série anual (mais novo primeiro) de um indicador para o país ISO informado. */
+  List<WorldBankIndicatorPoint> getIndicatorSeries(
+    String isoCode,
+    String indicatorCode
+  );
 }

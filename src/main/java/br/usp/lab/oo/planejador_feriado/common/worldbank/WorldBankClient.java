@@ -3,15 +3,14 @@ package br.usp.lab.oo.planejador_feriado.common.worldbank;
 import br.usp.lab.oo.planejador_feriado.common.config.ExternalApisProperties;
 import br.usp.lab.oo.planejador_feriado.common.config.RestClientFactory;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 /**
  * Consome indicadores do Banco Mundial. A API responde um array heterogêneo
@@ -21,40 +20,55 @@ import java.util.Locale;
 @Component
 public class WorldBankClient implements WorldBankIndicatorClient {
 
-    private final RestClient restClient;
+  private final RestClient restClient;
 
-    public WorldBankClient(RestClientFactory restClientFactory, ExternalApisProperties properties) {
-        this.restClient = restClientFactory.builderFor(properties.worldBank().baseUrl()).build();
+  public WorldBankClient(
+    RestClientFactory restClientFactory,
+    ExternalApisProperties properties
+  ) {
+    this.restClient = restClientFactory
+      .builderFor(properties.worldBank().baseUrl())
+      .build();
+  }
+
+  @Override
+  @Retry(name = "worldBankApi")
+  @CircuitBreaker(name = "worldBankApi")
+  @Bulkhead(name = "worldBankApi")
+  public List<WorldBankIndicatorPoint> getIndicatorSeries(
+    String isoCode,
+    String indicatorCode
+  ) {
+    String code = isoCode.toUpperCase(Locale.ROOT);
+    JsonNode root = restClient
+      .get()
+      .uri(
+        "/country/{code}/indicator/{indicator}?format=json&per_page=400",
+        code,
+        indicatorCode
+      )
+      .retrieve()
+      .body(JsonNode.class);
+
+    if (root == null || !root.isArray() || root.size() < 2) {
+      return List.of();
     }
 
-    @Override
-    @Retry(name = "worldBankApi")
-    @CircuitBreaker(name = "worldBankApi")
-    @Bulkhead(name = "worldBankApi")
-    public List<WorldBankIndicatorPoint> getIndicatorSeries(String isoCode, String indicatorCode) {
-        String code = isoCode.toUpperCase(Locale.ROOT);
-        JsonNode root = restClient.get()
-                .uri("/country/{code}/indicator/{indicator}?format=json&per_page=400", code, indicatorCode)
-                .retrieve()
-                .body(JsonNode.class);
-
-        if (root == null || !root.isArray() || root.size() < 2) {
-            return List.of();
-        }
-
-        JsonNode data = root.get(1);
-        if (data == null || !data.isArray()) {
-            return List.of();
-        }
-
-        List<WorldBankIndicatorPoint> points = new ArrayList<>();
-        for (JsonNode point : data) {
-            JsonNode valueNode = point.get("value");
-            JsonNode dateNode = point.get("date");
-            Double value = valueNode != null && !valueNode.isNull() ? valueNode.asDouble() : null;
-            String year = dateNode != null && !dateNode.isNull() ? dateNode.asText() : null;
-            points.add(new WorldBankIndicatorPoint(year, value));
-        }
-        return points;
+    JsonNode data = root.get(1);
+    if (data == null || !data.isArray()) {
+      return List.of();
     }
+
+    List<WorldBankIndicatorPoint> points = new ArrayList<>();
+    for (JsonNode point : data) {
+      JsonNode valueNode = point.get("value");
+      JsonNode dateNode = point.get("date");
+      Double value =
+        valueNode != null && !valueNode.isNull() ? valueNode.asDouble() : null;
+      String year =
+        dateNode != null && !dateNode.isNull() ? dateNode.asText() : null;
+      points.add(new WorldBankIndicatorPoint(year, value));
+    }
+    return points;
+  }
 }

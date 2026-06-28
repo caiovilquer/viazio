@@ -12,28 +12,31 @@ import org.springframework.web.client.RestClient;
 @Component
 public class RestClientFactory {
 
-    /**
-     * Algumas APIs (ex.: Wikimedia REST API) retornam 403 para requisições sem um
-     * User-Agent identificável, bloqueando o User-Agent padrão do {@code HttpURLConnection}
-     * do Java. Ver https://meta.wikimedia.org/wiki/User-Agent_policy.
-     */
-    private static final String USER_AGENT =
-            "planejador-feriado/0.0.1 (+https://gitlab.com/grupo-laboo/laboo_projeto)";
+  /**
+   * Algumas APIs (ex.: Wikimedia REST API) retornam 403 para requisições sem um
+   * User-Agent identificável, bloqueando o User-Agent padrão do {@code HttpURLConnection}
+   * do Java. Ver https://meta.wikimedia.org/wiki/User-Agent_policy.
+   */
+  private static final String USER_AGENT =
+    "planejador-feriado/0.0.1 (+https://gitlab.com/grupo-laboo/laboo_projeto)";
 
-    private final ExternalApisProperties properties;
+  private final ExternalApisProperties properties;
 
-    public RestClientFactory(ExternalApisProperties properties) {
-        this.properties = properties;
-    }
+  public RestClientFactory(ExternalApisProperties properties) {
+    this.properties = properties;
+  }
 
-    public RestClient.Builder builderFor(String baseUrl) {
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout((int) properties.connectTimeout().toMillis());
-        requestFactory.setReadTimeout((int) properties.readTimeout().toMillis());
+  public RestClient.Builder builderFor(String baseUrl) {
+    SimpleClientHttpRequestFactory requestFactory =
+      new SimpleClientHttpRequestFactory();
+    requestFactory.setConnectTimeout(
+      (int) properties.connectTimeout().toMillis()
+    );
+    requestFactory.setReadTimeout((int) properties.readTimeout().toMillis());
 
-        return RestClient.builder()
-                .baseUrl(baseUrl)
-                .requestFactory(requestFactory)
-                .defaultHeader(HttpHeaders.USER_AGENT, USER_AGENT);
-    }
+    return RestClient.builder()
+      .baseUrl(baseUrl)
+      .requestFactory(requestFactory)
+      .defaultHeader(HttpHeaders.USER_AGENT, USER_AGENT);
+  }
 }

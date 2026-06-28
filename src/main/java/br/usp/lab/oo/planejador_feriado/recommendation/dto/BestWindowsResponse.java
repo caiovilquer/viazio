@@ -8,9 +8,8 @@ import java.util.List;
  * por qualidade, cada um opcionalmente com seus melhores destinos.
  */
 public record BestWindowsResponse(
-        LocalDate from,
-        LocalDate to,
-        String profile,
-        List<WindowSuggestion> windows
-) {
-}
+  LocalDate from,
+  LocalDate to,
+  String profile,
+  List<WindowSuggestion> windows
+) {}

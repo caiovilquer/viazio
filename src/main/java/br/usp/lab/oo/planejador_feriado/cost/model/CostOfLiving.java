@@ -9,5 +9,8 @@ package br.usp.lab.oo.planejador_feriado.cost.model;
  * @param priceLevelRatio  razão de nível de preços (PPP / câmbio de mercado)
  * @param year             ano de referência do dado
  */
-public record CostOfLiving(String countryCode, double priceLevelRatio, String year) {
-}
+public record CostOfLiving(
+  String countryCode,
+  double priceLevelRatio,
+  String year
+) {}

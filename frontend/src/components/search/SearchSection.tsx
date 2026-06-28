@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion'
-import type { ReactNode } from 'react'
-import { ease } from '@/lib/motion'
+import { motion } from "framer-motion";
+import type { ReactNode } from "react";
+import { ease } from "@/lib/motion";
 
 export function SearchSection({
   step,
@@ -8,10 +8,10 @@ export function SearchSection({
   description,
   children,
 }: {
-  step: number
-  title: string
-  description?: string
-  children: ReactNode
+  step: number;
+  title: string;
+  description?: string;
+  children: ReactNode;
 }) {
   return (
     <motion.section
@@ -21,14 +21,16 @@ export function SearchSection({
     >
       <header className="flex items-baseline gap-4 border-b border-hairline pb-3">
         <span className="font-display text-[1.7rem] leading-none tabular-nums text-gold-gradient">
-          {String(step).padStart(2, '0')}
+          {String(step).padStart(2, "0")}
         </span>
         <div className="space-y-0.5">
           <h2 className="font-display text-lg tracking-tight">{title}</h2>
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+          {description && (
+            <p className="text-sm text-muted-foreground">{description}</p>
+          )}
         </div>
       </header>
       <div className="mt-5">{children}</div>
     </motion.section>
-  )
+  );
 }

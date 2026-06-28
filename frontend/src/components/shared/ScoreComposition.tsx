@@ -1,37 +1,37 @@
-import type { ScoredCriterion } from '@/api/types'
-import { scoreTierColor } from './ScoreRing'
-import { scoreTone } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import type { ScoredCriterion } from "@/api/types";
+import { scoreTierColor } from "./ScoreRing";
+import { scoreTone } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 /**
- * Visual breakdown of where a destination's score came from — a single stacked bar
- * (segment width = points contributed, segment color = how well that criterion did)
- * plus a plain-language legend. Built so a layperson never has to do the
- * weight × score math themselves: the bar and the numbers next to each icon already
- * are that math, laid out left to right by impact (the API pre-sorts `breakdown` by
- * contribution). Unavailable criteria still show up (dimmed, "—") so a visible gap in
- * the bar reads as "no data here", not "this scored zero".
+ * Decomposição visual de onde veio a nota do destino — uma barra empilhada
+ * (largura do segmento = pontos contribuídos, cor = quão bem foi o critério)
+ * mais legenda em linguagem simples. Feita para que ninguém precise fazer
+ * peso × nota na cabeça: a barra e os números ao lado de cada ícone já
+ * são essa conta, da esquerda para a direita por impacto (a API pré-ordena
+ * `breakdown` por contribuição). Critérios indisponíveis ainda aparecem (apagados, "—")
+ * para que um vão na barra leia "sem dado aqui", não "pontuou zero".
  */
 export function ScoreComposition({
   breakdown,
-  size = 'md',
+  size = "md",
   showLabels = false,
   className,
 }: {
-  breakdown: ScoredCriterion[]
-  size?: 'sm' | 'md'
-  /** Show each criterion's name next to its icon in the legend, not just the points. */
-  showLabels?: boolean
-  className?: string
+  breakdown: ScoredCriterion[];
+  size?: "sm" | "md";
+  /** Mostra o nome de cada critério ao lado do ícone na legenda, não só os pontos. */
+  showLabels?: boolean;
+  className?: string;
 }) {
-  const available = breakdown.filter((b) => b.available && b.contribution > 0)
+  const available = breakdown.filter((b) => b.available && b.contribution > 0);
 
   return (
-    <div className={cn('space-y-1.5', className)}>
+    <div className={cn("space-y-1.5", className)}>
       <div
         className={cn(
-          'flex w-full overflow-hidden rounded-full bg-surface-3/60',
-          size === 'sm' ? 'h-2' : 'h-2.5',
+          "flex w-full overflow-hidden rounded-full bg-surface-3/60",
+          size === "sm" ? "h-2" : "h-2.5",
         )}
         role="img"
         aria-label={`Composição da nota: ${breakdown
@@ -40,13 +40,16 @@ export function ScoreComposition({
               ? `${b.label} contribuiu ${Math.round(b.contribution)} pontos`
               : `${b.label} sem dado disponível`,
           )
-          .join(', ')}`}
+          .join(", ")}`}
       >
         {available.map((b) => (
           <div
             key={b.criterion}
             className="h-full transition-[width] duration-500"
-            style={{ width: `${b.contribution}%`, background: scoreTierColor[scoreTone(b.score)] }}
+            style={{
+              width: `${b.contribution}%`,
+              background: scoreTierColor[scoreTone(b.score)],
+            }}
             title={`${b.label}: ${Math.round(b.contribution)} pts (peso ${Math.round(b.weight * 100)}% × nota ${Math.round(b.score)})`}
           />
         ))}
@@ -54,16 +57,18 @@ export function ScoreComposition({
 
       <div
         className={cn(
-          'flex flex-wrap items-center gap-x-2.5 gap-y-1',
-          size === 'sm' ? 'text-[0.65rem]' : 'text-xs',
+          "flex flex-wrap items-center gap-x-2.5 gap-y-1",
+          size === "sm" ? "text-[0.65rem]" : "text-xs",
         )}
       >
         {breakdown.map((b) => (
           <span
             key={b.criterion}
             className={cn(
-              'inline-flex items-center gap-1 tabular-nums',
-              b.available ? 'text-muted-foreground' : 'text-muted-foreground/40',
+              "inline-flex items-center gap-1 tabular-nums",
+              b.available
+                ? "text-muted-foreground"
+                : "text-muted-foreground/40",
             )}
             title={
               b.available
@@ -75,10 +80,10 @@ export function ScoreComposition({
               {b.icon}
             </span>
             {showLabels && <span className="hidden sm:inline">{b.label}</span>}
-            {b.available ? Math.round(b.contribution) : '—'}
+            {b.available ? Math.round(b.contribution) : "—"}
           </span>
         ))}
       </div>
     </div>
-  )
+  );
 }

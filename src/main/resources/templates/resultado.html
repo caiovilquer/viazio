@@ -1,137 +1,204 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${termoBuscado} + ' — Feriadões'">Resultado — Feriadões</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/style.css}">
-</head>
-<body>
-
-<header class="site-header">
-    <div class="site-header-inner">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${termoBuscado} + ' — Feriadões'">
+      Resultado — Feriadões
+    </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
         <a href="/" class="site-logo">Feriadões</a>
         <nav class="site-nav">
-            <a href="/">Início</a>
+          <a href="/">Início</a>
         </nav>
-    </div>
-</header>
+      </div>
+    </header>
 
-<main>
-
-    <div th:if="${erro}" class="alert-erro">
+    <main>
+      <div th:if="${erro}" class="alert-erro">
         <strong>Não encontramos o destino.</strong>
         <span th:text="${erro}"></span>
-    </div>
+      </div>
 
-    <div th:if="${overview}" class="card">
-
+      <div th:if="${overview}" class="card">
         <div class="pais-hero" th:with="perfil=${overview.profile}">
-            <img th:if="${perfil != null and perfil.imageUrl() != null}"
-                 th:src="${perfil.imageUrl()}" alt="" class="pais-hero-img" />
-            <div>
-                <div class="pais-nome">
-                    <span th:if="${overview.country.flagEmoji != null}" aria-hidden="true"
-                          th:text="${overview.country.flagEmoji}">🏳️</span>
-                    <span th:text="${overview.country.displayName}">Nome do País</span>
-                </div>
-                <span class="pais-iso" th:text="${overview.country.isoCode}">XX</span>
-                <p class="pais-descricao" th:if="${perfil != null and perfil.description() != null}"
-                   th:text="${perfil.description()}">descrição curta do destino</p>
+          <img
+            th:if="${perfil != null and perfil.imageUrl() != null}"
+            th:src="${perfil.imageUrl()}"
+            alt=""
+            class="pais-hero-img"
+          />
+          <div>
+            <div class="pais-nome">
+              <span
+                th:if="${overview.country.flagEmoji != null}"
+                aria-hidden="true"
+                th:text="${overview.country.flagEmoji}"
+                >🏳️</span
+              >
+              <span th:text="${overview.country.displayName}"
+                >Nome do País</span
+              >
             </div>
+            <span class="pais-iso" th:text="${overview.country.isoCode}"
+              >XX</span
+            >
+            <p
+              class="pais-descricao"
+              th:if="${perfil != null and perfil.description() != null}"
+              th:text="${perfil.description()}"
+            >
+              descrição curta do destino
+            </p>
+          </div>
         </div>
 
         <div class="info-grade">
-            <div class="info-item">
-                <span class="info-rotulo">Região</span>
-                <span class="info-valor" th:text="${overview.country.region}">—</span>
-            </div>
-            <div class="info-item">
-                <span class="info-rotulo">Sub-região</span>
-                <span class="info-valor" th:text="${overview.country.subregion}">—</span>
-            </div>
-            <div class="info-item">
-                <span class="info-rotulo">Capital</span>
-                <span class="info-valor"
-                      th:text="${not #lists.isEmpty(overview.country.capitals)} ? ${overview.country.capitals[0]} : '—'">—</span>
-            </div>
-            <div class="info-item">
-                <span class="info-rotulo">Idioma principal</span>
-                <span class="info-valor"
-                      th:text="${overview.country.mainLanguage != null} ? ${overview.country.mainLanguage} : '—'">—</span>
-            </div>
-            <div class="info-item">
-                <span class="info-rotulo">Moeda</span>
-                <span class="info-valor"
-                      th:text="${overview.country.mainCurrency != null} ? ${overview.country.mainCurrency} : '—'">—</span>
-            </div>
-            <div class="info-item">
-                <span class="info-rotulo">Fuso horário</span>
-                <span class="info-valor"
-                      th:text="${not #lists.isEmpty(overview.country.timezones)} ? ${overview.country.timezones[0]} : '—'">—</span>
-            </div>
-            <div class="info-item" th:if="${overview.profile != null and overview.profile.population() != null}">
-                <span class="info-rotulo">População</span>
-                <span class="info-valor"
-                      th:text="${#numbers.formatInteger(overview.profile.population(), 1, 'POINT')} + ' (' + ${overview.profile.populationYear()} + ')'">—</span>
-            </div>
+          <div class="info-item">
+            <span class="info-rotulo">Região</span>
+            <span class="info-valor" th:text="${overview.country.region}"
+              >—</span
+            >
+          </div>
+          <div class="info-item">
+            <span class="info-rotulo">Sub-região</span>
+            <span class="info-valor" th:text="${overview.country.subregion}"
+              >—</span
+            >
+          </div>
+          <div class="info-item">
+            <span class="info-rotulo">Capital</span>
+            <span
+              class="info-valor"
+              th:text="${not #lists.isEmpty(overview.country.capitals)} ? ${overview.country.capitals[0]} : '—'"
+              >—</span
+            >
+          </div>
+          <div class="info-item">
+            <span class="info-rotulo">Idioma principal</span>
+            <span
+              class="info-valor"
+              th:text="${overview.country.mainLanguage != null} ? ${overview.country.mainLanguage} : '—'"
+              >—</span
+            >
+          </div>
+          <div class="info-item">
+            <span class="info-rotulo">Moeda</span>
+            <span
+              class="info-valor"
+              th:text="${overview.country.mainCurrency != null} ? ${overview.country.mainCurrency} : '—'"
+              >—</span
+            >
+          </div>
+          <div class="info-item">
+            <span class="info-rotulo">Fuso horário</span>
+            <span
+              class="info-valor"
+              th:text="${not #lists.isEmpty(overview.country.timezones)} ? ${overview.country.timezones[0]} : '—'"
+              >—</span
+            >
+          </div>
+          <div
+            class="info-item"
+            th:if="${overview.profile != null and overview.profile.population() != null}"
+          >
+            <span class="info-rotulo">População</span>
+            <span
+              class="info-valor"
+              th:text="${#numbers.formatInteger(overview.profile.population(), 1, 'POINT')} + ' (' + ${overview.profile.populationYear()} + ')'"
+              >—</span
+            >
+          </div>
         </div>
 
-        <div class="secao-bloco" th:if="${overview.profile != null and overview.profile.extract() != null}">
-            <p class="secao-bloco-titulo">Sobre o destino</p>
-            <p class="wiki-resumo"
-               th:text="${overview.profile.extract()}">
-                Resumo do destino vindo da Wikipédia.
-            </p>
-            <a th:if="${overview.profile.wikipediaUrl() != null}" th:href="${overview.profile.wikipediaUrl()}"
-               target="_blank" rel="noopener noreferrer" class="wiki-link">
-                Leia mais na Wikipédia &rarr;
-            </a>
+        <div
+          class="secao-bloco"
+          th:if="${overview.profile != null and overview.profile.extract() != null}"
+        >
+          <p class="secao-bloco-titulo">Sobre o destino</p>
+          <p class="wiki-resumo" th:text="${overview.profile.extract()}">
+            Resumo do destino vindo da Wikipédia.
+          </p>
+          <a
+            th:if="${overview.profile.wikipediaUrl() != null}"
+            th:href="${overview.profile.wikipediaUrl()}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="wiki-link"
+          >
+            Leia mais na Wikipédia &rarr;
+          </a>
         </div>
 
-        <div th:if="${overview.exchangeToBrl != null}" class="cambio-card"
-             th:with="cambioValor=${overview.exchangeToBrl.valueInReais},
-                      cambioCasas=${cambioValor >= 1 ? 2 : (cambioValor >= 0.001 ? 4 : 6)}">
-            <p class="cambio-label">Câmbio atual para reais</p>
-            <p class="cambio-valor"
-               th:text="'1 ' + ${overview.exchangeToBrl.currency} + ' = R$ ' + ${#numbers.formatDecimal(cambioValor, 1, 'POINT', cambioCasas, 'COMMA')}">
-                1 USD = R$ 5,20
-            </p>
-            <p class="cambio-fonte">Cotação atualizada em tempo real</p>
+        <div
+          th:if="${overview.exchangeToBrl != null}"
+          class="cambio-card"
+          th:with="cambioValor=${overview.exchangeToBrl.valueInReais},
+                      cambioCasas=${cambioValor >= 1 ? 2 : (cambioValor >= 0.001 ? 4 : 6)}"
+        >
+          <p class="cambio-label">Câmbio atual para reais</p>
+          <p
+            class="cambio-valor"
+            th:text="'1 ' + ${overview.exchangeToBrl.currency} + ' = R$ ' + ${#numbers.formatDecimal(cambioValor, 1, 'POINT', cambioCasas, 'COMMA')}"
+          >
+            1 USD = R$ 5,20
+          </p>
+          <p class="cambio-fonte">Cotação atualizada em tempo real</p>
         </div>
 
         <div>
-            <p class="secao-titulo">
-                Próximos feriados em <span th:text="${overview.country.displayName}"></span>
-            </p>
+          <p class="secao-titulo">
+            Próximos feriados em
+            <span th:text="${overview.country.displayName}"></span>
+          </p>
 
-            <ul class="feriado-lista" th:if="${not #lists.isEmpty(overview.upcomingHolidays)}">
-                <li class="feriado-item" th:each="feriado : ${overview.upcomingHolidays}">
-                    <div class="feriado-data">
-                        <span class="dia" th:text="${feriado.date.dayOfMonth}">01</span>
-                        <span class="mes" th:text="${#strings.toUpperCase(#temporals.format(feriado.date, 'MMM'))}">JAN</span>
-                    </div>
-                    <div class="feriado-nome">
-                        <strong th:text="${feriado.name}">Nome do Feriado</strong>
-                        <em th:if="${feriado.localName != null and feriado.localName != feriado.name}"
-                            th:text="${feriado.localName}">Nome local</em>
-                    </div>
-                </li>
-            </ul>
+          <ul
+            class="feriado-lista"
+            th:if="${not #lists.isEmpty(overview.upcomingHolidays)}"
+          >
+            <li
+              class="feriado-item"
+              th:each="feriado : ${overview.upcomingHolidays}"
+            >
+              <div class="feriado-data">
+                <span class="dia" th:text="${feriado.date.dayOfMonth}">01</span>
+                <span
+                  class="mes"
+                  th:text="${#strings.toUpperCase(#temporals.format(feriado.date, 'MMM'))}"
+                  >JAN</span
+                >
+              </div>
+              <div class="feriado-nome">
+                <strong th:text="${feriado.name}">Nome do Feriado</strong>
+                <em
+                  th:if="${feriado.localName != null and feriado.localName != feriado.name}"
+                  th:text="${feriado.localName}"
+                  >Nome local</em
+                >
+              </div>
+            </li>
+          </ul>
 
-            <p class="sem-feriados" th:if="${#lists.isEmpty(overview.upcomingHolidays)}">
-                Nenhum feriado futuro encontrado para este ano.
-            </p>
+          <p
+            class="sem-feriados"
+            th:if="${#lists.isEmpty(overview.upcomingHolidays)}"
+          >
+            Nenhum feriado futuro encontrado para este ano.
+          </p>
         </div>
+      </div>
 
-    </div>
-
-    <a href="/" class="btn-voltar">← Voltar</a>
-
-</main>
-
-</body>
+      <a href="/" class="btn-voltar">← Voltar</a>
+    </main>
+  </body>
 </html>

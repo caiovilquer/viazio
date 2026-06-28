@@ -9,27 +9,27 @@ import java.util.Optional;
  */
 public abstract class CandidateFilter {
 
-    private CandidateFilter next;
+  private CandidateFilter next;
 
-    /** Encadeia o próximo filtro e o devolve, permitindo {@code a.linkWith(b).linkWith(c)}. */
-    public CandidateFilter linkWith(CandidateFilter next) {
-        this.next = next;
-        return next;
+  /** Encadeia o próximo filtro e o devolve, permitindo {@code a.linkWith(b).linkWith(c)}. */
+  public CandidateFilter linkWith(CandidateFilter next) {
+    this.next = next;
+    return next;
+  }
+
+  /**
+   * Aplica este filtro e, se passar, delega ao próximo.
+   *
+   * @return motivo da rejeição, ou vazio se o candidato passou por toda a cadeia
+   */
+  public final Optional<String> filter(FilterContext context) {
+    Optional<String> rejection = check(context);
+    if (rejection.isPresent()) {
+      return rejection;
     }
+    return next != null ? next.filter(context) : Optional.empty();
+  }
 
-    /**
-     * Aplica este filtro e, se passar, delega ao próximo.
-     *
-     * @return motivo da rejeição, ou vazio se o candidato passou por toda a cadeia
-     */
-    public final Optional<String> filter(FilterContext context) {
-        Optional<String> rejection = check(context);
-        if (rejection.isPresent()) {
-            return rejection;
-        }
-        return next != null ? next.filter(context) : Optional.empty();
-    }
-
-    /** @return motivo da rejeição se este filtro barra o candidato, senão vazio. */
-    protected abstract Optional<String> check(FilterContext context);
+  /** @return motivo da rejeição se este filtro barra o candidato, senão vazio. */
+  protected abstract Optional<String> check(FilterContext context);
 }
