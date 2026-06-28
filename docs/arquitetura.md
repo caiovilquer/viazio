@@ -216,6 +216,8 @@ A suíte padrão possui **196 testes backend sem rede** (201 com o perfil Maven 
 - testes de contexto para configuração, métricas, health e OpenAPI;
 - testes de integração externos, marcados com `@Tag("integration")`, executados apenas pelo perfil Maven `integration`.
 
+O frontend Viazio adiciona **12 testes unitários** (Vitest) em `frontend/src/lib/*.test.ts`, cobrindo formatadores, datas, favoritos, parâmetros de busca, re-pontuação local e helpers de imagem — executados por `pnpm test` no CI.
+
 O padrão sem rede mantém a suíte determinística. Os smoke tests externos verificam compatibilidade com provedores, mas não são requisito para cada execução local.
 
 ## 10. Limites e extensões

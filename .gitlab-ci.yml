@@ -33,7 +33,7 @@ test-frontend:
       - frontend/node_modules
   before_script:
     - corepack enable
-    - corepack prepare pnpm@latest --activate
+    - corepack prepare pnpm@10.20.0 --activate
   script:
     - cd frontend
     - pnpm install
