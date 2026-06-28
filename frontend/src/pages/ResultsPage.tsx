@@ -217,8 +217,9 @@ export function ResultsPage() {
         />
       )}
 
+      {/* Map — above cards on mobile; sticky on md+ so it stays visible while scrolling the cards */}
       {data && displayed.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-6 md:sticky md:top-20 md:z-20">
           <Suspense fallback={<Skeleton className="h-56 w-full rounded-2xl sm:h-72 lg:h-80" />}>
             <CandidatesMap
               recommendations={displayed}

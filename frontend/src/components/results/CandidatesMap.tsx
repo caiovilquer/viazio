@@ -10,6 +10,7 @@ import { scoreTone, formatInOriginCurrency } from '@/lib/format'
 import { Flag } from '@/components/shared/Flag'
 import { Button } from '@/components/ui/button'
 import { Minus, Plus, Maximize } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const WIDTH = 960
 const HEIGHT = 460
@@ -70,6 +71,7 @@ export function CandidatesMap({
   hoveredCode,
   onHoverChange,
   onSelect,
+  svgClassName,
 }: {
   recommendations: TravelRecommendation[]
   origin: OriginReference
@@ -77,6 +79,7 @@ export function CandidatesMap({
   hoveredCode: string | null
   onHoverChange: (code: string | null) => void
   onSelect: (recommendation: TravelRecommendation) => void
+  svgClassName?: string
 }) {
   const { data: land } = useWorldLand()
   const [focused, setFocused] = useState<string | null>(null)
@@ -188,7 +191,10 @@ export function CandidatesMap({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="relative h-72 w-full cursor-grab touch-pan-y select-none active:cursor-grabbing sm:h-80 lg:h-96"
+        className={cn(
+          'relative w-full cursor-grab touch-pan-y select-none active:cursor-grabbing',
+          svgClassName ?? 'h-72 sm:h-80 lg:h-96',
+        )}
         style={{ touchAction: 'pan-y' }}
         role="img"
         aria-label="Mapa dos destinos rankeados, com distância em relação à origem. Arraste para mover, use dois dedos ou ctrl/cmd + scroll para aplicar zoom."

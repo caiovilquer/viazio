@@ -40,6 +40,25 @@ public class WikipediaService {
                 : dto.thumbnail() != null ? dto.thumbnail().source() : null;
         String pageUrl = dto.contentUrls() != null && dto.contentUrls().desktop() != null
                 ? dto.contentUrls().desktop().page() : null;
-        return new WikiSummary(dto.description(), dto.extract(), imageUrl, pageUrl);
+        return new WikiSummary(dto.description(), cleanExtract(dto.extract()), imageUrl, pageUrl);
+    }
+
+    /**
+     * Remove artefatos comuns do endpoint de texto plano da Wikipédia:
+     * <ul>
+     *   <li>Parênteses vazios/espaçados — templates de pronúncia (ex.: {@code ()}, {@code ( )})
+     *       que não são renderizados no extract.</li>
+     *   <li>Parêntesis de fechamento órfão logo após o título do artigo (ex.: {@code Colômbia ) ,})
+     *       que sobram quando o conteúdo interno é removido pelo parser.</li>
+     * </ul>
+     */
+    private static String cleanExtract(String extract) {
+        if (extract == null || extract.isBlank()) return extract;
+        return extract
+                .replaceAll("\\(\\s*\\)", "")           // "()" ou "( )"
+                .replaceAll("\\s*\\)\\s*([,;])", "$1")  // " ) ," → ","
+                .replaceAll("^\\s*\\)\\s*", "")         // ")" solto no início
+                .replaceAll(" {2,}", " ")               // espaços duplos
+                .trim();
     }
 }
