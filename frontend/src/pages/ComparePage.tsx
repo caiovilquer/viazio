@@ -9,6 +9,7 @@ import { winnerIndices, type WinnerDirection } from '@/lib/compare'
 import { type FavoriteEntry } from '@/lib/favorites'
 import { formatBrl, formatDateRange, formatExchange } from '@/lib/format'
 import { ScoreRing } from '@/components/shared/ScoreRing'
+import { ScoreComposition } from '@/components/shared/ScoreComposition'
 import { Flag } from '@/components/shared/Flag'
 import { RouteGlyph } from '@/components/shared/Glyphs'
 import { Reveal } from '@/components/shared/Reveal'
@@ -43,6 +44,9 @@ interface MetricCell {
   display: string
   widthPct: number
   isWinner: boolean
+  /** Why this destination scored what it did — surfaces the engine's own reasoning
+   *  instead of leaving a bare number unexplained. */
+  caption?: string
 }
 
 interface Metric {
@@ -51,6 +55,8 @@ interface Metric {
   hint: string
   emoji?: string
   icon?: ReactNode
+  /** Weight (0–1) applied to this criterion in the active profile, if it's a scored one. */
+  weight?: number
   cells: MetricCell[]
 }
 
@@ -66,8 +72,10 @@ function buildMetric(
     icon?: ReactNode
     direction: WinnerDirection
     scale: 'absolute' | 'relative'
+    weight?: number
     valueOf: (rec: TravelRecommendation) => number | null
     displayOf: (rec: TravelRecommendation) => string
+    captionOf?: (rec: TravelRecommendation) => string | undefined
   },
 ): Metric {
   const values = recs.map(opts.valueOf)
@@ -90,10 +98,19 @@ function buildMetric(
       display: available ? opts.displayOf(rec) : '—',
       widthPct,
       isWinner: winners.has(i),
+      caption: available ? opts.captionOf?.(rec) : undefined,
     }
   })
 
-  return { key: opts.key, label: opts.label, hint: opts.hint, emoji: opts.emoji, icon: opts.icon, cells }
+  return {
+    key: opts.key,
+    label: opts.label,
+    hint: opts.hint,
+    emoji: opts.emoji,
+    icon: opts.icon,
+    weight: opts.weight,
+    cells,
+  }
 }
 
 function uniqueWinner(recs: TravelRecommendation[], values: Array<number | null>, dir: WinnerDirection) {
@@ -247,11 +264,14 @@ export function ComparePage() {
       emoji: c.icon,
       direction: 'higher',
       scale: 'absolute',
+      weight: recommendations.find((r) => r.breakdown.find((b) => b.criterion === c.key)?.available)
+        ?.breakdown.find((b) => b.criterion === c.key)?.weight,
       valueOf: (r) => {
         const e = r.breakdown.find((b) => b.criterion === c.key)
         return e?.available ? e.score : null
       },
       displayOf: (r) => String(Math.round(r.breakdown.find((b) => b.criterion === c.key)?.score ?? 0)),
+      captionOf: (r) => r.breakdown.find((b) => b.criterion === c.key)?.justification,
     }),
   )
 
@@ -538,6 +558,9 @@ export function ComparePage() {
 
       <p className="mt-5 text-center text-xs text-muted-foreground">
         Câmbio é informativo e não entra na nota — o poder de compra já está refletido no critério de custo.
+        <br />
+        Custo terrestre/dia é uma estimativa por PPP (paridade de poder de compra, Banco Mundial),
+        independente da cotação de câmbio: um pode estar disponível sem o outro.
       </p>
     </div>
   )
@@ -576,6 +599,11 @@ function MetricRow({
               <span className="text-gold/85">{metric.icon}</span>
             )}
             {metric.label}
+            {metric.weight != null && (
+              <span className="rounded-full border border-hairline px-1.5 py-px text-[0.65rem] font-normal tracking-wide text-muted-foreground">
+                peso {Math.round(metric.weight * 100)}%
+              </span>
+            )}
           </span>
           <span className="text-[0.7rem] uppercase tracking-wider text-muted-foreground">{metric.hint}</span>
         </div>
@@ -644,6 +672,7 @@ function BarLine({
           />
         )}
       </div>
+      {cell.caption && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{cell.caption}</p>}
     </button>
   )
 }
@@ -745,22 +774,31 @@ function CompareCard({
         </div>
       </button>
 
-      <div className="flex items-center justify-between gap-3 p-4">
-        <div className="flex items-center gap-3">
-          <ScoreRing score={rec.tripScore} size={48} strokeWidth={5} animate />
-          <div className="leading-tight">
-            <p className="text-sm font-medium">Nota geral</p>
-            <p className="text-xs text-muted-foreground">da viagem</p>
+      <div className="space-y-3 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <ScoreRing score={rec.tripScore} size={48} strokeWidth={5} animate />
+            <div className="leading-tight">
+              <p className="text-sm font-medium">Nota geral</p>
+              <p className="text-xs text-muted-foreground">da viagem</p>
+            </div>
           </div>
+          <Link
+            to={`/destino/${rec.countryCode}`}
+            state={{ recommendation: rec }}
+            className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-gold transition-opacity hover:opacity-80"
+          >
+            Ver destino
+            <ExternalLink className="size-3" />
+          </Link>
         </div>
-        <Link
-          to={`/destino/${rec.countryCode}`}
-          state={{ recommendation: rec }}
-          className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-gold transition-opacity hover:opacity-80"
-        >
-          Ver destino
-          <ExternalLink className="size-3" />
-        </Link>
+
+        <div className="border-t border-hairline pt-3">
+          <p className="mb-1.5 text-[0.65rem] uppercase tracking-wider text-muted-foreground/70">
+            Como a nota foi composta
+          </p>
+          <ScoreComposition breakdown={rec.breakdown} size="md" showLabels />
+        </div>
       </div>
     </motion.div>
   )

@@ -115,12 +115,12 @@
     --input: oklch(0.92 0.03 80 / 0.14);
     --ring: oklch(0.815 0.092 86 / 0.55);
 
-    /* score / data tones — warm, never grey */
+    /* score / data tones — warm, colorblind-accessible with clear luminance steps */
     --chart-1: var(--primary);
     --chart-2: var(--gold);
-    --chart-3: oklch(0.78 0.105 52);
-    --chart-4: oklch(0.7 0.1 30);
-    --chart-5: oklch(0.74 0.028 76);
+    --chart-3: oklch(0.65 0.15 30);  /* medium red-orange for fair — darker than good */
+    --chart-4: oklch(0.55 0.12 20);  /* deep red-brown for poor — much darker */
+    --chart-5: oklch(0.55 0.12 20);  /* matches chart-4 for consistency */
 
     --radius: 0.95rem;
 

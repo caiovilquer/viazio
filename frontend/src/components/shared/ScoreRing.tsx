@@ -1,22 +1,19 @@
 import { motion } from 'framer-motion'
 import { useCountUp } from './CountUp'
 import { ease } from '@/lib/motion'
+import { scoreTone } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
-// Warm tiers — never grey.
-const tierColor: Record<string, string> = {
+// Warm tiers — never grey. Shared with other score-driven dataviz (e.g. ClimateChart).
+export const scoreTierColor: Record<string, string> = {
   excellent: 'var(--gold)',
   good: 'var(--primary)',
   fair: 'var(--chart-3)',
   poor: 'var(--chart-5)',
 }
 
-function tierOf(score: number) {
-  if (score >= 80) return 'excellent'
-  if (score >= 60) return 'good'
-  if (score >= 40) return 'fair'
-  return 'poor'
-}
+const tierColor = scoreTierColor
+const tierOf = scoreTone
 
 export function ScoreRing({
   score,

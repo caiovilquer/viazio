@@ -138,6 +138,20 @@ export interface Exchange {
   valueInReais: number
 }
 
+export type WeatherSourceType = 'FORECAST' | 'CLIMATOLOGY'
+
+export interface ClimateSnapshot {
+  avgTempC: number
+  avgDailyPrecipMm: number
+  rainyDayProbability: number
+  tempStdDevC: number
+  sampledDays: number
+  sampledYears: number
+  sourceType: WeatherSourceType
+  referenceFrom: string | null
+  referenceTo: string | null
+}
+
 export interface DestinationProfile {
   flagEmoji: string | null
   population: number | null
@@ -174,9 +188,11 @@ export interface GroundCostEstimate {
   estimatedTotal: number
   travelers: number
   days: number
+  /** Destination price level relative to Brazil (the BRL anchor), 1.0 = equal. */
   relativePriceLevel: number
   destinationDataYear: string
-  originDataYear: string
+  /** Year of Brazil's price-level data — the BRL anchor; ground cost is origin-independent. */
+  referenceDataYear: string
   confidence: 'high' | 'medium' | 'low'
   assumption: string
 }
@@ -202,6 +218,7 @@ export interface TravelRecommendation {
   exchangeToBrl: Exchange | null
   profile: DestinationProfile
   feasibility: TripFeasibility | null
+  climate: ClimateSnapshot | null
 }
 
 export interface SkippedCandidate {
@@ -214,7 +231,12 @@ export interface RecommendationResponse {
   to: string
   generatedAt: string
   origin: OriginReference
-  profile: ProfileKey | null
+  /** Free-text resolved label for display (e.g. "padrão", "personalizado",
+   *  "economico (ajustado)") — NOT a `ProfileKey`. Don't feed it back into a profile
+   *  selector or the `profile` search param without checking it against
+   *  `meta.profiles` first; an unrecognized value (anything but an exact preset key)
+   *  means custom weights were used. */
+  profile: string | null
   weights: Record<CriterionKey, number>
   window: WindowAssessment
   recommendations: TravelRecommendation[]
@@ -235,7 +257,8 @@ export interface WindowSuggestion {
 export interface BestWindowsResponse {
   from: string
   to: string
-  profile: ProfileKey | null
+  /** Same free-text resolved label as `RecommendationResponse.profile` — see there. */
+  profile: string | null
   windows: WindowSuggestion[]
 }
 
