@@ -5,6 +5,7 @@ import { Check, AlertTriangle } from 'lucide-react'
 import type { TravelRecommendation } from '@/api/types'
 import { useDestinationImage } from '@/api/images'
 import { ScoreRing } from '@/components/shared/ScoreRing'
+import { ScoreComposition } from '@/components/shared/ScoreComposition'
 import { FavoriteButton } from '@/components/shared/FavoriteButton'
 import { Flag } from '@/components/shared/Flag'
 import { favoriteContextFromParams } from '@/lib/favorites'
@@ -81,7 +82,10 @@ export function RecommendationCard({
   selected = false,
   selectDisabled = false,
   showRank = true,
+  emphasized = false,
   onToggleSelect,
+  onHoverStart,
+  onHoverEnd,
 }: {
   recommendation: TravelRecommendation
   rank: number
@@ -90,7 +94,11 @@ export function RecommendationCard({
   selected?: boolean
   selectDisabled?: boolean
   showRank?: boolean
+  /** Highlighted from outside (e.g. hovering the matching pin on CandidatesMap). */
+  emphasized?: boolean
   onToggleSelect?: () => void
+  onHoverStart?: () => void
+  onHoverEnd?: () => void
 }) {
   const { exchangeToBrl, feasibility, profile } = recommendation
   const exchangeLabel = formatExchange(exchangeToBrl)
@@ -138,6 +146,8 @@ export function RecommendationCard({
           <ScoreRing score={recommendation.tripScore} size={48} strokeWidth={5} />
         </div>
 
+        <ScoreComposition breakdown={recommendation.breakdown} size="sm" />
+
         {(exchangeLabel || (feasibility && !distanceInTradeoff)) && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             {exchangeLabel && <span>{exchangeLabel}</span>}
@@ -162,11 +172,15 @@ export function RecommendationCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(rank * 0.05, 0.4), ease: ease.out }}
       whileHover={{ y: -4 }}
+      onMouseEnter={onHoverStart}
+      onMouseLeave={onHoverEnd}
       className={cn(
         'group relative overflow-hidden rounded-2xl border bg-surface/70 transition-[box-shadow,border-color]',
         selected
           ? 'border-gold/50 ring-1 ring-gold/30 elevate-lg'
-          : 'border-hairline elevate hover:border-foreground/15 hover:elevate-lg',
+          : emphasized
+            ? 'border-gold/35 ring-1 ring-gold/20 elevate-lg'
+            : 'border-hairline elevate hover:border-foreground/15 hover:elevate-lg',
         selectable && selectDisabled && !selected && 'opacity-50',
       )}
     >

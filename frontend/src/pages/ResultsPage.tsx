@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { CalendarDays, Columns3, Frown, SlidersHorizontal, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useMeta, useRecommendations } from '@/api/queries'
-import type { CriterionKey, ProfileKey, TravelRecommendation } from '@/api/types'
+import type { CriterionKey, ProfileKey, ProfileOption, TravelRecommendation } from '@/api/types'
 import { criteriaToRequest, criteriaToSearchParams, searchParamsToCriteria } from '@/lib/search-params'
 import { rescoreAll, weightsEqual } from '@/lib/rescoring'
 import { describeWindow, formatDateRange, pluralize } from '@/lib/format'
@@ -15,10 +15,30 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 
+// d3-geo/topojson only load once someone actually reaches the results map.
+const CandidatesMap = lazy(() =>
+  import('@/components/results/CandidatesMap').then((m) => ({ default: m.CandidatesMap })),
+)
+
 const MAX_COMPARE = 3
 
+/**
+ * `data.profile` is a free-text resolved label ("padrão", "personalizado",
+ * "economico (ajustado)"...), not a `ProfileKey` — see the type's doc comment. Only
+ * an exact match against a known preset key means a named profile is active; anything
+ * else (including the "(ajustado)" suffix once a slider was touched) means custom
+ * weights are in effect and no chip should be highlighted.
+ */
+function resolveActiveProfile(
+  profileLabel: string | null,
+  profiles: ProfileOption[] | undefined,
+): { activeProfile: ProfileKey | null; customWeights: boolean } {
+  const match = profiles?.find((p) => p.key === profileLabel)
+  return match ? { activeProfile: match.key, customWeights: false } : { activeProfile: null, customWeights: true }
+}
+
 export function ResultsPage() {
-  const [params] = useSearchParams()
+  const [params, setParams] = useSearchParams()
   const navigate = useNavigate()
   const [criteria] = useState(() => searchParamsToCriteria(params))
   const request = criteria ? criteriaToRequest(criteria) : null
@@ -31,14 +51,32 @@ export function ResultsPage() {
 
   const [compareMode, setCompareMode] = useState(false)
   const [selectedCodes, setSelectedCodes] = useState<string[]>([])
+  const [hoveredCode, setHoveredCode] = useState<string | null>(null)
 
   useEffect(() => {
-    if (data && !liveWeights) {
+    // Wait for both: resolving a named profile vs. custom weights needs the preset
+    // key list from `meta`, and that query can resolve after `data` does.
+    if (data && meta && !liveWeights) {
       setLiveWeights(data.weights)
-      setActiveProfile(data.profile)
-      setCustomWeights(data.profile === null)
+      const resolved = resolveActiveProfile(data.profile, meta.profiles)
+      setActiveProfile(resolved.activeProfile)
+      setCustomWeights(resolved.customWeights)
     }
-  }, [data, liveWeights])
+  }, [data, liveWeights, meta])
+
+  // Switching profile via the chips (or dragging a custom weight slider) only re-scores
+  // the already-fetched candidates locally (see `displayed` below) — no need to refetch.
+  // But the URL still has to reflect the choice: otherwise reloading, sharing, or
+  // bookmarking the page silently reverts to whatever profile the original search used.
+  useEffect(() => {
+    if (!criteria || !liveWeights) return
+    const qs = criteriaToSearchParams({
+      ...criteria,
+      profile: customWeights ? null : activeProfile,
+      weights: customWeights ? liveWeights : {},
+    })
+    setParams(qs, { replace: true })
+  }, [criteria, liveWeights, activeProfile, customWeights, setParams])
 
   const displayed = useMemo<TravelRecommendation[]>(() => {
     if (!data) return []
@@ -64,8 +102,9 @@ export function ResultsPage() {
   function handleReset() {
     if (!data) return
     setLiveWeights(data.weights)
-    setActiveProfile(data.profile)
-    setCustomWeights(data.profile === null)
+    const resolved = resolveActiveProfile(data.profile, meta?.profiles)
+    setActiveProfile(resolved.activeProfile)
+    setCustomWeights(resolved.customWeights)
   }
 
   function toggleCompareMode() {
@@ -97,6 +136,12 @@ export function ResultsPage() {
     })
     qs.set('codes', selectedCodes.join(','))
     navigate(`/comparar?${qs.toString()}`, { state: { recommendations: selected } })
+  }
+
+  function handleMapSelect(recommendation: TravelRecommendation) {
+    navigate(`/destino/${recommendation.countryCode}?${params.toString()}`, {
+      state: { recommendation },
+    })
   }
 
   if (!criteria) {
@@ -170,6 +215,20 @@ export function ResultsPage() {
         />
       )}
 
+      {data && displayed.length > 0 && (
+        <div className="mb-6">
+          <Suspense fallback={<Skeleton className="h-56 w-full rounded-2xl sm:h-72 lg:h-80" />}>
+            <CandidatesMap
+              recommendations={displayed}
+              origin={data.origin}
+              hoveredCode={hoveredCode}
+              onHoverChange={setHoveredCode}
+              onSelect={handleMapSelect}
+            />
+          </Suspense>
+        </div>
+      )}
+
       {isLoading && (
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -207,7 +266,10 @@ export function ResultsPage() {
               selectable={compareMode}
               selected={selectedCodes.includes(rec.countryCode)}
               selectDisabled={selectedCodes.length >= MAX_COMPARE && !selectedCodes.includes(rec.countryCode)}
+              emphasized={hoveredCode === rec.countryCode}
               onToggleSelect={() => toggleSelect(rec.countryCode)}
+              onHoverStart={() => setHoveredCode(rec.countryCode)}
+              onHoverEnd={() => setHoveredCode(null)}
             />
           ))}
         </div>
