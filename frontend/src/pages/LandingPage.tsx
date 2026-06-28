@@ -96,7 +96,7 @@ export function LandingPage() {
         >
           <motion.p
             variants={heroItem}
-            className="mb-7 flex items-center justify-center gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-muted-foreground"
+            className="mb-7 flex items-center justify-center gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-gold/80"
           >
             <span>Planeje</span>
             <span className="size-1 rounded-full bg-gold/70" />
