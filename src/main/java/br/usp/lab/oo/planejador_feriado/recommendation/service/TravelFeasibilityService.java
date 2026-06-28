@@ -24,11 +24,17 @@ public class TravelFeasibilityService {
         this.properties = properties;
     }
 
+    /**
+     * @param referenceCost custo de vida do Brasil — âncora em BRL da estimativa terrestre
+     *                      (a base em reais representa o custo de um dia no Brasil). Não é
+     *                      o custo da origem: o valor absoluto em BRL de um dia no destino
+     *                      independe de onde a viagem começa.
+     */
     public TripFeasibility build(
             DestinationCity origin,
             DestinationCity destination,
             double distanceKm,
-            CostOfLiving originCost,
+            CostOfLiving referenceCost,
             CostOfLiving destinationCost,
             int days,
             int travelers) {
@@ -44,7 +50,7 @@ public class TravelFeasibilityService {
         return new TripFeasibility(
                 destination,
                 travelEffort(origin, destination, distanceKm),
-                groundCost(originCost, destinationCost, days, travelers),
+                groundCost(referenceCost, destinationCost, days, travelers),
                 List.of(
                         "passagens aéreas",
                         "bagagem e taxas aeroportuárias",
@@ -75,19 +81,21 @@ public class TravelFeasibilityService {
     }
 
     private GroundCostEstimate groundCost(
-            CostOfLiving origin,
+            CostOfLiving reference,
             CostOfLiving destination,
             int days,
             int travelers) {
-        if (origin == null
+        if (reference == null
                 || destination == null
-                || !Double.isFinite(origin.priceLevelRatio())
+                || !Double.isFinite(reference.priceLevelRatio())
                 || !Double.isFinite(destination.priceLevelRatio())
-                || origin.priceLevelRatio() <= 0.0
+                || reference.priceLevelRatio() <= 0.0
                 || destination.priceLevelRatio() <= 0.0) {
             return null;
         }
-        double relative = destination.priceLevelRatio() / origin.priceLevelRatio();
+        // Ancorado no Brasil (referência da base em BRL), não na origem: o custo de um dia
+        // no destino independe de onde a viagem parte.
+        double relative = destination.priceLevelRatio() / reference.priceLevelRatio();
         double daily = properties.baselineDailyGroundCostBrlOrDefault() * relative;
         return new GroundCostEstimate(
                 "BRL",
@@ -97,11 +105,12 @@ public class TravelFeasibilityService {
                 days,
                 round(relative),
                 destination.year(),
-                origin.year(),
+                reference.year(),
                 "LOW",
-                "Estimativa terrestre por PPP; base de R$ "
+                "Estimativa por PPP (paridade de poder de compra, dados do Banco Mundial), "
+                        + "independente da cotação de câmbio ao lado; base de R$ "
                         + round(properties.baselineDailyGroundCostBrlOrDefault())
-                        + " por pessoa/dia na origem");
+                        + " por pessoa/dia no Brasil");
     }
 
     private Double firstOffset(DestinationCity city) {
