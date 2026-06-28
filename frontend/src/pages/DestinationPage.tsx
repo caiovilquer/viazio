@@ -4,7 +4,7 @@ import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion
 import { AlertTriangle, ArrowLeft, Clock, Coins, ExternalLink, Wallet } from 'lucide-react'
 import { useCountry, useHolidays, useRecommendations, useTravelOverview } from '@/api/queries'
 import { useDestinationImage } from '@/api/images'
-import type { Region, TravelRecommendation } from '@/api/types'
+import type { Region, TravelRecommendation, Exchange } from '@/api/types'
 import { criteriaToRequest, searchParamsToCriteria } from '@/lib/search-params'
 import { ScoreRing } from '@/components/shared/ScoreRing'
 import { FavoriteButton } from '@/components/shared/FavoriteButton'
@@ -15,7 +15,7 @@ import { favoriteContextFromParams, type FavoriteContext } from '@/lib/favorites
 import { CriterionBreakdown } from '@/components/results/CriterionBreakdown'
 import { ClimateChart } from '@/components/shared/ClimateChart'
 import { Skeleton } from '@/components/ui/skeleton'
-import { exchangeUnit, formatBrl, formatDateLong, formatExchange } from '@/lib/format'
+import { formatDateLong, formatExchange, formatExchangeParts, formatInOriginCurrency } from '@/lib/format'
 import { heroItem, staggerContainer } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
@@ -50,8 +50,12 @@ export function DestinationPage() {
   const { countryCode = '' } = useParams()
   const location = useLocation()
   const [params] = useSearchParams()
-  const stateRecommendation = (location.state as { recommendation?: TravelRecommendation } | null)
-    ?.recommendation
+  const stateRecommendation = (location.state as {
+    recommendation?: TravelRecommendation
+    originExchangeToBrl?: Exchange | null
+  } | null)?.recommendation
+  const originExchangeFromState = (location.state as { originExchangeToBrl?: Exchange | null } | null)
+    ?.originExchangeToBrl
 
   // `location.state` only survives client-side navigation (clicking a card). Opening a
   // link in a new tab, reloading, or sharing the URL gives a fresh tab with no state —
@@ -68,6 +72,8 @@ export function DestinationPage() {
     (r) => r.countryCode.toLowerCase() === countryCode.toLowerCase(),
   )
   const recommendation = stateRecommendation ?? fallbackRecommendation
+  const originExchangeToBrl = originExchangeFromState ?? fallbackData?.originExchangeToBrl ?? null
+  const originCountryCode = fallbackData?.origin.countryCode ?? criteria?.origin.countryCode
 
   const { data: country, isLoading: loadingCountry } = useCountry(countryCode)
   const { data: holidays } = useHolidays(countryCode)
@@ -77,8 +83,24 @@ export function DestinationPage() {
 
   const profile = recommendation?.profile ?? overview?.profile
   const exchange = recommendation?.exchangeToBrl ?? overview?.exchangeToBrl
-  const exUnit = exchangeUnit(exchange)
+  const exchangeParts = formatExchangeParts(exchange, originExchangeToBrl, originCountryCode, countryCode)
   const feasibility = recommendation?.feasibility ?? null
+  const dailyCost =
+    feasibility?.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0
+      ? formatInOriginCurrency(
+          feasibility.groundCost.estimatedDailyPerPerson,
+          originExchangeToBrl,
+          originCountryCode,
+        )
+      : null
+  const totalCost =
+    feasibility?.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0
+      ? formatInOriginCurrency(
+          feasibility.groundCost.estimatedTotal,
+          originExchangeToBrl,
+          originCountryCode,
+        )
+      : null
 
   const photoCity = feasibility?.destination.name ?? country?.capitals?.[0] ?? country?.name
   const { data: cityPhoto } = useDestinationImage(photoCity, 1920)
@@ -137,22 +159,26 @@ export function DestinationPage() {
             <Stat
               glyph={<Wallet className="size-4" />}
               label="Custo / dia"
-              value={
-                feasibility.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0
-                  ? formatBrl(feasibility.groundCost.estimatedDailyPerPerson)
-                  : '—'
-              }
+              value={dailyCost ? dailyCost.formatted : '—'}
               sub={
-                feasibility.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0
-                  ? `≈ ${formatBrl(feasibility.groundCost.estimatedTotal)} no total`
+                totalCost
+                  ? `≈ ${totalCost.formatted} no total${
+                      dailyCost?.showFallbackNote ? ' · câmbio indisponível — valor em R$' : ''
+                    }`
                   : 'Sem estimativa'
               }
             />
             <Stat
               glyph={<Coins className="size-4" />}
               label="Câmbio"
-              value={exUnit ? formatBrl(exUnit.amount) : '—'}
-              sub={exUnit ? `por ${exUnit.unitLabel} ${exUnit.currency}` : 'Sem cotação'}
+              value={exchangeParts?.amount ?? '—'}
+              sub={
+                exchangeParts
+                  ? `${exchangeParts.unitDescription}${
+                      exchangeParts.showFallbackNote ? ' · câmbio da origem indisponível' : ''
+                    }`
+                  : 'Sem cotação'
+              }
             />
           </div>
           {feasibility.groundCost && feasibility.groundCost.estimatedDailyPerPerson > 0 && (
@@ -160,8 +186,18 @@ export function DestinationPage() {
               <span className="font-medium text-foreground/70">Custo/dia</span> e{' '}
               <span className="font-medium text-foreground/70">câmbio</span> são estimativas
               independentes: o custo/dia compara o nível de preços local com o do Brasil
-              (paridade de poder de compra, dados do Banco Mundial), enquanto o câmbio é uma
-              cotação de mercado em tempo real. Um pode estar disponível sem o outro.
+              (paridade de poder de compra, dados do Banco Mundial)
+              {originExchangeToBrl
+                ? ', convertido para a moeda de origem pela cotação ao lado'
+                : ''}
+              , enquanto o câmbio é uma cotação de mercado em tempo real. Um pode estar
+              disponível sem o outro.
+              {dailyCost?.showFallbackNote && (
+                <>
+                  {' '}
+                  Câmbio da origem indisponível — custo exibido em R$.
+                </>
+              )}
             </p>
           )}
         </Reveal>
@@ -248,8 +284,11 @@ export function DestinationPage() {
               />
             )}
             <InfoRow label="Região" value={country.subregion || regionPt[country.region]} />
-            {!feasibility && formatExchange(exchange) && (
-              <InfoRow label="Câmbio" value={formatExchange(exchange) as string} />
+            {!feasibility && formatExchange(exchange, originExchangeToBrl, originCountryCode, countryCode) && (
+              <InfoRow
+                label="Câmbio"
+                value={formatExchange(exchange, originExchangeToBrl, originCountryCode, countryCode) as string}
+              />
             )}
           </dl>
         </Reveal>

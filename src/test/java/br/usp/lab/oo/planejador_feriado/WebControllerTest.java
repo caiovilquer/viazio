@@ -312,7 +312,7 @@ class WebControllerTest {
                                         "2024", "2024", "LOW", "Estimativa terrestre por PPP"),
                                 List.of("passagens aéreas", "seguro-viagem"))
                 )),
-                List.of()
-        );
+                List.of(),
+                null);
     }
 }

@@ -128,6 +128,8 @@ public class TravelRecommendationEngine {
     private RecommendationResponse doRecommend(RecommendationRequest request) {
         ResolvedWeights weights = weightResolver.resolve(request.profile(), request.weightOverrides());
         OriginData origin = loadOrigin(request);
+        Exchange originExchangeToBrl = resolveExchangeToBrl(
+                countryService.getCountryByCode(origin.reference().countryCode()));
         CostOfLiving priceAnchorCost = resolvePriceAnchorCost(origin);
         WindowAssessment window = windowEvaluator.evaluate(origin.holidays(), request.from(), request.to());
         List<String> candidateCodes = resolveCandidateCodes(request);
@@ -173,7 +175,8 @@ public class TravelRecommendationEngine {
                 weights.asKeyedMap(),
                 window,
                 limited,
-                skipped);
+                skipped,
+                originExchangeToBrl);
         metrics.recordResults(candidateCodes.size(), limited.size());
         return response;
     }

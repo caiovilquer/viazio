@@ -72,9 +72,113 @@ export function exchangeUnit(exchange?: ExchangeLike | null) {
   }
 }
 
-/** One-line exchange quote, e.g. "1 EUR = R$ 5,92" or "1.000 COP = R$ 1,52". */
-export function formatExchange(exchange?: ExchangeLike | null): string | null {
+function resolveExchangeQuote(
+  exchange?: ExchangeLike | null,
+  originExchange?: ExchangeLike | null,
+  originCountryCode?: string,
+  destinationCountryCode?: string,
+) {
+  // Destino é o próprio Brasil (moeda BRL): o backend não envia exchangeToBrl.
+  // Nesse caso, cotar o real na moeda de origem quando a origem não é BR.
+  if (
+    !exchange &&
+    destinationCountryCode === 'BR' &&
+    originExchange &&
+    originExchange.valueInReais > 0 &&
+    originCountryCode &&
+    originCountryCode !== 'BR'
+  ) {
+    const converted = 1 / originExchange.valueInReais
+    const amountFormatted = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: originExchange.currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 4,
+    }).format(converted)
+    return {
+      unitLabel: '1',
+      currency: 'BRL',
+      amountFormatted,
+      showFallbackNote: false,
+      quote: `1 BRL = ${amountFormatted}`,
+    }
+  }
+
   const e = exchangeUnit(exchange)
   if (!e) return null
-  return `${e.unitLabel} ${e.currency} = ${formatBrl(e.amount)}`
+
+  if (originExchange && originExchange.valueInReais > 0) {
+    const converted = e.amount / originExchange.valueInReais
+    const amountFormatted = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: originExchange.currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(converted)
+    return {
+      unitLabel: e.unitLabel,
+      currency: e.currency,
+      amountFormatted,
+      showFallbackNote: false,
+      quote: `${e.unitLabel} ${e.currency} = ${amountFormatted}`,
+    }
+  }
+
+  const amountFormatted = formatBrl(e.amount)
+  const showFallbackNote = originCountryCode != null && originCountryCode !== 'BR'
+  const suffix = showFallbackNote ? ' (câmbio da origem indisponível)' : ''
+  return {
+    unitLabel: e.unitLabel,
+    currency: e.currency,
+    amountFormatted,
+    showFallbackNote,
+    quote: `${e.unitLabel} ${e.currency} = ${amountFormatted}${suffix}`,
+  }
+}
+
+/** One-line exchange quote, e.g. "1 EUR = R$ 5,92" or "1 USD = CA$ 1,36". */
+export function formatExchange(
+  exchange?: ExchangeLike | null,
+  originExchange?: ExchangeLike | null,
+  originCountryCode?: string,
+  destinationCountryCode?: string,
+): string | null {
+  return resolveExchangeQuote(exchange, originExchange, originCountryCode, destinationCountryCode)?.quote ?? null
+}
+
+/** Split exchange quote for stat cards: amount in origin currency + unit label. */
+export function formatExchangeParts(
+  exchange?: ExchangeLike | null,
+  originExchange?: ExchangeLike | null,
+  originCountryCode?: string,
+  destinationCountryCode?: string,
+) {
+  const q = resolveExchangeQuote(exchange, originExchange, originCountryCode, destinationCountryCode)
+  if (!q) return null
+  return {
+    amount: q.amountFormatted,
+    unitDescription: `por ${q.unitLabel} ${q.currency}`,
+    showFallbackNote: q.showFallbackNote,
+  }
+}
+
+export function formatInOriginCurrency(
+  brlValue: number,
+  originExchange: ExchangeLike | null | undefined,
+  originCountryCode?: string,
+): { formatted: string; isFallback: boolean; showFallbackNote: boolean } {
+  if (originExchange && originExchange.valueInReais > 0) {
+    const converted = brlValue / originExchange.valueInReais
+    const formatted = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: originExchange.currency,
+      maximumFractionDigits: 0,
+    }).format(converted)
+    return { formatted, isFallback: false, showFallbackNote: false }
+  }
+  return {
+    formatted: formatBrl(brlValue),
+    isFallback: true,
+    showFallbackNote: originCountryCode != null && originCountryCode !== 'BR',
+  }
 }

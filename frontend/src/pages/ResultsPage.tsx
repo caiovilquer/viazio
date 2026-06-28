@@ -135,12 +135,14 @@ export function ResultsPage() {
       weights: customWeights && liveWeights ? liveWeights : {},
     })
     qs.set('codes', selectedCodes.join(','))
-    navigate(`/comparar?${qs.toString()}`, { state: { recommendations: selected } })
+    navigate(`/comparar?${qs.toString()}`, {
+      state: { recommendations: selected, originExchangeToBrl: data?.originExchangeToBrl ?? null },
+    })
   }
 
   function handleMapSelect(recommendation: TravelRecommendation) {
     navigate(`/destino/${recommendation.countryCode}?${params.toString()}`, {
-      state: { recommendation },
+      state: { recommendation, originExchangeToBrl: data?.originExchangeToBrl ?? null },
     })
   }
 
@@ -221,6 +223,7 @@ export function ResultsPage() {
             <CandidatesMap
               recommendations={displayed}
               origin={data.origin}
+              originExchangeToBrl={data.originExchangeToBrl}
               hoveredCode={hoveredCode}
               onHoverChange={setHoveredCode}
               onSelect={handleMapSelect}
@@ -263,6 +266,8 @@ export function ResultsPage() {
               recommendation={rec}
               rank={i + 1}
               searchQuery={params.toString()}
+              originExchangeToBrl={data.originExchangeToBrl}
+              originCountryCode={data.origin.countryCode}
               selectable={compareMode}
               selected={selectedCodes.includes(rec.countryCode)}
               selectDisabled={selectedCodes.length >= MAX_COMPARE && !selectedCodes.includes(rec.countryCode)}

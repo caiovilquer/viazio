@@ -48,6 +48,7 @@ class RecommendationMetricsTest {
                 Map.of(),
                 new WindowAssessment(50.0, 4, 2, 2, List.of(), "janela comum"),
                 List.of(),
-                skipped);
+                skipped,
+                null);
     }
 }

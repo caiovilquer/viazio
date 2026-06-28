@@ -3,10 +3,10 @@ import { geoGraticule10, geoNaturalEarth1, geoPath } from 'd3-geo'
 import { select } from 'd3-selection'
 import { zoom as d3zoom, zoomIdentity, type D3ZoomEvent, type ZoomBehavior, type ZoomTransform } from 'd3-zoom'
 import 'd3-transition'
-import type { OriginReference, TravelRecommendation } from '@/api/types'
+import type { Exchange, OriginReference, TravelRecommendation } from '@/api/types'
 import { useWorldLand } from '@/api/worldLand'
 import { scoreTierColor } from '@/components/shared/ScoreRing'
-import { scoreTone, formatBrl } from '@/lib/format'
+import { scoreTone, formatInOriginCurrency } from '@/lib/format'
 import { Flag } from '@/components/shared/Flag'
 import { Button } from '@/components/ui/button'
 import { Minus, Plus, Maximize } from 'lucide-react'
@@ -66,12 +66,14 @@ interface MapPoint {
 export function CandidatesMap({
   recommendations,
   origin,
+  originExchangeToBrl,
   hoveredCode,
   onHoverChange,
   onSelect,
 }: {
   recommendations: TravelRecommendation[]
   origin: OriginReference
+  originExchangeToBrl?: Exchange | null
   hoveredCode: string | null
   onHoverChange: (code: string | null) => void
   onSelect: (recommendation: TravelRecommendation) => void
@@ -349,7 +351,18 @@ export function CandidatesMap({
               {Math.round(active.recommendation.feasibility.travelEffort.distanceKm).toLocaleString('pt-BR')} km
               {active.recommendation.feasibility.groundCost &&
                 active.recommendation.feasibility.groundCost.estimatedDailyPerPerson > 0 && (
-                  <> · {formatBrl(active.recommendation.feasibility.groundCost.estimatedDailyPerPerson)}/dia</>
+                  <>
+                    {' '}
+                    ·{' '}
+                    {
+                      formatInOriginCurrency(
+                        active.recommendation.feasibility.groundCost.estimatedDailyPerPerson,
+                        originExchangeToBrl,
+                        origin.countryCode,
+                      ).formatted
+                    }
+                    /dia
+                  </>
                 )}
             </p>
           )}

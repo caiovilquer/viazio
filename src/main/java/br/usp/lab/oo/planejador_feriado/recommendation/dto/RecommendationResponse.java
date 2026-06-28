@@ -1,5 +1,6 @@
 package br.usp.lab.oo.planejador_feriado.recommendation.dto;
 
+import br.usp.lab.oo.planejador_feriado.exchange.model.Exchange;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.OriginReference;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.SkippedCandidate;
 import br.usp.lab.oo.planejador_feriado.recommendation.model.TravelRecommendation;
@@ -19,6 +20,7 @@ public record RecommendationResponse(
         Map<String, Double> weights,
         WindowAssessment window,
         List<TravelRecommendation> recommendations,
-        List<SkippedCandidate> skipped
+        List<SkippedCandidate> skipped,
+        Exchange originExchangeToBrl
 ) {
 }

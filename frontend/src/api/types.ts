@@ -241,6 +241,8 @@ export interface RecommendationResponse {
   window: WindowAssessment
   recommendations: TravelRecommendation[]
   skipped: SkippedCandidate[]
+  /** Taxa da moeda de origem em BRL; null quando origem = BR ou câmbio indisponível. */
+  originExchangeToBrl: Exchange | null
 }
 
 export interface WindowSuggestion {

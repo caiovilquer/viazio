@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Check, AlertTriangle } from 'lucide-react'
-import type { TravelRecommendation } from '@/api/types'
+import type { Exchange, TravelRecommendation } from '@/api/types'
 import { useDestinationImage } from '@/api/images'
 import { ScoreRing } from '@/components/shared/ScoreRing'
 import { ScoreComposition } from '@/components/shared/ScoreComposition'
@@ -86,10 +86,14 @@ export function RecommendationCard({
   onToggleSelect,
   onHoverStart,
   onHoverEnd,
+  originExchangeToBrl,
+  originCountryCode,
 }: {
   recommendation: TravelRecommendation
   rank: number
   searchQuery: string
+  originExchangeToBrl?: Exchange | null
+  originCountryCode?: string
   selectable?: boolean
   selected?: boolean
   selectDisabled?: boolean
@@ -100,8 +104,8 @@ export function RecommendationCard({
   onHoverStart?: () => void
   onHoverEnd?: () => void
 }) {
-  const { exchangeToBrl, feasibility, profile } = recommendation
-  const exchangeLabel = formatExchange(exchangeToBrl)
+  const { exchangeToBrl, feasibility, profile, countryCode: destinationCountryCode } = recommendation
+  const exchangeLabel = formatExchange(exchangeToBrl, originExchangeToBrl, originCountryCode, destinationCountryCode)
   const savedContext = useMemo(
     () => (searchQuery ? favoriteContextFromParams(new URLSearchParams(searchQuery)) : undefined),
     [searchQuery],
@@ -228,7 +232,7 @@ export function RecommendationCard({
       ) : (
         <Link
           to={`/destino/${recommendation.countryCode}?${searchQuery}`}
-          state={{ recommendation }}
+          state={{ recommendation, originExchangeToBrl: originExchangeToBrl ?? null }}
           className="block"
         >
           {body}

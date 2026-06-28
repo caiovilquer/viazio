@@ -3,11 +3,11 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, Clock, Coins, Crown, ExternalLink, Frown, Info, RefreshCw, ShieldCheck, Wallet, X } from 'lucide-react'
 import { useMeta, useRecommendations } from '@/api/queries'
-import type { CriterionOption, ProfileKey, RecommendationSearchRequest, TravelRecommendation } from '@/api/types'
+import type { CriterionOption, Exchange, ProfileKey, RecommendationSearchRequest, TravelRecommendation } from '@/api/types'
 import { criteriaToRequest, searchParamsToCriteria } from '@/lib/search-params'
 import { winnerIndices, type WinnerDirection } from '@/lib/compare'
 import { type FavoriteEntry } from '@/lib/favorites'
-import { formatBrl, formatDateRange, formatExchange } from '@/lib/format'
+import { formatDateRange, formatExchange, formatInOriginCurrency } from '@/lib/format'
 import { ScoreRing } from '@/components/shared/ScoreRing'
 import { ScoreComposition } from '@/components/shared/ScoreComposition'
 import { Flag } from '@/components/shared/Flag'
@@ -126,10 +126,11 @@ export function ComparePage() {
   const reduce = useReducedMotion()
 
   const navState = location.state as
-    | { recommendations?: TravelRecommendation[]; saved?: FavoriteEntry[] }
+    | { recommendations?: TravelRecommendation[]; saved?: FavoriteEntry[]; originExchangeToBrl?: Exchange | null }
     | null
   const stateRecommendations = navState?.recommendations
   const saved = navState?.saved
+  const originExchangeFromState = navState?.originExchangeToBrl
   const fromSaved = Boolean(saved && saved.length > 0)
 
   const codes = useMemo(() => params.get('codes')?.split(',').filter(Boolean) ?? [], [params])
@@ -175,6 +176,13 @@ export function ComparePage() {
       : data && !commonRequest
         ? data.recommendations.filter((r) => codes.includes(r.countryCode))
         : []
+
+  const originExchangeToBrl = data?.originExchangeToBrl ?? originExchangeFromState ?? null
+  const originCountryCode = data?.origin.countryCode ?? firstCtx?.originCountry
+  const showCostFallbackNote =
+    originCountryCode != null &&
+    originCountryCode !== 'BR' &&
+    !(originExchangeToBrl && originExchangeToBrl.valueInReais > 0)
 
   const [visibleCodes, setVisibleCodes] = useState(codes)
   const [focusedCode, setFocusedCode] = useState<string | null>(null)
@@ -311,7 +319,12 @@ export function ComparePage() {
         const daily = r.feasibility?.groundCost?.estimatedDailyPerPerson
         return daily && daily > 0 ? daily : null
       },
-      displayOf: (r) => formatBrl(r.feasibility!.groundCost!.estimatedDailyPerPerson),
+      displayOf: (r) =>
+        formatInOriginCurrency(
+          r.feasibility!.groundCost!.estimatedDailyPerPerson,
+          originExchangeToBrl,
+          originCountryCode,
+        ).formatted,
     }),
     buildMetric(recommendations, {
       key: 'confidence',
@@ -494,6 +507,7 @@ export function ComparePage() {
             <CompareCard
               key={rec.countryCode}
               rec={rec}
+              originExchangeToBrl={originExchangeToBrl}
               isOverallWinner={overallWinner?.countryCode === rec.countryCode}
               focused={focusedCode === rec.countryCode}
               dimmed={Boolean(focusedCode) && focusedCode !== rec.countryCode}
@@ -547,7 +561,12 @@ export function ComparePage() {
                     <span className="truncate">{rec.countryName}</span>
                   </span>
                   <span className="mt-0.5 block tabular-nums text-xs text-muted-foreground">
-                    {formatExchange(rec.exchangeToBrl) ?? 'Sem cotação'}
+                    {formatExchange(
+                      rec.exchangeToBrl,
+                      originExchangeToBrl,
+                      originCountryCode,
+                      rec.countryCode,
+                    ) ?? 'Sem cotação'}
                   </span>
                 </div>
               ))}
@@ -561,6 +580,12 @@ export function ComparePage() {
         <br />
         Custo terrestre/dia é uma estimativa por PPP (paridade de poder de compra, Banco Mundial),
         independente da cotação de câmbio: um pode estar disponível sem o outro.
+        {showCostFallbackNote && (
+          <>
+            <br />
+            Câmbio da origem indisponível — custo exibido em R$.
+          </>
+        )}
       </p>
     </div>
   )
@@ -679,6 +704,7 @@ function BarLine({
 
 function CompareCard({
   rec,
+  originExchangeToBrl,
   isOverallWinner,
   focused,
   dimmed,
@@ -686,6 +712,7 @@ function CompareCard({
   onRemove,
 }: {
   rec: TravelRecommendation
+  originExchangeToBrl: Exchange | null
   isOverallWinner: boolean
   focused: boolean
   dimmed: boolean
@@ -785,7 +812,7 @@ function CompareCard({
           </div>
           <Link
             to={`/destino/${rec.countryCode}`}
-            state={{ recommendation: rec }}
+            state={{ recommendation: rec, originExchangeToBrl }}
             className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-gold transition-opacity hover:opacity-80"
           >
             Ver destino

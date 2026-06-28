@@ -85,8 +85,8 @@ class RecommendationControllerTest {
                                         "2024", "2024", "LOW", "PPP"),
                                 List.of("passagens aéreas"))
                 )),
-                List.of()
-        );
+                List.of(),
+                null);
 
         when(recommendationEngine.recommend(any())).thenReturn(response);
 
@@ -283,6 +283,7 @@ class RecommendationControllerTest {
                 Map.of(),
                 new WindowAssessment(50.0, 4, 2, 2, List.of(), "janela comum"),
                 List.of(),
-                List.of());
+                List.of(),
+                null);
     }
 }
