@@ -5,6 +5,13 @@ spring:
     noninteractive:
       enabled: false
 
+logging:
+  level:
+    root: WARN
+    br.usp.lab.oo: INFO
+    org.springframework: WARN
+    org.springframework.web: WARN
+
 app:
   rate-limit:
     capacity: 60

@@ -3,17 +3,14 @@ import {
   criteriaToSearchParams,
   type SearchCriteria,
 } from "@/lib/search-params";
-
-function toIso(date: Date) {
-  return date.toISOString().slice(0, 10);
-}
+import { toLocalIsoDate } from "@/lib/dates";
 
 function offsetWindow(startOffsetDays: number, spanDays: number) {
   const start = new Date();
   start.setDate(start.getDate() + startOffsetDays);
   const end = new Date(start);
   end.setDate(end.getDate() + spanDays - 1);
-  return { from: toIso(start), to: toIso(end) };
+  return { from: toLocalIsoDate(start), to: toLocalIsoDate(end) };
 }
 
 /** Próxima ocorrência futura do mês informado (0 = janeiro), começando no dia `day`. */
@@ -25,7 +22,7 @@ function nextMonthWindow(monthIndex: number, day: number, spanDays: number) {
   }
   const end = new Date(candidate);
   end.setDate(end.getDate() + spanDays - 1);
-  return { from: toIso(candidate), to: toIso(end) };
+  return { from: toLocalIsoDate(candidate), to: toLocalIsoDate(end) };
 }
 
 export interface ExampleSearch {

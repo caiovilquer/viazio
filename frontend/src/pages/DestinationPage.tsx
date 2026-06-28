@@ -28,6 +28,7 @@ import {
 import { useDestinationImage } from "@/api/images";
 import type { Region, TravelRecommendation, Exchange } from "@/api/types";
 import { criteriaToRequest, searchParamsToCriteria } from "@/lib/search-params";
+import { destinationPhotoUrl } from "@/lib/destination-image";
 import { ScoreRing } from "@/components/shared/ScoreRing";
 import { FavoriteButton } from "@/components/shared/FavoriteButton";
 import { Flag } from "@/components/shared/Flag";
@@ -62,13 +63,6 @@ const classLabel: Record<string, string> = {
   medium: "Distância média",
   long: "Viagem longa",
 };
-
-/** O `imageUrl` do país na Wikipedia costuma ser só a bandeira — rejeitar esses casos. */
-function isLikelyFlag(url?: string | null) {
-  if (!url) return true;
-  const u = url.toLowerCase();
-  return u.includes("flag") || u.endsWith(".svg");
-}
 
 function tzLabel(hours: number | null | undefined) {
   if (hours == null) return null;
@@ -152,8 +146,7 @@ export function DestinationPage() {
   const photoCity =
     feasibility?.destination.name ?? country?.capitals?.[0] ?? country?.name;
   const { data: cityPhoto } = useDestinationImage(photoCity, 1920);
-  const backendPhoto =
-    profile && !isLikelyFlag(profile.imageUrl) ? profile.imageUrl : null;
+  const backendPhoto = destinationPhotoUrl(profile?.imageUrl);
   const photoUrl = cityPhoto ?? backendPhoto ?? null;
 
   const isLoading =

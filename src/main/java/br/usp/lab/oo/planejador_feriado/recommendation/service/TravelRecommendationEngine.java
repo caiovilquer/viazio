@@ -463,7 +463,7 @@ public class TravelRecommendationEngine {
       tradeoffs,
       summary,
       context.exchangeToBrl(),
-      null,
+      DestinationProfile.empty(),
       feasibility,
       context.weather()
     );
@@ -552,7 +552,25 @@ public class TravelRecommendationEngine {
         recommendation.climate()
       );
     } catch (RuntimeException ignored) {
-      return recommendation;
+      if (recommendation.profile() != null) {
+        return recommendation;
+      }
+      return new TravelRecommendation(
+        recommendation.countryCode(),
+        recommendation.countryName(),
+        recommendation.destinationScore(),
+        recommendation.windowScore(),
+        recommendation.tripScore(),
+        recommendation.dataQuality(),
+        recommendation.breakdown(),
+        recommendation.highlights(),
+        recommendation.tradeoffs(),
+        recommendation.summary(),
+        recommendation.exchangeToBrl(),
+        DestinationProfile.empty(),
+        recommendation.feasibility(),
+        recommendation.climate()
+      );
     }
   }
 

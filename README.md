@@ -13,7 +13,7 @@ Este projeto é um sistema web de apoio ao planejamento de viagens curtas e feri
 
 A solução oferece interface Thymeleaf, API REST versionada e acesso por terminal. O motor informa notas separadas para janela e destino, confiança dos dados, premissas, pontos de atenção e candidatos descartados. Ele não se apresenta como plataforma de reservas e não trata estimativas como preços comerciais.
 
-**Estado atual:** Java 21, Spring Boot 3.5, 191 testes automatizados sem rede, OpenAPI, métricas Prometheus, imagem Docker e pipeline GitLab CI. A visão técnica consolidada está em [docs/arquitetura.md](docs/arquitetura.md).
+**Estado atual:** Java 21, Spring Boot 3.5, **196 testes backend sem rede** (201 com `-Pintegration`), testes unitários do frontend Viazio, OpenAPI, métricas Prometheus, imagem Docker e pipeline GitLab CI. A visão técnica consolidada está em [docs/arquitetura.md](docs/arquitetura.md).
 
 ---
 
@@ -212,9 +212,12 @@ Outros comandos úteis:
 
 ```bash
 pnpm build    # build de produção (tsc + vite build)
+pnpm test     # testes unitários (vitest)
 pnpm preview  # serve o build de produção localmente
 pnpm lint     # lint (oxlint)
 ```
+
+Para subir backend e frontend juntos via Docker: `docker compose --profile full up --build`.
 
 #### Como rodar os testes
 
@@ -394,7 +397,7 @@ Cada recomendação combina contexto editorial com informações práticas de de
    - Cada card mostra capital de referência, distância, duração aproximada, fuso, custo terrestre, premissa e itens não incluídos.
    - A consulta individual mantém bandeira, população, imagem, resumo e link para a Wikipédia.
 
-7. **Testes:** cobertura de catálogo real, cidades com múltiplas capitais, normalização de acentos, estimativa PPP, ausência de estimativa sem dados, validações de viajantes/orçamento, filtro de teto terrestre, serialização JSON, propagação pelo controller web e preservação da viabilidade após o enriquecimento — **169 testes sem rede** no total.
+7. **Testes:** cobertura de catálogo real, cidades com múltiplas capitais, normalização de acentos, estimativa PPP, ausência de estimativa sem dados, validações de viajantes/orçamento, filtro de teto terrestre, serialização JSON, propagação pelo controller web e preservação da viabilidade após o enriquecimento — **169 testes sem rede** *(contagem histórica da entrega 4)*.
 
 #### Entrega 5 — Contrato de API orientado à UX
 
@@ -423,7 +426,7 @@ O frontend não precisa duplicar regras, listas ou limites do backend. A API ofe
    - Controllers de recomendação e metadados têm tags e descrições orientadas ao caso de uso.
    - `OpenApiContractTest` confirma que `/v3/api-docs` publica GET/POST de recomendações, `/api/v1/meta` e o schema estruturado.
 
-5. **Testes:** POST completo e normalização, violações por campo, seleção ambígua de candidatos, envelope de erros, rate limit, catálogo completo, cache de países, serviço/controller de metadados e contrato OpenAPI — **178 testes sem rede** no total.
+5. **Testes:** POST completo e normalização, violações por campo, seleção ambígua de candidatos, envelope de erros, rate limit, catálogo completo, cache de países, serviço/controller de metadados e contrato OpenAPI — **178 testes sem rede** *(contagem histórica da entrega 5)*.
 
 #### Entrega 6 — Operação e entrega reproduzível
 
@@ -454,7 +457,7 @@ A aplicação pode ser executada e observada de forma previsível fora da máqui
    - Estágio `container` faz o build integral do Dockerfile com Docker-in-Docker.
    - Cache Maven e artefatos com expiração de uma semana reduzem tempo sem tornar o pipeline dependente de arquivos locais.
 
-6. **Testes:** headers, HSTS, trace, rate limit, configuração inválida, proxy confiável, cache limitado, métricas, Prometheus, health sem detalhes e anotações de resiliência por provedor — **191 testes sem rede** no total.
+6. **Testes:** headers, HSTS, trace, rate limit, configuração inválida, proxy confiável, cache limitado, métricas, Prometheus, health sem detalhes e anotações de resiliência por provedor — **191 testes sem rede** *(contagem histórica da entrega 6)*.
 
 #### Padrões GoF na Fase 3
 
@@ -482,6 +485,5 @@ A camada de apresentação ganhou uma aplicação própria em `frontend/`, batiz
 - A estimativa terrestre usa PPP e confiança baixa. Passagens, hospedagem cotada, seguro, visto, vacinas e regras de entrada não estão incluídos.
 - Clima além do horizonte de 16 dias é climatologia de dez anos, não previsão.
 - Distância e duração são aproximações geográficas e não consideram rotas, conexões ou disponibilidade de voos.
-- Caches, circuit breakers e rate limits são locais à instância. Uma implantação horizontal só precisa de estado distribuído se exigir limites globais estritos.
 
 Detalhes de componentes, fluxo, fórmulas, fontes, operação e extensões estão em [docs/arquitetura.md](docs/arquitetura.md).

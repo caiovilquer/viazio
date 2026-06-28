@@ -61,8 +61,6 @@ public class Holiday {
     return String.format("%s (%s) - %s [%s]", name, localName, date, types);
   }
 
-  // Getters padrão
-
   public LocalDate getDate() {
     return date;
   }

@@ -1,16 +1,8 @@
 import { motion } from "framer-motion";
-import { useCountUp } from "./CountUp";
+import { useCountUp } from "./useCountUp";
 import { ease } from "@/lib/motion";
-import { scoreTone } from "@/lib/format";
+import { scoreTierColor, scoreTone } from "@/lib/format";
 import { cn } from "@/lib/utils";
-
-// Faixas quentes — nunca cinza. Compartilhado com outras visualizações de nota (ex.: ClimateChart).
-export const scoreTierColor: Record<string, string> = {
-  excellent: "var(--gold)",
-  good: "var(--primary)",
-  fair: "var(--chart-3)",
-  poor: "var(--chart-5)",
-};
 
 const tierColor = scoreTierColor;
 const tierOf = scoreTone;

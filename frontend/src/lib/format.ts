@@ -59,6 +59,14 @@ export function scoreTone(score: number) {
   return "poor";
 }
 
+/** Faixas quentes para visualizações de nota (ScoreRing, ClimateChart, mapa). */
+export const scoreTierColor: Record<string, string> = {
+  excellent: "var(--gold)",
+  good: "var(--primary)",
+  fair: "var(--chart-3)",
+  poor: "var(--chart-5)",
+};
+
 interface ExchangeLike {
   currency: string;
   valueInReais: number;

@@ -13,4 +13,9 @@ public record DestinationProfile(
   String extract,
   String imageUrl,
   String wikipediaUrl
-) {}
+) {
+  /** Perfil vazio quando o enriquecimento ainda não rodou ou falhou por completo. */
+  public static DestinationProfile empty() {
+    return new DestinationProfile(null, null, null, null, null, null, null);
+  }
+}

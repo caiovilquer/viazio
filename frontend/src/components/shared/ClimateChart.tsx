@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import type { ClimateSnapshot } from "@/api/types";
 import { ease } from "@/lib/motion";
-import { scoreTierColor } from "./ScoreRing";
+import { scoreTierColor } from "@/lib/format";
 
 // Espelha WeatherStrategy.java (backend) para o medidor alinhar com a nota que o
 // motor de fato calculou — faixa de conforto, curva de desvio e limiares de chuva.

@@ -7,6 +7,7 @@ import {
   criteriaToSearchParams,
   type SearchCriteria,
 } from "@/lib/search-params";
+import { todayIso } from "@/lib/dates";
 import { formatBrl, formatDateRange } from "@/lib/format";
 import { SearchSection } from "@/components/search/SearchSection";
 import { DestinationPicker } from "@/components/search/DestinationPicker";
@@ -27,12 +28,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-
-function todayIso(offsetDays = 0) {
-  const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().slice(0, 10);
-}
 
 export function SearchPage() {
   const { data: meta, isLoading } = useMeta();

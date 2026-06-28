@@ -17,13 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { todayIso } from "@/lib/dates";
 import { formatDateRange, pluralize } from "@/lib/format";
-
-function todayIso(offsetDays = 0) {
-  const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().slice(0, 10);
-}
 
 export function BestWindowsPage() {
   const { data: meta, isLoading: loadingMeta } = useMeta();

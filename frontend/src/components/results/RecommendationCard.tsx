@@ -9,16 +9,10 @@ import { ScoreComposition } from "@/components/shared/ScoreComposition";
 import { FavoriteButton } from "@/components/shared/FavoriteButton";
 import { Flag } from "@/components/shared/Flag";
 import { favoriteContextFromParams } from "@/lib/favorites";
+import { destinationPhotoUrl } from "@/lib/destination-image";
 import { formatExchange } from "@/lib/format";
 import { ease } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-
-/** O `imageUrl` do país na Wikipedia costuma ser só a bandeira — rejeitar esses casos. */
-function isLikelyFlag(url?: string | null) {
-  if (!url) return true;
-  const u = url.toLowerCase();
-  return u.includes("flag") || u.endsWith(".svg");
-}
 
 function CardBanner({
   recommendation,
@@ -126,9 +120,7 @@ export function RecommendationCard({
   const { data: cityPhoto } = useDestinationImage(
     feasibility?.destination.name,
   );
-  const backendPhoto = !isLikelyFlag(profile.imageUrl)
-    ? profile.imageUrl
-    : null;
+  const backendPhoto = destinationPhotoUrl(profile?.imageUrl);
   const photoUrl = cityPhoto ?? backendPhoto ?? null;
   // Distância já aparece no contraponto "Viagem longa: ~X km" — não repetir na linha de metadados.
   const distanceInTradeoff = recommendation.tradeoffs.some((t) =>

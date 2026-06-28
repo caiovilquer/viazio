@@ -10,7 +10,6 @@ public class Exchange {
     this.valueInReais = valueInReais;
   }
 
-  // Getters padrão
   public String getCurrency() {
     return currency;
   }

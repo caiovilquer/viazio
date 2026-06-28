@@ -19,4 +19,18 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/d3-") || id.includes("node_modules/topojson")) {
+            return "map-vendor";
+          }
+          if (id.includes("node_modules/framer-motion")) {
+            return "motion-vendor";
+          }
+        },
+      },
+    },
+  },
 });

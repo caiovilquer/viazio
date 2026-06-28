@@ -15,7 +15,7 @@ import type {
   TravelRecommendation,
 } from "@/api/types";
 import { useWorldLand } from "@/api/worldLand";
-import { scoreTierColor } from "@/components/shared/ScoreRing";
+import { scoreTierColor } from "@/lib/format";
 import { scoreTone, formatInOriginCurrency } from "@/lib/format";
 import { Flag } from "@/components/shared/Flag";
 import { Button } from "@/components/ui/button";

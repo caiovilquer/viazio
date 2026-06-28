@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "8080:8080"
+
+  frontend:
+    profiles: ["full"]
+    image: node:22-bookworm-slim
+    working_dir: /workspace/frontend
+    volumes:
+      - .:/workspace
+    command: >
+      sh -c "corepack enable &&
+             corepack prepare pnpm@latest --activate &&
+             pnpm install &&
+             pnpm dev --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend

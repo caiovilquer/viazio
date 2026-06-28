@@ -13,7 +13,7 @@ default:
     paths:
       - .m2/repository
 
-test:
+test-backend:
   stage: test
   script:
     - ./mvnw -B clean test
@@ -24,10 +24,28 @@ test:
       junit:
         - target/surefire-reports/TEST-*.xml
 
+test-frontend:
+  stage: test
+  image: node:22-bookworm-slim
+  cache:
+    key: pnpm-frontend
+    paths:
+      - frontend/node_modules
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest --activate
+  script:
+    - cd frontend
+    - pnpm install
+    - pnpm lint
+    - pnpm test
+    - pnpm build
+
 package:
   stage: package
   needs:
-    - test
+    - test-backend
+    - test-frontend
   script:
     - ./mvnw -B -DskipTests package
   artifacts:

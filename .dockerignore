@@ -5,6 +5,9 @@
 .vscode
 .cursor
 target
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
 *.log
 docs
 README.md

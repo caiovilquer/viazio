@@ -6,8 +6,9 @@ import type {
 } from "@/api/types";
 import { searchParamsToCriteria } from "@/lib/search-params";
 
-const STORAGE_KEY = "feriadao:favorites";
-const CHANGE_EVENT = "feriadao:favorites-changed";
+const STORAGE_KEY = "viazio:favorites";
+const LEGACY_STORAGE_KEY = "feriadao:favorites";
+const CHANGE_EVENT = "viazio:favorites-changed";
 
 /** Contexto de busca em que o destino foi salvo — para exibir e,
  *  ao comparar favoritos, re-pontuar numa janela comum. */
@@ -51,7 +52,15 @@ let cachedList: FavoriteEntry[] = [];
 
 function readStorage(): string | null {
   try {
-    return localStorage.getItem(STORAGE_KEY);
+    const current = localStorage.getItem(STORAGE_KEY);
+    if (current != null) return current;
+
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy == null) return null;
+
+    localStorage.setItem(STORAGE_KEY, legacy);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+    return legacy;
   } catch {
     return null;
   }

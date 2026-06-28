@@ -4,8 +4,11 @@ import type {
   TravelRecommendation,
 } from "@/api/types";
 
-// Espelha TravelRecommendationEngine.buildRecommendation (backend) para que mudanças de peso
-// possam ser pré-visualizadas instantaneamente no cliente, sem nova busca dos candidatos já carregados.
+/**
+ * Pré-visualização de UX: espelha a fórmula de `TravelRecommendationEngine.buildRecommendation`
+ * no cliente para reordenar candidatos já carregados ao ajustar pesos/perfil, sem nova
+ * chamada à API. Não é regra de domínio — o ranking oficial continua sendo o do backend.
+ */
 const DESTINATION_SHARE = 0.8;
 const WINDOW_SHARE = 0.2;
 const MIN_CONFIDENCE_MULTIPLIER = 0.75;

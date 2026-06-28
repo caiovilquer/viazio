@@ -1,32 +1,28 @@
-# React + TypeScript + Vite
+# Viazio (frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interface web do **Planejador de Feriadões**, consumindo exclusivamente a API REST versionada (`/api/v1`) do backend Spring Boot.
 
-Currently, two official plugins are available:
+## Pré-requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- [Node.js](https://nodejs.org/) 20+
+- [pnpm](https://pnpm.io/)
+- Backend rodando em `http://localhost:8080`
 
-## React Compiler
+## Comandos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+pnpm install   # instalar dependências
+pnpm dev       # servidor de desenvolvimento (porta 5173)
+pnpm build     # build de produção (tsc + vite build)
+pnpm lint      # oxlint
+pnpm test      # vitest (unitários)
+pnpm preview   # servir o build localmente
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+O Vite faz proxy de `/api` para o backend. O CORS já permite `http://localhost:5173` (`app.cors.allowed-origins`).
+
+## Stack
+
+Vite, React 19, TypeScript, Tailwind CSS v4, shadcn/ui (componentes customizados), TanStack Query, React Router v7, Framer Motion.
+
+Instruções completas do projeto (backend, testes, Docker, CI) estão no [README raiz](../README.md).

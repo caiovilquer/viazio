@@ -1,5 +1,5 @@
 import type { ScoredCriterion } from "@/api/types";
-import { scoreTierColor } from "./ScoreRing";
+import { scoreTierColor } from "@/lib/format";
 import { scoreTone } from "@/lib/format";
 import { cn } from "@/lib/utils";
 

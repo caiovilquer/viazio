@@ -25,6 +25,8 @@ import type {
 import { criteriaToRequest, searchParamsToCriteria } from "@/lib/search-params";
 import { winnerIndices, type WinnerDirection } from "@/lib/compare";
 import { type FavoriteEntry } from "@/lib/favorites";
+import { todayIso } from "@/lib/dates";
+import { destinationPhotoUrl } from "@/lib/destination-image";
 import {
   formatDateRange,
   formatExchange,
@@ -49,19 +51,6 @@ import {
 } from "@/components/ui/select";
 import { ease, spring } from "@/lib/motion";
 import { cn } from "@/lib/utils";
-
-function todayIso(offsetDays = 0) {
-  const d = new Date();
-  d.setDate(d.getDate() + offsetDays);
-  return d.toISOString().slice(0, 10);
-}
-
-/** O `imageUrl` do país na Wikipedia costuma ser só a bandeira — rejeitar esses casos. */
-function isLikelyFlag(url?: string | null) {
-  if (!url) return true;
-  const u = url.toLowerCase();
-  return u.includes("flag") || u.endsWith(".svg");
-}
 
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
 
@@ -868,9 +857,7 @@ function CompareCard({
 }) {
   const photoCity = rec.feasibility?.destination.name ?? rec.countryName;
   const { data: cityPhoto } = useDestinationImage(photoCity, 1280);
-  const backendPhoto = !isLikelyFlag(rec.profile.imageUrl)
-    ? rec.profile.imageUrl
-    : null;
+  const backendPhoto = destinationPhotoUrl(rec.profile?.imageUrl);
   const photoUrl = cityPhoto ?? backendPhoto ?? null;
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);

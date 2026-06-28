@@ -209,7 +209,7 @@ A distribuição é reproduzível por:
 
 ## 9. Estratégia de testes
 
-A suíte padrão possui 191 testes sem rede:
+A suíte padrão possui **196 testes backend sem rede** (201 com o perfil Maven `integration`):
 
 - unitários para serviços, estratégias, filtros, cálculos e decorators;
 - testes MVC para contratos, validação, CORS, erros e headers;

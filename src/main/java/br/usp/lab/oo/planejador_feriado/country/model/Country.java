@@ -221,8 +221,6 @@ public class Country {
     );
   }
 
-  // Getters padrão
-
   public String getName() {
     return name;
   }
