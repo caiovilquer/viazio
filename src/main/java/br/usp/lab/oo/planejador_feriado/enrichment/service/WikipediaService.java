@@ -69,7 +69,8 @@ public class WikipediaService {
     if (extract == null || extract.isBlank()) return extract;
     return extract
       .replaceAll("\\(\\s*\\)", "") // "()" ou "( )"
-      .replaceAll("\\s*\\)\\s*([,;])", "$1") // " ) ," → ","
+      .replaceAll("\\s*\\)\\s*([,;\\.])", "$1") // " ) ," → ","
+      .replaceAll("^([^()]+?)\\s*\\)\\s*", "$1 ")
       .replaceAll("^\\s*\\)\\s*", "") // ")" solto no início
       .replaceAll(" {2,}", " ") // espaços duplos
       .trim();
