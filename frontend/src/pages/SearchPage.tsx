@@ -1,10 +1,13 @@
-import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useMeta } from "@/api/queries";
 import type { CriterionKey, ProfileKey, Region } from "@/api/types";
 import {
+  criteriaToFormState,
   criteriaToSearchParams,
+  DEFAULT_FORM_WEIGHTS,
+  searchParamsToCriteria,
   type SearchCriteria,
 } from "@/lib/search-params";
 import { todayIso } from "@/lib/dates";
@@ -29,26 +32,73 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
+function readFormFromParams(params: URLSearchParams) {
+  const criteria = searchParamsToCriteria(params);
+  return criteria ? criteriaToFormState(criteria) : null;
+}
+
 export function SearchPage() {
   const { data: meta, isLoading } = useMeta();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [from, setFrom] = useState(todayIso(14));
-  const [to, setTo] = useState(todayIso(18));
-  const [originCountry, setOriginCountry] = useState("BR");
-  const [originCity, setOriginCity] = useState<string | undefined>(undefined);
-  const [region, setRegion] = useState<Region | null>(null);
-  const [countries, setCountries] = useState<string[]>([]);
-  const [profile, setProfile] = useState<ProfileKey | null>("equilibrado");
-  const [customWeights, setCustomWeights] = useState(false);
-  const [weights, setWeights] = useState<Record<CriterionKey, number>>({
-    weather: 0.25,
-    cost: 0.25,
-    distance: 0.25,
-    festivities: 0.25,
-  });
-  const [travelers, setTravelers] = useState(1);
-  const [maxBudget, setMaxBudget] = useState("");
+  const [from, setFrom] = useState(
+    () => readFormFromParams(searchParams)?.from ?? todayIso(14),
+  );
+  const [to, setTo] = useState(
+    () => readFormFromParams(searchParams)?.to ?? todayIso(18),
+  );
+  const [originCountry, setOriginCountry] = useState(
+    () => readFormFromParams(searchParams)?.originCountry ?? "BR",
+  );
+  const [originCity, setOriginCity] = useState<string | undefined>(
+    () => readFormFromParams(searchParams)?.originCity,
+  );
+  const [region, setRegion] = useState<Region | null>(
+    () => readFormFromParams(searchParams)?.region ?? null,
+  );
+  const [countries, setCountries] = useState<string[]>(
+    () => readFormFromParams(searchParams)?.countries ?? [],
+  );
+  const [profile, setProfile] = useState<ProfileKey | null>(
+    () => readFormFromParams(searchParams)?.profile ?? "equilibrado",
+  );
+  const [customWeights, setCustomWeights] = useState(
+    () => readFormFromParams(searchParams)?.customWeights ?? false,
+  );
+  const [weights, setWeights] = useState<Record<CriterionKey, number>>(
+    () => readFormFromParams(searchParams)?.weights ?? DEFAULT_FORM_WEIGHTS,
+  );
+  const [travelers, setTravelers] = useState(
+    () => readFormFromParams(searchParams)?.travelers ?? 1,
+  );
+  const [maxBudget, setMaxBudget] = useState(
+    () => readFormFromParams(searchParams)?.maxBudget ?? "",
+  );
+
+  const paramsKey = searchParams.toString();
+
+  useEffect(() => {
+    const form = readFormFromParams(new URLSearchParams(paramsKey));
+    if (!form) return;
+    setFrom(form.from);
+    setTo(form.to);
+    setOriginCountry(form.originCountry);
+    setOriginCity(form.originCity);
+    setRegion(form.region);
+    setCountries(form.countries);
+    setProfile(form.profile);
+    setCustomWeights(form.customWeights);
+    setWeights(form.weights);
+    setTravelers(form.travelers);
+    setMaxBudget(form.maxBudget);
+  }, [paramsKey]);
+
+  useEffect(() => {
+    if (!meta || customWeights || !profile) return;
+    const preset = meta.profiles.find((p) => p.key === profile);
+    if (preset) setWeights(preset.weights);
+  }, [meta, customWeights, profile]);
 
   const originCountryOption = meta?.countries.find(
     (c) => c.code === originCountry,

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildSearchPageHref,
+  criteriaToFormState,
   criteriaToSearchParams,
   searchParamsToCriteria,
   type SearchCriteria,
@@ -36,5 +38,30 @@ describe("search-params", () => {
     expect(searchParamsToCriteria(new URLSearchParams("from=2026-01-01"))).toBe(
       null,
     );
+  });
+
+  it("converte critérios para estado do formulário de busca", () => {
+    const params = criteriaToSearchParams({
+      ...baseCriteria,
+      profile: null,
+      weights: { weather: 0.5, cost: 0.2, distance: 0.2, festivities: 0.1 },
+    });
+    const criteria = searchParamsToCriteria(params)!;
+    const form = criteriaToFormState(criteria);
+
+    expect(form.from).toBe("2026-09-04");
+    expect(form.countries).toEqual(["AR", "CL"]);
+    expect(form.customWeights).toBe(true);
+    expect(form.profile).toBeNull();
+    expect(form.weights.weather).toBe(0.5);
+    expect(form.travelers).toBe(2);
+    expect(form.maxBudget).toBe("5000");
+    expect(form.originCountry).toBe("BR");
+  });
+
+  it("monta link de ajustar busca com query string", () => {
+    const params = criteriaToSearchParams(baseCriteria);
+    expect(buildSearchPageHref(params)).toBe(`/buscar?${params.toString()}`);
+    expect(buildSearchPageHref(new URLSearchParams())).toBe("/buscar");
   });
 });

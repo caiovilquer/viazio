@@ -19,6 +19,7 @@ import type {
   TravelRecommendation,
 } from "@/api/types";
 import {
+  buildSearchPageHref,
   criteriaToRequest,
   criteriaToSearchParams,
   searchParamsToCriteria,
@@ -191,6 +192,8 @@ export function ResultsPage() {
     }
   }
 
+  const adjustSearchHref = buildSearchPageHref(params);
+
   if (!criteria) {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
@@ -253,7 +256,7 @@ export function ResultsPage() {
             size="sm"
             className="gap-2 rounded-full"
           >
-            <Link to="/buscar">
+            <Link to={adjustSearchHref}>
               <SlidersHorizontal className="size-3.5" />
               Ajustar busca
             </Link>
@@ -375,7 +378,7 @@ export function ResultsPage() {
             região ou o período.
           </p>
           <Button asChild variant="outline" className="rounded-full">
-            <Link to="/buscar">Ajustar busca</Link>
+            <Link to={adjustSearchHref}>Ajustar busca</Link>
           </Button>
         </div>
       )}

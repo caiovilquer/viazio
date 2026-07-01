@@ -18,6 +18,57 @@ export interface SearchCriteria {
   maxGroundBudgetBrl?: number;
 }
 
+export const DEFAULT_FORM_WEIGHTS: Record<CriterionKey, number> = {
+  weather: 0.25,
+  cost: 0.25,
+  distance: 0.25,
+  festivities: 0.25,
+};
+
+export interface SearchFormState {
+  from: string;
+  to: string;
+  originCountry: string;
+  originCity: string | undefined;
+  region: Region | null;
+  countries: string[];
+  profile: ProfileKey | null;
+  customWeights: boolean;
+  weights: Record<CriterionKey, number>;
+  travelers: number;
+  maxBudget: string;
+}
+
+/** Converte critérios da URL para o estado do formulário em `/buscar`. */
+export function criteriaToFormState(criteria: SearchCriteria): SearchFormState {
+  const customWeights =
+    criteria.profile === null && Object.keys(criteria.weights).length > 0;
+
+  return {
+    from: criteria.from,
+    to: criteria.to,
+    originCountry: criteria.origin.countryCode ?? "BR",
+    originCity: criteria.origin.city,
+    region: criteria.region,
+    countries: [...criteria.countries],
+    profile: customWeights ? null : (criteria.profile ?? "equilibrado"),
+    customWeights,
+    weights: customWeights
+      ? { ...DEFAULT_FORM_WEIGHTS, ...criteria.weights }
+      : { ...DEFAULT_FORM_WEIGHTS },
+    travelers: criteria.travelers,
+    maxBudget: criteria.maxGroundBudgetBrl
+      ? String(criteria.maxGroundBudgetBrl)
+      : "",
+  };
+}
+
+/** Link para `/buscar` com os mesmos filtros da busca atual. */
+export function buildSearchPageHref(params: URLSearchParams): string {
+  const qs = params.toString();
+  return qs ? `/buscar?${qs}` : "/buscar";
+}
+
 export function criteriaToSearchParams(
   criteria: SearchCriteria,
 ): URLSearchParams {
