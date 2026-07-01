@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -5,7 +6,8 @@ import { useMeta } from "@/api/queries";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/shared/Reveal";
 import { HeroProductPreview } from "@/components/landing/HeroProductPreview";
-import { DecisionEngine } from "@/components/landing/DecisionEngine";
+import { ProductJourney } from "@/components/landing/ProductJourney";
+import { RouteProgress } from "@/components/landing/RouteProgress";
 import { WorkedExample } from "@/components/landing/WorkedExample";
 import { ComparisonShowdown } from "@/components/landing/ComparisonShowdown";
 import { DataSourcesPanel } from "@/components/landing/DataSourcesPanel";
@@ -93,11 +95,17 @@ export function LandingPage() {
   const { data: meta } = useMeta();
   const dataSources = meta?.dataSources ?? dataSourcesFallback;
   const [comparisonA, comparisonB] = landingExampleRecommendations;
+  const pageRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="overflow-hidden">
-      {/* ───────── Hero — produto, não slogan ───────── */}
-      <section className="relative px-4 pb-20 pt-20 sm:pt-28">
+    <div ref={pageRef} className="relative">
+      <RouteProgress containerRef={pageRef} />
+
+      {/* ───────── Hero — produto, não slogan ─────────
+          overflow-hidden fica só aqui (não no container inteiro): a seção de
+          demonstração mais abaixo depende de `position: sticky`, que um
+          ancestral com overflow não-visible quebraria. */}
+      <section className="relative overflow-hidden px-4 pb-20 pt-20 sm:pt-28">
         <HeroRoute />
 
         <motion.div
@@ -168,18 +176,9 @@ export function LandingPage() {
         </motion.div>
       </section>
 
-      {/* ───────── Como o Viazio decide ───────── */}
-      <section className="px-4 py-16 sm:py-24">
-        <div className="mx-auto max-w-3xl">
-          <SectionHeading
-            kicker="O motor por trás da nota"
-            title="Quatro critérios decidem cada nota — não achismo"
-            description="Cada destino pontua de 0 a 100 em cada critério. A nota final é a soma ponderada, e cada peso é visível e ajustável na busca."
-          />
-          <div className="mt-10">
-            <DecisionEngine />
-          </div>
-        </div>
+      {/* ───────── Demonstração — o produto de verdade, amarrado ao scroll ───────── */}
+      <section className="relative py-16 sm:py-24">
+        <ProductJourney />
       </section>
 
       {/* ───────── Exemplo real de recomendação ───────── */}

@@ -74,31 +74,20 @@ const notIncluded = [
   "visto, vacinas e demais requisitos de entrada",
 ];
 
-const costUnavailable = {
-  criterion: "cost" as const,
-  label: "Custo de vida",
-  icon: "💰",
-  available: false,
-  score: 0,
-  weight: 0,
-  contribution: 0,
-  justification: "Custo de vida indisponível para o destino",
-};
-
 /** Cópia congelada de `RecommendationResponse.recommendations` para essa janela. */
 export const landingExampleRecommendations: TravelRecommendation[] = [
   {
     countryCode: "CL",
     countryName: "Chile",
-    destinationScore: 82.3,
+    destinationScore: 72.9,
     windowScore: 65.0,
-    tripScore: 73.9,
+    tripScore: 71.3,
     dataQuality: {
-      coverage: 0.8,
-      confidenceScore: 75.0,
-      availableCriteria: 3,
+      coverage: 1.0,
+      confidenceScore: 100.0,
+      availableCriteria: 4,
       totalCriteria: 4,
-      missingCriteria: ["cost"],
+      missingCriteria: [],
     },
     breakdown: [
       {
@@ -107,8 +96,8 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "☀️",
         available: true,
         score: 88.7,
-        weight: 0.333,
-        contribution: 29.6,
+        weight: 0.25,
+        contribution: 22.2,
         justification: "Clima ótimo: ~16°C, tempo seco (climatologia, 10 anos)",
       },
       {
@@ -117,8 +106,8 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "✈️",
         available: true,
         score: 83.3,
-        weight: 0.333,
-        contribution: 27.8,
+        weight: 0.25,
+        contribution: 20.8,
         justification: "Pertinho: ~3.011 km da origem",
       },
       {
@@ -127,21 +116,33 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "🎊",
         available: true,
         score: 75.0,
-        weight: 0.333,
-        contribution: 25.0,
+        weight: 0.25,
+        contribution: 18.8,
         justification:
           "1 feriado(s) nacionais: Columbus Day; oportunidade cultural com possível alteração de horários",
       },
-      costUnavailable,
+      {
+        criterion: "cost",
+        label: "Custo de vida",
+        icon: "💰",
+        available: true,
+        score: 44.5,
+        weight: 0.25,
+        contribution: 11.1,
+        justification:
+          "Mais caro: nível de preços ~111% da origem (dados 2025/2025)",
+      },
     ],
     highlights: [
       "clima ótimo",
       "deslocamento geográfico menor",
       "calendário local interessante",
     ],
-    tradeoffs: ["Custo de vida: dado indisponível"],
+    tradeoffs: [
+      "Mais caro: nível de preços ~111% da origem (dados 2025/2025)",
+    ],
     summary:
-      "Chile — nota de viagem 74: clima ótimo, deslocamento geográfico menor, calendário local interessante; confiança 75%",
+      "Chile — nota de viagem 71: clima ótimo, deslocamento geográfico menor, calendário local interessante; confiança 100%",
     exchangeToBrl: { currency: "CLP", valueInReais: 0.005606 },
     profile: {
       flagEmoji: "🇨🇱",
@@ -189,15 +190,15 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
   {
     countryCode: "AR",
     countryName: "Argentina",
-    destinationScore: 79.9,
+    destinationScore: 72.9,
     windowScore: 65.0,
-    tripScore: 72.1,
+    tripScore: 71.3,
     dataQuality: {
-      coverage: 0.8,
-      confidenceScore: 75.0,
-      availableCriteria: 3,
+      coverage: 1.0,
+      confidenceScore: 100.0,
+      availableCriteria: 4,
       totalCriteria: 4,
-      missingCriteria: ["cost"],
+      missingCriteria: [],
     },
     breakdown: [
       {
@@ -206,8 +207,8 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "✈️",
         available: true,
         score: 87.0,
-        weight: 0.333,
-        contribution: 29.0,
+        weight: 0.25,
+        contribution: 21.8,
         justification: "Pertinho: ~2.339 km da origem",
       },
       {
@@ -216,8 +217,8 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "☀️",
         available: true,
         score: 77.6,
-        weight: 0.333,
-        contribution: 25.9,
+        weight: 0.25,
+        contribution: 19.4,
         justification:
           "Clima agradável: ~17°C, chuva ocasional (climatologia, 10 anos)",
       },
@@ -227,21 +228,32 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "🎊",
         available: true,
         score: 75.0,
-        weight: 0.333,
-        contribution: 25.0,
+        weight: 0.25,
+        contribution: 18.8,
         justification:
           "1 feriado(s) nacionais: Day of Respect for Cultural Diversity; oportunidade cultural com possível alteração de horários",
       },
-      costUnavailable,
+      {
+        criterion: "cost",
+        label: "Custo de vida",
+        icon: "💰",
+        available: true,
+        score: 52.0,
+        weight: 0.25,
+        contribution: 13.0,
+        justification:
+          "Custo parecido: nível de preços ~96% da origem (dados 2025/2025)",
+      },
     ],
     highlights: [
       "deslocamento geográfico menor",
       "clima agradável",
       "calendário local interessante",
     ],
-    tradeoffs: ["Custo de vida: dado indisponível"],
+    // Custo perto do da origem — não é destaque nem contraponto, só contribui no cálculo.
+    tradeoffs: [],
     summary:
-      "Argentina — nota de viagem 72: deslocamento geográfico menor, clima agradável, calendário local interessante; confiança 75%",
+      "Argentina — nota de viagem 71: deslocamento geográfico menor, clima agradável, calendário local interessante; confiança 100%",
     exchangeToBrl: { currency: "ARS", valueInReais: 0.00348903 },
     profile: {
       flagEmoji: "🇦🇷",
@@ -289,15 +301,15 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
   {
     countryCode: "UY",
     countryName: "Uruguai",
-    destinationScore: 79.7,
+    destinationScore: 65.1,
     windowScore: 65.0,
-    tripScore: 72.0,
+    tripScore: 65.0,
     dataQuality: {
-      coverage: 0.8,
-      confidenceScore: 75.0,
-      availableCriteria: 3,
+      coverage: 1.0,
+      confidenceScore: 100.0,
+      availableCriteria: 4,
       totalCriteria: 4,
-      missingCriteria: ["cost"],
+      missingCriteria: [],
     },
     breakdown: [
       {
@@ -306,8 +318,8 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "✈️",
         available: true,
         score: 87.3,
-        weight: 0.333,
-        contribution: 29.1,
+        weight: 0.25,
+        contribution: 21.8,
         justification: "Pertinho: ~2.281 km da origem",
       },
       {
@@ -316,8 +328,8 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "☀️",
         available: true,
         score: 76.9,
-        weight: 0.333,
-        contribution: 25.6,
+        weight: 0.25,
+        contribution: 19.2,
         justification:
           "Clima agradável: ~16°C, chuva ocasional (climatologia, 10 anos)",
       },
@@ -327,21 +339,33 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
         icon: "🎊",
         available: true,
         score: 75.0,
-        weight: 0.333,
-        contribution: 25.0,
+        weight: 0.25,
+        contribution: 18.8,
         justification:
           "1 feriado(s) nacionais: Day of the race; oportunidade cultural com possível alteração de horários",
       },
-      costUnavailable,
+      {
+        criterion: "cost",
+        label: "Custo de vida",
+        icon: "💰",
+        available: true,
+        score: 21.0,
+        weight: 0.25,
+        contribution: 5.3,
+        justification:
+          "Bem mais caro: nível de preços ~158% da origem (dados 2024/2025)",
+      },
     ],
     highlights: [
       "deslocamento geográfico menor",
       "clima agradável",
       "calendário local interessante",
     ],
-    tradeoffs: ["Custo de vida: dado indisponível"],
+    tradeoffs: [
+      "Bem mais caro: nível de preços ~158% da origem (dados 2024/2025)",
+    ],
     summary:
-      "Uruguai — nota de viagem 72: deslocamento geográfico menor, clima agradável, calendário local interessante; confiança 75%",
+      "Uruguai — nota de viagem 65: deslocamento geográfico menor, clima agradável, calendário local interessante; confiança 100%",
     exchangeToBrl: { currency: "UYU", valueInReais: 0.1271955 },
     profile: {
       flagEmoji: "🇺🇾",

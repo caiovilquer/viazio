@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { AlertTriangle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Flag } from "@/components/shared/Flag";
 import { Reveal } from "@/components/shared/Reveal";
 import { ScoreRing } from "@/components/shared/ScoreRing";
 import { ScoreComposition } from "@/components/shared/ScoreComposition";
+import { DestinationTags } from "@/components/shared/DestinationTags";
 import { Button } from "@/components/ui/button";
 import {
   demoWindow,
@@ -68,7 +69,7 @@ export function WorkedExample() {
                 to={landingExampleHref(dest.countryCode)}
                 className="group block overflow-hidden rounded-2xl border border-hairline bg-surface/60 p-4 elevate transition-[border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-gold/25 sm:p-5"
               >
-                <div className="flex items-start gap-3.5 sm:gap-4">
+                <div className="flex items-start gap-3 sm:gap-4">
                   <span className="mt-1 inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-hairline bg-surface-2 font-display text-xs text-muted-foreground">
                     {i + 1}
                   </span>
@@ -77,40 +78,33 @@ export function WorkedExample() {
                     className="mt-1 h-6 w-9 shrink-0 rounded-[5px]"
                   />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="font-display text-lg tracking-tight">
-                        {dest.countryName}
-                      </p>
-                      {(distanceKm != null || exchangeLabel) && (
-                        <span className="hidden text-xs text-muted-foreground sm:inline">
-                          {distanceKm != null &&
-                            `${Math.round(distanceKm).toLocaleString("pt-BR")} km`}
-                          {distanceKm != null && exchangeLabel && " · "}
-                          {exchangeLabel}
-                        </span>
-                      )}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate font-display text-lg tracking-tight">
+                          {dest.countryName}
+                        </p>
+                        {(distanceKm != null || exchangeLabel) && (
+                          <p className="mt-0.5 text-xs text-muted-foreground">
+                            {distanceKm != null &&
+                              `${Math.round(distanceKm).toLocaleString("pt-BR")} km`}
+                            {distanceKm != null && exchangeLabel && " · "}
+                            {exchangeLabel}
+                          </p>
+                        )}
+                      </div>
+                      <ScoreRing
+                        score={dest.tripScore}
+                        size={44}
+                        strokeWidth={5}
+                        className="shrink-0 sm:hidden"
+                      />
                     </div>
 
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {dest.highlights.slice(0, 2).map((h) => (
-                        <span
-                          key={h}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-2/60 px-2.5 py-0.5 text-xs text-foreground/85"
-                        >
-                          <span className="size-1 rounded-full bg-gold/80" />
-                          {h}
-                        </span>
-                      ))}
-                      {dest.tradeoffs.slice(0, 1).map((t) => (
-                        <span
-                          key={t}
-                          className="inline-flex items-center gap-1 rounded-full border border-chart-3/25 bg-chart-3/10 px-2.5 py-0.5 text-xs text-chart-3"
-                        >
-                          <AlertTriangle className="size-3" />
-                          {t}
-                        </span>
-                      ))}
-                    </div>
+                    <DestinationTags
+                      highlights={dest.highlights}
+                      tradeoffs={dest.tradeoffs}
+                      className="mt-2.5"
+                    />
 
                     <ScoreComposition
                       breakdown={dest.breakdown}
@@ -123,7 +117,7 @@ export function WorkedExample() {
                     score={dest.tripScore}
                     size={48}
                     strokeWidth={5}
-                    className="mt-1 shrink-0"
+                    className="mt-1 hidden shrink-0 sm:flex"
                   />
                 </div>
               </Link>

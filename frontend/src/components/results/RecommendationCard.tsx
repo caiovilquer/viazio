@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Check, AlertTriangle } from "lucide-react";
+import { Check } from "lucide-react";
 import type { Exchange, TravelRecommendation } from "@/api/types";
 import { useDestinationImage } from "@/api/images";
 import { ScoreRing } from "@/components/shared/ScoreRing";
 import { ScoreComposition } from "@/components/shared/ScoreComposition";
+import { DestinationTags } from "@/components/shared/DestinationTags";
 import { FavoriteButton } from "@/components/shared/FavoriteButton";
 import { Flag } from "@/components/shared/Flag";
 import { favoriteContextFromParams } from "@/lib/favorites";
@@ -124,34 +125,13 @@ export function RecommendationCard({
     <>
       <CardBanner recommendation={recommendation} photoUrl={photoUrl} />
 
-      <div className="space-y-3.5 p-5">
+      <div className="space-y-3 p-4 sm:space-y-3.5 sm:p-5">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
-            {recommendation.highlights.slice(0, 2).map((h) => (
-              <span
-                key={h}
-                className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-surface-2/60 px-2.5 py-0.5 text-xs text-foreground/85"
-              >
-                <span className="size-1 rounded-full bg-gold/80" />
-                {h}
-              </span>
-            ))}
-            {recommendation.tradeoffs.slice(0, 1).map((t) => (
-              <span
-                key={t}
-                className="inline-flex items-center gap-1 rounded-full border border-chart-3/25 bg-chart-3/10 px-2.5 py-0.5 text-xs text-chart-3"
-              >
-                <AlertTriangle className="size-3" />
-                {t}
-              </span>
-            ))}
-            {recommendation.highlights.length === 0 &&
-              recommendation.tradeoffs.length === 0 && (
-                <span className="text-sm text-muted-foreground">
-                  Destino tranquilo, sem grandes destaques.
-                </span>
-              )}
-          </div>
+          <DestinationTags
+            highlights={recommendation.highlights}
+            tradeoffs={recommendation.tradeoffs}
+            className="min-w-0 flex-1"
+          />
           <ScoreRing
             score={recommendation.tripScore}
             size={48}
