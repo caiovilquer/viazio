@@ -14,7 +14,7 @@ const scoredRows: EngineRow[] = [
     label: "Clima",
     tag: "peso 25%",
     description:
-      "Temperatura média e chance de chuva no período exato da viagem — previsão de até 16 dias, climatologia histórica além disso.",
+      "Temperatura média e chance de chuva no período exato da viagem: previsão de até 16 dias, climatologia histórica além disso.",
     source: "Open-Meteo",
   },
   {
@@ -22,7 +22,7 @@ const scoredRows: EngineRow[] = [
     label: "Custo de vida",
     tag: "peso 25%",
     description:
-      "Nível de preços do destino comparado ao Brasil, por paridade de poder de compra — não é só câmbio, é quanto rende o seu real lá.",
+      "Nível de preços do destino comparado ao Brasil, por paridade de poder de compra. Não é só câmbio: é quanto rende o seu real lá.",
     source: "World Bank (PPP)",
   },
   {
@@ -30,7 +30,7 @@ const scoredRows: EngineRow[] = [
     label: "Distância",
     tag: "peso 25%",
     description:
-      "Quilometragem real entre origem e destino, tempo de voo estimado e diferença de fuso horário — viagens curtas pontuam melhor.",
+      "Quilometragem real entre origem e destino, tempo de voo estimado e diferença de fuso horário. Viagens curtas pontuam melhor.",
     source: "Coordenadas Wikidata",
   },
   {
@@ -38,7 +38,7 @@ const scoredRows: EngineRow[] = [
     label: "Festividades",
     tag: "peso 25%",
     description:
-      "Feriados e eventos do destino na mesma janela das suas datas — um destino animado no seu período pontua mais que um fora de época.",
+      "Feriados e eventos do destino na mesma janela das suas datas. Um destino animado no seu período pontua mais que um fora de época.",
     source: "Nager.Date",
   },
 ];
@@ -49,7 +49,7 @@ const contextRows: EngineRow[] = [
     label: "Câmbio",
     tag: "informativo",
     description:
-      "Cotação da moeda local em reais, atualizada diariamente — não entra na nota (o poder de compra já está no custo), mas aparece em cada card.",
+      "Cotação da moeda local em reais, atualizada diariamente. Não entra na nota (o poder de compra já está no custo), mas aparece em cada card.",
     source: "AwesomeAPI",
   },
   {
@@ -57,7 +57,7 @@ const contextRows: EngineRow[] = [
     label: "Confiança dos dados",
     tag: "informativo",
     description:
-      "Quando um critério não tem dado disponível para aquele destino, ele não pontua — e a nota final é descontada pela cobertura, não inflada.",
+      "Quando um critério não tem dado disponível para aquele destino, ele não pontua, e a nota final é descontada pela cobertura, não inflada.",
     source: "Motor Viazio",
   },
 ];

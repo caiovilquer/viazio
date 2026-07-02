@@ -186,7 +186,7 @@ export function ResultsPage() {
     const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Link copiado — compartilhe esta busca.");
+      toast.success("Link copiado. Compartilhe esta busca.");
     } catch {
       toast.error("Não foi possível copiar o link.");
     }

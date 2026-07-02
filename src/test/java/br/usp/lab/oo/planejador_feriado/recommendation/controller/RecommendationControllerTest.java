@@ -85,7 +85,7 @@ class RecommendationControllerTest {
           ),
           List.of("clima agradável"),
           List.of("Custo: dado indisponível"),
-          "Japan — nota de viagem 65: clima agradável",
+          "Japan, nota de viagem 65: clima agradável",
           null,
           null,
           new TripFeasibility(

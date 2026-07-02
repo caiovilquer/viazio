@@ -102,7 +102,7 @@ export function BestWindowsPage() {
         </h1>
         <p className="mt-3 text-muted-foreground">
           A Viazio cruza feriados, pontes e fins de semana pra achar quando
-          poucos dias de férias rendem muitos dias de folga — e os melhores
+          poucos dias de férias rendem muitos dias de folga, e os melhores
           destinos pra cada janela.
         </p>
       </Reveal>

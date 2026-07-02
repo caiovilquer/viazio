@@ -77,7 +77,7 @@ export function FavoritesPage() {
           <div className="max-w-sm space-y-1.5">
             <p className="font-display text-lg">Nada guardado ainda</p>
             <p className="text-sm text-muted-foreground">
-              Conforme você explora, salve os destinos que te chamarem — eles
+              Conforme você explora, salve os destinos que te chamarem. Eles
               ficam aqui prontos para comparar depois.
             </p>
           </div>

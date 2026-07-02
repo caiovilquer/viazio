@@ -142,7 +142,7 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
       "Mais caro: nível de preços ~111% da origem (dados 2025/2025)",
     ],
     summary:
-      "Chile — nota de viagem 71: clima ótimo, deslocamento geográfico menor, calendário local interessante; confiança 100%",
+      "Chile, nota de viagem 71: clima ótimo, deslocamento geográfico menor, calendário local interessante; confiança 100%",
     exchangeToBrl: { currency: "CLP", valueInReais: 0.005606 },
     profile: {
       flagEmoji: "🇨🇱",
@@ -253,7 +253,7 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
     // Custo perto do da origem — não é destaque nem contraponto, só contribui no cálculo.
     tradeoffs: [],
     summary:
-      "Argentina — nota de viagem 71: deslocamento geográfico menor, clima agradável, calendário local interessante; confiança 100%",
+      "Argentina, nota de viagem 71: deslocamento geográfico menor, clima agradável, calendário local interessante; confiança 100%",
     exchangeToBrl: { currency: "ARS", valueInReais: 0.00348903 },
     profile: {
       flagEmoji: "🇦🇷",
@@ -365,7 +365,7 @@ export const landingExampleRecommendations: TravelRecommendation[] = [
       "Bem mais caro: nível de preços ~158% da origem (dados 2024/2025)",
     ],
     summary:
-      "Uruguai — nota de viagem 65: deslocamento geográfico menor, clima agradável, calendário local interessante; confiança 100%",
+      "Uruguai, nota de viagem 65: deslocamento geográfico menor, clima agradável, calendário local interessante; confiança 100%",
     exchangeToBrl: { currency: "UYU", valueInReais: 0.1271955 },
     profile: {
       flagEmoji: "🇺🇾",

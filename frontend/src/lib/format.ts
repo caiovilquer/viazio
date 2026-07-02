@@ -43,7 +43,7 @@ export function describeWindow(window: {
 }) {
   const { totalDays, freeDays, requiredLeaveDays } = window;
   if (requiredLeaveDays <= 0) {
-    return `Os ${totalDays} dias já são livres — sem gastar férias.`;
+    return `Os ${totalDays} dias já são livres, sem gastar férias.`;
   }
   return `${freeDays} de ${totalDays} dias já são livres · requer ${pluralize(
     requiredLeaveDays,

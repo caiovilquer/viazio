@@ -133,7 +133,7 @@ function buildVerdict(
     .map((m) => m.label.toLowerCase());
 
   if (reasons.length === 0) {
-    return `${winner.countryName} tem nota geral ${diff} ${diff === 1 ? "ponto" : "pontos"} acima de ${loser.countryName} nesse período — a diferença vem de festividades e da cobertura de dados, não dos números acima.`;
+    return `${winner.countryName} tem nota geral ${diff} ${diff === 1 ? "ponto" : "pontos"} acima de ${loser.countryName} nesse período. A diferença vem de festividades e da cobertura de dados, não dos números acima.`;
   }
   const reasonsText =
     reasons.length === 1

@@ -10,7 +10,7 @@ export function Footer() {
         <div className="max-w-sm">
           <Link
             to="/"
-            aria-label="Viazio — início"
+            aria-label="Viazio, início"
             className="inline-flex transition-opacity hover:opacity-90"
           >
             <img
@@ -21,7 +21,7 @@ export function Footer() {
           </Link>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             Feriadões que rendem mais. A Viazio cruza clima, câmbio, custo de
-            vida e festividades — e explica, em uma nota clara, qual destino
+            vida e festividades e explica, em uma nota clara, qual destino
             vale a viagem.
           </p>
           <p className="mt-5 flex items-center gap-2.5 text-[0.7rem] font-semibold uppercase tracking-[0.24em] text-gold/80">

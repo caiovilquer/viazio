@@ -133,14 +133,14 @@ const steps: Step[] = [
     kicker: "2 · O motor cruza os dados",
     title: "Clima, custo, câmbio, voo, eventos e chance de chuva",
     description:
-      "Cada destino é avaliado nos mesmos seis sinais, na mesma janela de datas exata da sua viagem — não uma impressão geral.",
+      "Cada destino é avaliado nos mesmos seis sinais, na mesma janela de datas exata da sua viagem, não uma impressão geral.",
   },
   {
     id: "rank",
     kicker: "3 · O ranking aparece",
     title: "Cada destino, com nota final explicada",
     description:
-      "Os destinos saem ordenados pela nota de viagem — soma ponderada dos critérios acima, sempre visível, nunca uma caixa preta.",
+      "Os destinos saem ordenados pela nota de viagem: soma ponderada dos critérios acima, sempre visível, nunca uma caixa preta.",
   },
   {
     id: "explain",

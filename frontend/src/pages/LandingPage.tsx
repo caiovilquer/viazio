@@ -129,8 +129,8 @@ export function LandingPage() {
             className="mx-auto mt-5 max-w-lg text-pretty text-base text-muted-foreground sm:text-lg"
           >
             O Viazio cruza clima, custo de vida, distância e festividades de
-            cada destino na sua janela de folga — e devolve uma nota
-            explicada para cada um, não uma lista de sugestões soltas.
+            cada destino na sua janela de folga e devolve uma nota explicada
+            para cada um, não uma lista de sugestões soltas.
           </motion.p>
 
           <motion.div
@@ -198,7 +198,7 @@ export function LandingPage() {
         <SectionHeading
           kicker="Comparação direta"
           title={`Por que ${comparisonA.countryName} venceu ${comparisonB.countryName}`}
-          description="Mesma janela de viagem, critério por critério — para você ver de onde vem a diferença, não só o resultado final."
+          description="Mesma janela de viagem, critério por critério, para você ver de onde vem a diferença, não só o resultado final."
         />
         <div className="mt-10">
           <ComparisonShowdown />

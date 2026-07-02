@@ -29,7 +29,7 @@ export function DataSourcesPanel({
             Nenhuma nota nasce de achismo
           </p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Cada critério aponta para uma fonte pública específica — sem
+            Cada critério aponta para uma fonte pública específica, sem
             caixa-preta, sem selo decorativo.
           </p>
         </div>

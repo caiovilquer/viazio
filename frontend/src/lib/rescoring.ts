@@ -84,7 +84,7 @@ export function rescoreRecommendation(
     recommendation.highlights.length === 0
       ? "sem destaque dominante"
       : recommendation.highlights.join(", ");
-  const summary = `${recommendation.countryName} — nota de viagem ${Math.round(tripScore)}: ${reasons}; confiança ${Math.round(confidenceScore)}%`;
+  const summary = `${recommendation.countryName}, nota de viagem ${Math.round(tripScore)}: ${reasons}; confiança ${Math.round(confidenceScore)}%`;
 
   return {
     ...recommendation,

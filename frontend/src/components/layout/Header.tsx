@@ -13,7 +13,7 @@ export function Header() {
       <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6">
         <Link
           to="/"
-          aria-label="Viazio — início"
+          aria-label="Viazio, início"
           className="flex items-center transition-opacity hover:opacity-90"
         >
           <img

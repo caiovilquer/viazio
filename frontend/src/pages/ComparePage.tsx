@@ -432,7 +432,7 @@ export function ComparePage() {
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {focusedCode
-            ? "Destacando um destino — toque novamente para limpar."
+            ? "Destacando um destino. Toque novamente para limpar."
             : "Toque num destino para destacá-lo em cada métrica."}
         </p>
       </div>
@@ -451,8 +451,8 @@ export function ComparePage() {
                       Comparando todos na janela{" "}
                       <span className="font-medium text-foreground">
                         {formatDateRange(recompute!.from, recompute!.to)}
-                      </span>{" "}
-                      — agora numa base comum.
+                      </span>
+                      , agora numa base comum.
                     </p>
                   ) : recomputeLoading ? (
                     <p className="text-muted-foreground">
@@ -699,7 +699,7 @@ export function ComparePage() {
       </div>
 
       <p className="mt-5 text-center text-xs text-muted-foreground">
-        Câmbio é informativo e não entra na nota — o poder de compra já está
+        Câmbio é informativo e não entra na nota: o poder de compra já está
         refletido no critério de custo.
         <br />
         Custo terrestre/dia é uma estimativa por PPP (paridade de poder de
@@ -708,7 +708,7 @@ export function ComparePage() {
         {showCostFallbackNote && (
           <>
             <br />
-            Câmbio da origem indisponível — custo exibido em R$.
+            Câmbio da origem indisponível. Custo exibido em R$.
           </>
         )}
       </p>

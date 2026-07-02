@@ -519,7 +519,7 @@ public class TravelRecommendationEngine {
       : String.join(", ", highlights);
     return String.format(
       Locale.ROOT,
-      "%s — nota de viagem %.0f: %s; confiança %.0f%%",
+      "%s, nota de viagem %.0f: %s; confiança %.0f%%",
       countryName,
       score,
       reasons,

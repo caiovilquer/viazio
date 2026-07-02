@@ -189,7 +189,7 @@ export function SearchPage() {
           Monte seu próximo <span className="text-gold-gradient">feriadão</span>
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Cinco passos rápidos — e a Viazio cruza os dados pra explicar cada
+          Cinco passos rápidos, e a Viazio cruza os dados pra explicar cada
           destino.
         </p>
       </Reveal>

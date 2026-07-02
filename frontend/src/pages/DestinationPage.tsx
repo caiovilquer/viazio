@@ -209,7 +209,7 @@ export function DestinationPage() {
                 totalCost
                   ? `≈ ${totalCost.formatted} no total${
                       dailyCost?.showFallbackNote
-                        ? " · câmbio indisponível — valor em R$"
+                        ? " · câmbio indisponível, valor em R$"
                         : ""
                     }`
                   : "Sem estimativa"
@@ -246,7 +246,7 @@ export function DestinationPage() {
                 , enquanto o câmbio é uma cotação de mercado em tempo real. Um
                 pode estar disponível sem o outro.
                 {dailyCost?.showFallbackNote && (
-                  <> Câmbio da origem indisponível — custo exibido em R$.</>
+                  <> Câmbio da origem indisponível. Custo exibido em R$.</>
                 )}
               </p>
             )}
