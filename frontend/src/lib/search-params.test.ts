@@ -74,19 +74,19 @@ describe("search-params", () => {
     const janelasCriteria: JanelasCriteria = {
       ...baseCriteria,
       minDays: 5,
-      region: "europa",
+      region: "Europe",
       countries: [],
     };
     const params = janelasCriteriaToSearchParams(janelasCriteria);
     expect(params.get("minDays")).toBe("5");
-    expect(params.get("region")).toBe("europa");
+    expect(params.get("region")).toBe("Europe");
 
     const parsed = searchParamsToJanelasCriteria(params);
     expect(parsed).toEqual(janelasCriteria);
 
     const query = janelasCriteriaToQuery(janelasCriteria);
     expect(query.minDays).toBe(5);
-    expect(query.region).toBe("europa");
+    expect(query.region).toBe("Europe");
     expect(query.countries).toBeUndefined();
   });
 
