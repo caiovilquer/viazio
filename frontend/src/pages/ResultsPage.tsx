@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import {
   CalendarDays,
   ChevronDown,
@@ -63,6 +63,7 @@ function resolveActiveProfile(
 export function ResultsPage() {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const [criteria] = useState(() => searchParamsToCriteria(params));
   const request = criteria ? criteriaToRequest(criteria) : null;
   const { data, isLoading, isError, error } = useRecommendations(request);
@@ -96,13 +97,18 @@ export function ResultsPage() {
   // favoritar a página reverte silenciosamente ao perfil da busca original.
   useEffect(() => {
     if (!criteria || !liveWeights) return;
+    // O AppShell mantém esta página montada durante a animação de saída
+    // (AnimatePresence mode="wait" + useOutlet); nesse intervalo `setParams`
+    // troca de identidade e o efeito re-dispara já na rota nova — o replace
+    // apagaria a query (ex.: `codes` de /comparar) e o state da navegação.
+    if (pathname !== "/resultados") return;
     const qs = criteriaToSearchParams({
       ...criteria,
       profile: customWeights ? null : activeProfile,
       weights: customWeights ? liveWeights : {},
     });
     setParams(qs, { replace: true });
-  }, [criteria, liveWeights, activeProfile, customWeights, setParams]);
+  }, [criteria, liveWeights, activeProfile, customWeights, setParams, pathname]);
 
   const displayed = useMemo<TravelRecommendation[]>(() => {
     if (!data) return [];
