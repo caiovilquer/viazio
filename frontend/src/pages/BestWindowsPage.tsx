@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { CalendarSearch, Frown } from "lucide-react";
 import { useBestWindows, useMeta } from "@/api/queries";
 import type {
@@ -20,27 +21,82 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { todayIso } from "@/lib/dates";
 import { formatDateRange, pluralize } from "@/lib/format";
-import { criteriaToSearchParams } from "@/lib/search-params";
+import {
+  buildJanelasPageHref,
+  criteriaToSearchParams,
+  DEFAULT_FORM_WEIGHTS,
+  janelasCriteriaToFormState,
+  janelasCriteriaToQuery,
+  janelasCriteriaToSearchParams,
+  searchParamsToJanelasCriteria,
+  type JanelasCriteria,
+} from "@/lib/search-params";
+
+function readJanelasFromParams(params: URLSearchParams) {
+  const criteria = searchParamsToJanelasCriteria(params);
+  if (!criteria) return null;
+  return {
+    form: janelasCriteriaToFormState(criteria),
+    query: janelasCriteriaToQuery(criteria),
+  };
+}
 
 export function BestWindowsPage() {
   const { data: meta, isLoading: loadingMeta } = useMeta();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initial = readJanelasFromParams(searchParams);
 
-  const [from, setFrom] = useState(todayIso());
-  const [to, setTo] = useState(todayIso(330));
-  const [region, setRegion] = useState<Region | null>(null);
-  const [countries, setCountries] = useState<string[]>([]);
-  const [profile, setProfile] = useState<ProfileKey | null>("equilibrado");
-  const [customWeights, setCustomWeights] = useState(false);
-  const [weights, setWeights] = useState<Record<CriterionKey, number>>({
-    weather: 0.25,
-    cost: 0.25,
-    distance: 0.25,
-    festivities: 0.25,
-  });
-  const [minDays, setMinDays] = useState(3);
+  const [from, setFrom] = useState(() => initial?.form.from ?? todayIso());
+  const [to, setTo] = useState(() => initial?.form.to ?? todayIso(330));
+  const [region, setRegion] = useState<Region | null>(
+    () => initial?.form.region ?? null,
+  );
+  const [countries, setCountries] = useState<string[]>(
+    () => initial?.form.countries ?? [],
+  );
+  const [profile, setProfile] = useState<ProfileKey | null>(
+    () => initial?.form.profile ?? "equilibrado",
+  );
+  const [customWeights, setCustomWeights] = useState(
+    () => initial?.form.customWeights ?? false,
+  );
+  const [weights, setWeights] = useState<Record<CriterionKey, number>>(
+    () => initial?.form.weights ?? DEFAULT_FORM_WEIGHTS,
+  );
+  const [minDays, setMinDays] = useState(() => initial?.form.minDays ?? 3);
 
-  const [query, setQuery] = useState<BestWindowsQuery | null>(null);
+  const [query, setQuery] = useState<BestWindowsQuery | null>(
+    () => initial?.query ?? null,
+  );
   const { data, isLoading, isError } = useBestWindows(query);
+
+  const paramsKey = searchParams.toString();
+
+  useEffect(() => {
+    const parsed = readJanelasFromParams(new URLSearchParams(paramsKey));
+    if (!parsed) {
+      setQuery(null);
+      return;
+    }
+    const { form, query: nextQuery } = parsed;
+    setFrom(form.from);
+    setTo(form.to);
+    setRegion(form.region);
+    setCountries(form.countries);
+    setProfile(form.profile);
+    setCustomWeights(form.customWeights);
+    setWeights(form.weights);
+    setMinDays(form.minDays);
+    setQuery(nextQuery);
+  }, [paramsKey]);
+
+  useEffect(() => {
+    if (!meta || customWeights || !profile) return;
+    const preset = meta.profiles.find((p) => p.key === profile);
+    if (preset) setWeights(preset.weights);
+  }, [meta, customWeights, profile]);
+
+  const janelasHref = buildJanelasPageHref(searchParams);
 
   const buildResultsQuery = useCallback(
     (window: Pick<WindowSuggestion, "start" | "end">) =>
@@ -68,18 +124,19 @@ export function BestWindowsPage() {
 
   function handleSubmit() {
     if (!canSubmit) return;
-    setQuery({
+    const criteria: JanelasCriteria = {
       from,
       to,
       minDays,
-      topWindows: 8,
-      destinationsPerWindow: 3,
-      region: region ?? undefined,
-      countries: region ? undefined : countries,
-      profile: customWeights ? undefined : (profile ?? undefined),
-      weights: customWeights ? weights : undefined,
-      originCountry: "BR",
-    });
+      countries: region ? [] : countries,
+      region,
+      profile: customWeights ? null : profile,
+      weights: customWeights ? weights : {},
+      travelers: 1,
+      origin: { countryCode: "BR" },
+    };
+    setSearchParams(janelasCriteriaToSearchParams(criteria), { replace: true });
+    setQuery(janelasCriteriaToQuery(criteria));
   }
 
   if (loadingMeta || !meta) {
@@ -247,6 +304,7 @@ export function BestWindowsPage() {
                 window={window}
                 index={i}
                 searchQuery={buildResultsQuery(window)}
+                janelasHref={janelasHref}
               />
             ))}
           </>

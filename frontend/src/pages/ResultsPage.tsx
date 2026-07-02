@@ -9,6 +9,7 @@ import {
   Map,
   SlidersHorizontal,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMeta, useRecommendations } from "@/api/queries";
@@ -63,7 +64,14 @@ function resolveActiveProfile(
 export function ResultsPage() {
   const [params, setParams] = useSearchParams();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, state: locationState } = useLocation();
+  const returnToJanelas =
+    typeof locationState === "object" &&
+    locationState !== null &&
+    "returnTo" in locationState &&
+    typeof locationState.returnTo === "string"
+      ? locationState.returnTo
+      : null;
   const [criteria] = useState(() => searchParamsToCriteria(params));
   const request = criteria ? criteriaToRequest(criteria) : null;
   const { data, isLoading, isError, error } = useRecommendations(request);
@@ -216,6 +224,15 @@ export function ResultsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 pb-28 lg:py-14">
+      {returnToJanelas && (
+        <Link
+          to={returnToJanelas}
+          className="mb-6 inline-flex items-center gap-1.5 rounded-full border border-hairline glass px-3.5 py-2 text-sm font-medium text-foreground/90 transition-colors hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          Voltar às janelas
+        </Link>
+      )}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-gold/80">

@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildJanelasPageHref,
   buildSearchPageHref,
   criteriaToFormState,
   criteriaToSearchParams,
+  janelasCriteriaToQuery,
+  janelasCriteriaToSearchParams,
   searchParamsToCriteria,
+  searchParamsToJanelasCriteria,
+  type JanelasCriteria,
   type SearchCriteria,
 } from "./search-params";
 
@@ -63,5 +68,44 @@ describe("search-params", () => {
     const params = criteriaToSearchParams(baseCriteria);
     expect(buildSearchPageHref(params)).toBe(`/buscar?${params.toString()}`);
     expect(buildSearchPageHref(new URLSearchParams())).toBe("/buscar");
+  });
+
+  it("serializa e desserializa critérios de janelas", () => {
+    const janelasCriteria: JanelasCriteria = {
+      ...baseCriteria,
+      minDays: 5,
+      region: "europa",
+      countries: [],
+    };
+    const params = janelasCriteriaToSearchParams(janelasCriteria);
+    expect(params.get("minDays")).toBe("5");
+    expect(params.get("region")).toBe("europa");
+
+    const parsed = searchParamsToJanelasCriteria(params);
+    expect(parsed).toEqual(janelasCriteria);
+
+    const query = janelasCriteriaToQuery(janelasCriteria);
+    expect(query.minDays).toBe(5);
+    expect(query.region).toBe("europa");
+    expect(query.countries).toBeUndefined();
+  });
+
+  it("monta link de janelas com query string", () => {
+    const params = janelasCriteriaToSearchParams({
+      ...baseCriteria,
+      minDays: 3,
+    });
+    expect(buildJanelasPageHref(params)).toBe(`/janelas?${params.toString()}`);
+    expect(buildJanelasPageHref(new URLSearchParams())).toBe("/janelas");
+  });
+
+  it("retorna null para janelas sem destino", () => {
+    const params = criteriaToSearchParams({
+      ...baseCriteria,
+      countries: [],
+      region: null,
+    });
+    params.set("minDays", "3");
+    expect(searchParamsToJanelasCriteria(params)).toBeNull();
   });
 });

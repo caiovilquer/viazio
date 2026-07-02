@@ -13,10 +13,12 @@ export function WindowCard({
   window,
   index,
   searchQuery,
+  janelasHref,
 }: {
   window: WindowSuggestion;
   index: number;
   searchQuery: string;
+  janelasHref?: string;
 }) {
   const freeDays = Math.max(0, window.totalDays - window.requiredLeaveDays);
   const valueLine =
@@ -101,7 +103,10 @@ export function WindowCard({
           size="sm"
           className="w-full gap-2 rounded-full sm:w-auto"
         >
-          <Link to={`/resultados?${searchQuery}`}>
+          <Link
+            to={`/resultados?${searchQuery}`}
+            state={janelasHref ? { returnTo: janelasHref } : undefined}
+          >
             Ver ranking desta janela
             <ArrowRight className="size-3.5" />
           </Link>
@@ -118,7 +123,10 @@ export function WindowCard({
               <Link
                 key={dest.countryCode}
                 to={`/destino/${dest.countryCode}?${searchQuery}`}
-                state={{ recommendation: dest }}
+                state={{
+                  recommendation: dest,
+                  ...(janelasHref ? { returnTo: janelasHref } : {}),
+                }}
                 className="flex shrink-0 items-center gap-2.5 rounded-xl border border-hairline bg-surface-2/40 px-3 py-2 transition-colors hover:border-foreground/15"
               >
                 <Flag code={dest.countryCode} className="h-4 w-6 shrink-0" />

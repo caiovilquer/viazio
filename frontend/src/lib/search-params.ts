@@ -1,4 +1,5 @@
 import type {
+  BestWindowsQuery,
   CriterionKey,
   OriginInput,
   ProfileKey,
@@ -156,4 +157,83 @@ export function criteriaToRequest(
     origin: criteria.origin,
     maxGroundBudgetBrl: criteria.maxGroundBudgetBrl,
   };
+}
+
+export interface JanelasCriteria extends SearchCriteria {
+  minDays: number;
+}
+
+export interface JanelasFormState {
+  from: string;
+  to: string;
+  region: Region | null;
+  countries: string[];
+  profile: ProfileKey | null;
+  customWeights: boolean;
+  weights: Record<CriterionKey, number>;
+  minDays: number;
+}
+
+/** Converte critérios da URL para o estado do formulário em `/janelas`. */
+export function janelasCriteriaToFormState(
+  criteria: JanelasCriteria,
+): JanelasFormState {
+  const base = criteriaToFormState(criteria);
+  return {
+    from: base.from,
+    to: base.to,
+    region: base.region,
+    countries: base.countries,
+    profile: base.profile,
+    customWeights: base.customWeights,
+    weights: base.weights,
+    minDays: criteria.minDays,
+  };
+}
+
+export function janelasCriteriaToSearchParams(
+  criteria: JanelasCriteria,
+): URLSearchParams {
+  const params = criteriaToSearchParams(criteria);
+  params.set("minDays", String(criteria.minDays));
+  return params;
+}
+
+export function searchParamsToJanelasCriteria(
+  params: URLSearchParams,
+): JanelasCriteria | null {
+  const base = searchParamsToCriteria(params);
+  if (!base) return null;
+  if (!base.region && base.countries.length === 0) return null;
+
+  const minDays = Number(params.get("minDays") ?? "3");
+  if (!Number.isFinite(minDays) || minDays < 1) return null;
+
+  return { ...base, minDays };
+}
+
+export function janelasCriteriaToQuery(
+  criteria: JanelasCriteria,
+): BestWindowsQuery {
+  const customWeights =
+    criteria.profile === null && Object.keys(criteria.weights).length > 0;
+
+  return {
+    from: criteria.from,
+    to: criteria.to,
+    minDays: criteria.minDays,
+    topWindows: 8,
+    destinationsPerWindow: 3,
+    region: criteria.region ?? undefined,
+    countries: criteria.region ? undefined : criteria.countries,
+    profile: customWeights ? undefined : (criteria.profile ?? undefined),
+    weights: customWeights ? criteria.weights : undefined,
+    originCountry: criteria.origin.countryCode ?? "BR",
+  };
+}
+
+/** Link para `/janelas` com os mesmos filtros da busca atual. */
+export function buildJanelasPageHref(params: URLSearchParams): string {
+  const qs = params.toString();
+  return qs ? `/janelas?${qs}` : "/janelas";
 }
